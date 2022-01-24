@@ -1,10 +1,11 @@
 $theme-colors: (
-  "primary":    #ef476f,
-  "secondary":  #118ab2,
-  "light": #fffcf9, 
+  "primary":    #1E0A3E,
+  "secondary":  #628395,
+  "success": #CCF5AC, 
+  "light": #F4D6CC, 
   "dark": #073b4c,
-  "info": #06d6a0,
-  "danger":#ffd166
+  "info": #947BD3,
+  "danger":#DB162F
 );
 
 $font-family-base: 'Raleway', sans-serif;
@@ -13,6 +14,6 @@ $font-family-base: 'Raleway', sans-serif;
   font-family: 'Caveat', 'cursive';
 }
 
-@import 'node_modules/bootstrap/scss/bootstrap.scss';
+@import "~bootstrap/scss/bootstrap";
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Lato&family=Montserrat&family=Open+Sans&family=Raleway:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,200;1,400;1,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@500&display=swap');

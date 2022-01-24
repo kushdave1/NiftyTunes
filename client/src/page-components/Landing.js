@@ -57,7 +57,7 @@ function Landing() {
                         </FloatingLabel>
                                 <Button variant="outline-success" style={{width:"30%"}}>Sign up</Button>
                         </Form>
-                            <small class="text-muted">Create a free account and tap into the next generation of NFTs.</small>
+                            <small class="text-muted">Join our mailing list to tap into the next generation of NFTs!</small>
                         </Col>
                     </Row>
                 </Container>

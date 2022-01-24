@@ -8,25 +8,30 @@ import {useNavigate} from 'react-router'
 
 import ConnectButton from './ConnectButton'
 
-function Navigation() {
+function AccountNav() {
 
     let navigate = useNavigate();
+
+    const exploreRoute = () => {
+        navigate('/marketplace');
+    }
+    
+    const createRoute = () => {
+        navigate('/createnft')
+    }
+
 
 
     return (
         <Container>
-            <Navbar fixed="top">
+            <Navbar fixed="sticky">
                 <Container>   
-                <Navbar.Brand className="text-light" href="#">NiftyTunes</Navbar.Brand>   
-                        <Navbar.Collapse className='justify-content-center'>
-                            <Nav.Link className="text-light" href="#action1">Prices</Nav.Link>
-                            <Nav.Link className="text-light" href="#action2">Learn</Nav.Link>
-                            <Nav.Link className="text-light" href="#action3">Individuals</Nav.Link>
-                            <Nav.Link className="text-light" href="#action4">Creators</Nav.Link>
-                            <Nav.Link className="text-light" href="#action5">Company</Nav.Link>
-                            </Navbar.Collapse>
+                <Navbar.Brand className="text-light" href="/">NiftyTunes</Navbar.Brand>   
                                 <Navbar.Collapse className='gap-3 justify-content-end'>
                                  
+                                        <Button variant="dark" onClick={exploreRoute}>Explore</Button>
+                                        <Button variant="dark" onClick={createRoute}>Create</Button>
+
                                         <ConnectButton />
                                 
                                 </Navbar.Collapse>
@@ -36,4 +41,4 @@ function Navigation() {
     )
 }
 
-export default Navigation
+export default AccountNav
