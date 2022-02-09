@@ -3,14 +3,17 @@ import ReactDOM from 'react-dom'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 import { BrowserRouter as Router } from 'react-router-dom'
-/*bootstrap css*/
+/* bootstrap css*/
 import './assets/sass/custom-strap.scss';
+
+/* bootstrap icons */
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* DAPP connection handler */
 import {MoralisProvider} from 'react-moralis'
 
-const _appId = 'SJ9WVE66R4kgDWIkcpGCeZz4jiKo1bgFVo0bqyVe';
-const _serverUrl = 'https://m44utfhswtk5.usemoralis.com:2053/server';
+const _appId = 'E0fhGEi52PLpDC6apDEN52dnKljh2WCoFhPD491S';
+const _serverUrl = 'https://uwwwhurxlsze.usemoralis.com:2053/server';
 
 ReactDOM.render(
   <React.StrictMode>

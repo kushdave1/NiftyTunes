@@ -9,11 +9,12 @@ import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Bg_image from '../assets/images/background1.jpg'
-
+import LandingCards from '../components/LandingCards'
 const Jumbo = styled.div `
     width:100%;
     height: 100vh;
     background-image: linear-gradient(rgba(0, 0, 0, 0.527),rgba(0, 0, 0, 0.5)) , url(${Bg_image});
+    box-shadow: inset 0 0 5px 2px #282a2d;
 `;
 const HeaderSection = styled.div `
     margin:0;
@@ -24,7 +25,7 @@ const HeaderSection = styled.div `
     transform: translateY(-40%)
 `;
 const Section = styled.div `
-   border-radius:50px;
+   background-color: #E7DCF9;
 `;
 
 function Landing() {
@@ -65,8 +66,10 @@ function Landing() {
         </Jumbo>
         
         <Section>
-            <Container>
-                <h1> Section Content</h1>
+            <Container className="p-5">
+                <Row xs={1} md={1} className="g-4">
+                    <LandingCards />
+                </Row>
             </Container>
         </Section>
 

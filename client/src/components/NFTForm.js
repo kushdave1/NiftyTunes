@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useRef, useEffect} from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -6,32 +6,63 @@ import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
 import Nav from 'react-bootstrap/Nav'
+import {useMoralis, useMoralisFile} from 'react-moralis'
 
 function NFTForm() {
 
     const [pillActive, setPillActive] = useState('videoTab');
 
+    const [file, setFile] = useState(null);
+    
+
+
+    const {error, isUploading, saveFile, moralisFile} = useMoralisFile();
+
     const handlePillClick = (value) => {
         setPillActive(value);
     }
+
+    const handleFileChange = (event) =>{
+        console.log(event.target.files);
+
+        const file = event.target.files[0];
+        setFile(file);
+
+        /*setUploadFile(file);
+
+        console.log(uploadFile); */
+    }
+
+    
+
+    const handleSaveIPFS = async (f) => {
+
+        console.log(f);
+
+        let fileIPFS = await saveFile(file.name, file, {saveIPFS: true});
+
+        console.log(fileIPFS._ipfs)
+    }
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        handleSaveIPFS(file);
+    } 
+
+    
 
 
     
 
     return (
         <Container className = "h-100">
-            <Row className = "justify-content-md-center my-5">
-            </Row>
-
-
             <Row className="p-3">
                 <Col sm={8}>
-                    <Card>
-                        <Card.Body>
-                            <Card.Title> Create NFT</Card.Title>
-                                        {/* Nav Switch */}
-                                        <Nav 
-                                            variant="pills dark justify-content-center my-5" 
+                    <Card className="shadow-lg rounded">
+                        <Card.Header>
+                              {/* Nav Switch */}
+                              <Nav 
+                                            variant="pills dark" 
                                             defaultActiveKey="videoTab"
                                             onSelect={(selectedKey) => handlePillClick(selectedKey)} >
                                         <Nav.Item>
@@ -46,15 +77,20 @@ function NFTForm() {
                                         </Nav>
                                          {/* End Nav Switch */}
 
-                                      {/* Form */
-                                        console.log(pillActive)
-                                      }
+                        </Card.Header>
+                        <Card.Body>
+                                      {/* Form */}
 
-                                      <Form>
+                                      <Form onSubmit={handleSubmit}>
                                         {(pillActive == 'videoTab') && 
                                             <Form.Group className="mb-3" controlId="formFile">
                                             <Form.Label>Upload Video File</Form.Label>
-                                            <Form.Control type="file" placeholder="Upload File" multiple/>
+                                            <Form.Control 
+                                                type="file" 
+                                                placeholder="Upload File" 
+                                                
+                                                onChange={handleFileChange}
+                                                />
                                             </Form.Group>
                                         }
 
@@ -113,7 +149,7 @@ function NFTForm() {
                                             Mint
                                         </Button>
                                      </Form>
-
+                                    
                                       {/* End Form */}
                         </Card.Body>
                     </Card>

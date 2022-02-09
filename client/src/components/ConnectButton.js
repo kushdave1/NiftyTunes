@@ -35,8 +35,8 @@ function ConnectButton() {
 
     if(isAuthenticating){
         return <Button variant="success" disabled>
-                <Spinner animation="grow" size="sm" />
-                    Connecting...
+                <Spinner animation="grow" size="sm"/>
+                    Connecting
                 </Button>
     }
 

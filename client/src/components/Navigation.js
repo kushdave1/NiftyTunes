@@ -15,18 +15,18 @@ function Navigation() {
 
     return (
         <Container>
-            <Navbar fixed="top">
+            <Navbar fixed='top'>
                 <Container>   
-                <Navbar.Brand className="text-light" href="#">NiftyTunes</Navbar.Brand>   
-                        <Navbar.Collapse className='justify-content-center'>
+                <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="#">NiftyTunes</Navbar.Brand>   
+                        <Navbar.Collapse className='ms-5'>
                             <Nav.Link className="text-light" href="#action1">Prices</Nav.Link>
                             <Nav.Link className="text-light" href="#action2">Learn</Nav.Link>
                             <Nav.Link className="text-light" href="#action3">Individuals</Nav.Link>
                             <Nav.Link className="text-light" href="#action4">Creators</Nav.Link>
                             <Nav.Link className="text-light" href="#action5">Company</Nav.Link>
                             </Navbar.Collapse>
-                                <Navbar.Collapse className='gap-3 justify-content-end'>
-                                 
+                                
+                                <Navbar.Collapse className='justify-content-end'>
                                         <ConnectButton />
                                 
                                 </Navbar.Collapse>
