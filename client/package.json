@@ -2,7 +2,6 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
@@ -12,6 +11,7 @@
     "bootstrap-icons": "^1.7.2",
     "ethers": "^5.5.3",
     "history": "^5.2.0",
+    "http-proxy-middleware": "^2.0.3",
     "moralis": "^1.1.0",
     "node-sass": "^7.0.1",
     "react": "^17.0.2",

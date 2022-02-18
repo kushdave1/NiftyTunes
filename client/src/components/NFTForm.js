@@ -18,6 +18,19 @@ function NFTForm() {
 
     const {error, isUploading, saveFile, moralisFile} = useMoralisFile();
 
+    const [data, setData] = useState([{}])
+
+    useEffect(() => {
+        fetch("/mix").then(
+            res => res.json()
+        ).then(
+            data => {
+                setData(data)
+                console.log(data)
+            }
+        )
+    }, [])
+
     const handlePillClick = (value) => {
         setPillActive(value);
     }
@@ -62,7 +75,7 @@ function NFTForm() {
                         <Card.Header>
                               {/* Nav Switch */}
                               <Nav 
-                                            variant="pills dark" 
+                                            variant="pills" 
                                             defaultActiveKey="videoTab"
                                             onSelect={(selectedKey) => handlePillClick(selectedKey)} >
                                         <Nav.Item>
