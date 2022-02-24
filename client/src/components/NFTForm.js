@@ -8,42 +8,41 @@ import Button from 'react-bootstrap/Button'
 import Nav from 'react-bootstrap/Nav'
 import {useMoralis, useMoralisFile} from 'react-moralis'
 
+import APIService from '../services/APIService'
+
 function NFTForm() {
 
     const [pillActive, setPillActive] = useState('videoTab');
-
-    const [file, setFile] = useState(null);
     
 
 
     const {error, isUploading, saveFile, moralisFile} = useMoralisFile();
 
-    const [data, setData] = useState([{}])
+    const [audioFile, setAudioFile] = useState(null);
+    const [videoFile, setVideoFile] = useState(null)
 
-    useEffect(() => {
-        fetch("/mix").then(
-            res => res.json()
-        ).then(
-            data => {
-                setData(data)
-                console.log(data)
-            }
-        )
-    }, [])
+   
 
     const handlePillClick = (value) => {
         setPillActive(value);
     }
 
-    const handleFileChange = (event) =>{
+    const handleAudioFileChange = (event) =>{
         console.log(event.target.files);
 
         const file = event.target.files[0];
-        setFile(file);
+        setAudioFile(file);
 
         /*setUploadFile(file);
 
         console.log(uploadFile); */
+    }
+
+    const handleVideoFileChange = (event) => {
+        console.log(event.target.files);
+
+        const file = event.target.files[0];
+        setVideoFile(file);
     }
 
     
@@ -52,14 +51,31 @@ function NFTForm() {
 
         console.log(f);
 
-        let fileIPFS = await saveFile(file.name, file, {saveIPFS: true});
+        let audiofileIPFS = await saveFile(audioFile.name, audioFile, {saveIPFS: true});
+        let videofileIPFS = await saveFile(videoFile.name, videoFile, {saveIPFS: true})
 
-        console.log(fileIPFS._ipfs)
+        console.log(audiofileIPFS._ipfs)
     }
+
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        handleSaveIPFS(file);
+        /*handleSaveIPFS(audioFile);*/
+
+        const data = new FormData()
+        data.append('audioFile', audioFile)
+        data.append('videoFile', videoFile)
+
+        fetch('http://localhost:5000/mix', {
+            mode: 'no-cors',
+            method: "POST",
+            body: data,
+          }).then((response) => {
+            response.json().then((res) => {
+              console.log(res);
+            });
+          });
+
     } 
 
     
@@ -69,95 +85,27 @@ function NFTForm() {
 
     return (
         <Container className = "h-100">
-            <Row className="p-3">
-                <Col sm={8}>
+            <Row className="p-2">
+                <Col lg>
                     <Card className="shadow-lg rounded">
-                        <Card.Header>
-                              {/* Nav Switch */}
-                              <Nav 
-                                            variant="pills" 
-                                            defaultActiveKey="videoTab"
-                                            onSelect={(selectedKey) => handlePillClick(selectedKey)} >
-                                        <Nav.Item>
-                                            <Nav.Link eventKey="videoTab">Video</Nav.Link>
-                                        </Nav.Item>
-                                        <Nav.Item>
-                                            <Nav.Link eventKey="musicTab">Music</Nav.Link>
-                                        </Nav.Item>
-                                        <Nav.Item>
-                                            <Nav.Link eventKey="mixedTab">Mixed</Nav.Link>
-                                        </Nav.Item>
-                                        </Nav>
-                                         {/* End Nav Switch */}
-
-                        </Card.Header>
                         <Card.Body>
                                       {/* Form */}
 
                                       <Form onSubmit={handleSubmit}>
-                                        {(pillActive == 'videoTab') && 
                                             <Form.Group className="mb-3" controlId="formFile">
                                             <Form.Label>Upload Video File</Form.Label>
                                             <Form.Control 
                                                 type="file" 
                                                 placeholder="Upload File" 
-                                                
-                                                onChange={handleFileChange}
-                                                />
-                                            </Form.Group>
-                                        }
-
-                                        {(pillActive == 'musicTab') &&
-                                             <Form.Group className="mb-3" controlId="formFile">
-                                             <Form.Label>Upload Audio File</Form.Label>
-                                             <Form.Control type="file" placeholder="Upload File" multiple/>
-                                             </Form.Group>
-                                        }
-
-                                        {(pillActive == 'mixedTab') &&
-                                            <Form.Group className="mb-3" controlId="formFile">
-                                            <Form.Label>Upload Video File</Form.Label>
-                                            <Form.Control type="file" placeholder="Upload File" multiple/>
+                                                onChange={handleVideoFileChange}
+                                            />
                                             <Form.Label>Upload Audio File</Form.Label>
-                                            <Form.Control type="file" placeholder="Upload File" multiple/>
+                                            <Form.Control 
+                                                type="file" 
+                                                placeholder="Upload File" 
+                                                onChange={handleAudioFileChange}
+                                            />
                                             </Form.Group>
-                                        }
-
-                                        <Form.Group className="mb-3" controlId="formName">
-                                        <Form.Label>Item Name</Form.Label>
-                                        <Form.Control type="input" placeholder="Enter name" />
-                                        </Form.Group>
-
-                                        <Form.Group className="mb-3" controlId="formExternalLink">
-                                        <Form.Label>External Link</Form.Label>
-                                        <Form.Control type="input" placeholder="Enter link" />
-                                        </Form.Group>
-
-                                        <Form.Group className="mb-3" controlId="exampleForm.ControlDescription">
-                                        <Form.Label>Description</Form.Label>
-                                        <Form.Control as="textarea" rows={3} />
-                                        </Form.Group>
-
-                                        <Form.Select aria-label="Default select example">
-                                            <option>Collection</option>
-                                            <option value="1">One</option>
-                                            <option value="2">Two</option>
-                                            <option value="3">Three</option>
-                                        </Form.Select>
-
-                                        <Form.Label>Supply</Form.Label>
-                                        <Form.Range />
-
-                                        <Form.Select aria-label="Default select example">
-                                            <option>BlockChain</option>
-                                            <option value="1">Ethereum</option>
-                                            <option value="2">Polygon</option>
-                                        </Form.Select>
-
-                                        <Form.Group className="mb-3" controlId="formBasicCheckbox">
-                                        <Form.Check type="checkbox" label="Freeze metadata" />
-                                        </Form.Group>
-
                                         <Button variant="primary" type="submit">
                                             Mint
                                         </Button>
