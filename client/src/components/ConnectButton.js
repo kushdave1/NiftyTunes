@@ -34,19 +34,19 @@ function ConnectButton() {
     }
 
     if(isAuthenticating){
-        return <Button variant="success" disabled>
-                <Spinner animation="grow" size="sm" />
-                    Connecting...
+        return <Button variant="primary" disabled>
+                <Spinner animation="grow" size="sm"/>
+                    Connecting
                 </Button>
     }
 
 
     return isAuthenticated?(
-                <Button variant ="outline-light" onClick={handleDisconnect}>
-                    Logout
+                <Button variant ="outline-success" onClick={handleDisconnect}>
+                    Authenticated
                 </Button>
     ) : (
-        <Button variant="success" onClick={handleConnect}>Authenticate via MetaMask</Button>
+        <Button variant="primary" onClick={handleConnect}>Authenticate via MetaMask</Button>
     )
 }
 

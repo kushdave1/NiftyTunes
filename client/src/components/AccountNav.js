@@ -26,7 +26,7 @@ function AccountNav() {
         <Container>
             <Navbar fixed="sticky">
                 <Container>   
-                <Navbar.Brand className="text-light" href="/">NiftyTunes</Navbar.Brand>   
+                <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="/">NiftyTunes</Navbar.Brand>   
                                 <Navbar.Collapse className='gap-3 justify-content-end'>
                                  
                                         <Button variant="dark" onClick={exploreRoute}>Explore</Button>

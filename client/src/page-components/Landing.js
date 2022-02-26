@@ -9,39 +9,91 @@ import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Bg_image from '../assets/images/background1.jpg'
+import LandingCards from '../components/LandingCards'
 
-const Jumbo = styled.div `
+const Body = styled.div `
     width:100%;
     height: 100vh;
-    background-image: linear-gradient(rgba(0, 0, 0, 0.527),rgba(0, 0, 0, 0.5)) , url(${Bg_image});
+    background-color:#111111;
 `;
 const HeaderSection = styled.div `
     margin:0;
     position:absolute;
-    top:30%;
+    top:50%;
     left:10%;
-    -ms-transform: translate-Y(-40%)
-    transform: translateY(-40%)
+    -ms-transform: translate-Y(-40%);
+    transform: translateY(-40%);
 `;
+
+
 const Section = styled.div `
-   border-radius:50px;
+   
 `;
+
+const Ellipse1 = styled.div `
+    /* Ellipse 1 */
+
+
+    position: absolute;
+    width: 311.52px;
+    height: 311.52px;
+    right: 144px;
+    top: 250.15px;
+
+    /* Pink */
+
+    background: #FF3998;
+    filter: blur(100.736px);
+`;
+
+const Ellipse2 = styled.div `
+    /* Ellipse 2 */
+
+
+    position: absolute;
+    width: 216.65px;
+    height: 216.65px;
+    right: 281.35px;
+    top: 415.21px;
+
+    /* Orange */
+
+    background: #FCA17D;
+    filter: blur(100.736px);
+`;
+
+const VideoContainer = styled.div `
+    /* Example Video */
+    position: absolute;
+    right: 150px;
+    top: 300px;
+    
+    overflow:hidden;
+`;
+
+
 
 function Landing() {
     return (
     <React.Fragment>
         <Navigation />
         
-        <Jumbo>
+        <Body>
             <HeaderSection>
                 <Container fluid='md' className='align-middle'>
                     <Row className="align-items-center">
                         <Col>
-                            <h1 className="text-light display-3"> Collect, mix, and sell spectacular NFTs</h1>
-                            <h4 class="text-muted">NiftyTunes is the world's first and only audio-visual NFT builder and marketplace</h4>
+                            <small className = 'text-primary' style={{fontWeight:"700"}}>Launching Soon</small>
+                            <h1 className="text-light display-3"> Build Value Through Experiences, Not Hype.</h1>
+                            <h5 className="text-muted">Dont miss out on the launch of our new NFT platform and marketplace. Join our mailing list and tap into the largest community of professionally made audio and visual NFTs!</h5>
                         </Col>
-                        <Col sm={4}>
-                        <Form className="d-flex gap-2">
+                        <Col>
+                        
+                        </Col>
+                    </Row>
+
+                    <Col xs={6}>
+                    <Form className="mt-3 d-flex gap-2">
                         <FloatingLabel
                             controlId="floatingInput"
                             label="alan@turing.com"
@@ -55,20 +107,39 @@ function Landing() {
                                 aria-label="email-input"
                                 style={{width:"100%"}}/>
                         </FloatingLabel>
-                                <Button variant="outline-success" style={{width:"30%"}}>Sign up</Button>
+                                <Button variant="secondary" size="md" style={{width:"30%"}}>Sign up</Button>
                         </Form>
-                            <small class="text-muted">Join our mailing list to tap into the next generation of NFTs!</small>
-                        </Col>
-                    </Row>
+                            
+                    </Col>
+
                 </Container>
             </HeaderSection>
-        </Jumbo>
-        
-        <Section>
-            <Container>
-                <h1> Section Content</h1>
+
+            {/*
+            <Section>
+            <Container className="p-5">
+                <Row xs={1} md={1} className="g-4">
+                    <LandingCards />
+                </Row>
             </Container>
-        </Section>
+            </Section> */}
+
+                        
+            <Ellipse1 />
+            <Ellipse2 />
+            <VideoContainer>
+                    <video
+                       className="rounded"
+                       controls
+                       width="400"
+                       src="../assets/videos/RPReplay_Final1643433712.mov">
+                    </video>
+            </VideoContainer>
+
+        </Body>
+        
+        
+       
 
     </React.Fragment>
         

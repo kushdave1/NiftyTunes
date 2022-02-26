@@ -9,6 +9,8 @@ import Landing from './page-components/Landing'
 import Onboard from './page-components/Onboard'
 import CreateNFT from './page-components/CreateNFT';
 import Explore from './page-components/Explore';
+
+
 function App() {
 
   /*const [data, setData] = useState([{}])*/

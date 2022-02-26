@@ -1,17 +1,24 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import Container from 'react-bootstrap/Container'
 import AccountNav from '../components/AccountNav'
 import NFTForm from '../components/NFTForm'
 
 const Background = styled.div`
-    height: 100%;
+    height: 100vh;
     width: 100%;
     background: hsla(346, 84%, 61%, 1);
-    background: linear-gradient(135deg, hsla(346, 84%, 61%, 1) 0%, hsla(21, 91%, 73%, 1) 100%);
-    background: -moz-linear-gradient(135deg, hsla(346, 84%, 61%, 1) 0%, hsla(21, 91%, 73%, 1) 100%);
-    background: -webkit-linear-gradient(135deg, hsla(346, 84%, 61%, 1) 0%, hsla(21, 91%, 73%, 1) 100%);
-    filter: progid: DXImageTransform.Microsoft.gradient( startColorstr="#EF476F", endColorstr="#F9A87B", GradientType=1 );
+    background: #111111
+`;
+
+const FormSection = styled.div `
+    margin:0;
+    position:absolute;
+    top:50%;
+    left:35%;
+    -ms-transform: translate-Y(-35%);
+    transform: translateY(-35%);
 `;
 
 function CreateNFT() {
@@ -20,7 +27,10 @@ function CreateNFT() {
     return (
         <Background>
             <AccountNav />
-            <NFTForm />
+            
+            <FormSection>
+                    <NFTForm />
+            </FormSection>
         </Background>
     )
 }
