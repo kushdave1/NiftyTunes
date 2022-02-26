@@ -62,6 +62,15 @@ const Ellipse2 = styled.div `
     filter: blur(100.736px);
 `;
 
+const VideoContainer = styled.div `
+    /* Example Video */
+    position: absolute;
+    right: 150px;
+    top: 300px;
+    
+    overflow:hidden;
+`;
+
 
 
 function Landing() {
@@ -118,6 +127,14 @@ function Landing() {
                         
             <Ellipse1 />
             <Ellipse2 />
+            <VideoContainer>
+                    <video
+                       className="rounded"
+                       controls
+                       width="400"
+                       src="../assets/videos/RPReplay_Final1643433712.mov">
+                    </video>
+            </VideoContainer>
 
         </Body>
         
