@@ -12,8 +12,8 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 /* DAPP connection handler */
 import {MoralisProvider} from 'react-moralis'
 
-const _appId = 'E0fhGEi52PLpDC6apDEN52dnKljh2WCoFhPD491S';
-const _serverUrl = 'https://uwwwhurxlsze.usemoralis.com:2053/server';
+const _appId = 'VkZ2LUG1qAZ4KbGDVE6NwmWprbS2fqOhYOJMM21n';
+const _serverUrl = 'https://kdtguhxgbh2y.usemoralis.com:2053/server';
 
 ReactDOM.render(
   <React.StrictMode>

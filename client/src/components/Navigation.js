@@ -8,6 +8,7 @@ import {useNavigate} from 'react-router'
 import styled from 'styled-components'
 
 import ConnectButton from './ConnectButton'
+import logo from '../assets/images/NT_White.png'
 
 const NavFormat = styled.div `
     font-weight : 200;
@@ -22,7 +23,9 @@ function Navigation() {
         <Container>
             <Navbar fixed='top'>
                 <Container>   
-                <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="#">NiftyTunes</Navbar.Brand> 
+                <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="#">
+                    NiftyTunes
+                    </Navbar.Brand> 
                         <NavFormat>  
                         <Navbar.Collapse className='ms-5'>
                             
