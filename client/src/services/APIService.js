@@ -2,8 +2,8 @@ import React from 'react'
 
 export default class APIService{
     
-    static MixMedia(body){
-        return fetch(`http://localhost:5000/mix`,{
+    static UploadMedia(body){
+        return fetch(`http://localhost:5000/upload`,{
             'method':'POST',
              headers : {
             'Content-Type':'application/json'

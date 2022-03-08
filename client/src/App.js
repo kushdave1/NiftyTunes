@@ -10,6 +10,7 @@ import Onboard from './page-components/Onboard'
 import CreateNFT from './page-components/CreateNFT';
 import Explore from './page-components/Explore';
 
+import APIService from './services/APIService';
 
 function App() {
 
