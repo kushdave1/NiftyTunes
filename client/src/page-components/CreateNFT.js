@@ -7,6 +7,7 @@ import NFTForm from '../components/NFTForm'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 
+import { useMoralis } from 'react-moralis'
 const Background = styled.div`
     height: 100vh;
     width: 100%;
@@ -24,7 +25,7 @@ const FormSection = styled.div `
 `;
 
 function CreateNFT() {
-    
+    const {isAuthenticated, user} = useMoralis();
 
     return (
         <Background>

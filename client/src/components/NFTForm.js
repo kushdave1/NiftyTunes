@@ -10,12 +10,15 @@ import Modal from 'react-bootstrap/Modal'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import FormGroup from 'react-bootstrap/FormGroup'
 import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
+import ProgressBar from 'react-bootstrap/ProgressBar'
+import Badge from 'react-bootstrap/Badge'
+import Stack from 'react-bootstrap/Stack'
 
 import {useDropzone} from 'react-dropzone'
 
 import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
 
-import APIService from '../services/APIService'
 
 import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
 
@@ -71,9 +74,12 @@ function NFTForm() {
     const [gif, setGif] = useState();
     const [resultFile, setResultFile] = useState();
     const [uploadedFile, setUploadedFile] = useState({});
-    const [message, setMessage] = useState('');
-    const [isMixing, setIsMixing] = useState(false)
-
+    const [mixMessage, setMixMessage] = useState('');
+    const [mintErrMessage, setMintErrMessage] = useState('');
+    const [isMixing, setIsMixing] = useState(false);
+    const [mintProgress, setMintProgress] = useState();
+    const [mintSuccessMsg, setMintSuccessMsg] = useState('')
+    const [mintProgressLabel, setMintProgressLabel] = useState('')
     /* form states */
     const [name, setName] = useState('');
     const [link, setLink] = useState();
@@ -89,9 +95,11 @@ function NFTForm() {
     const {error, isUploading, saveFile, moralisFile} = useMoralisFile();
     const {isAuthenticated, user} = useMoralis();
 
+    const [address, setAddress] = useState();
+
     const {lazyMint} = useRaribleLazyMint({
             chain: 'rinkeby',
-            userAddress: user.get('ethAddress'),
+            userAddress: address,
             tokenType: 'ERC1155', 
             supply: 1, 
             royaltiesAmount: 5
@@ -106,126 +114,163 @@ function NFTForm() {
     }
 
     useEffect(() => {
+        if(!user) return null;
+        setAddress(user.get('ethAddress'))
         load();
-    }, []);
+    }, [user]);
 
 
     
 
     const convertToGif = async() => {
-        //write the file to memory
+        setGif(null);
+        setMintProgress(null);
+        setMintProgressLabel('');
 
-        ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
-        ffmpeg.FS('writeFile', 'audio.wav', await fetchFile(audioFile));
+        const loadVideo = file => new Promise((resolve, reject) => {
+            try {
+                let video = document.createElement('video');
+                video.preload = 'metadata';
+        
+                video.onloadedmetadata = function () {
+                    resolve(this);
+                }
+        
+                video.onerror = function () {
+                    reject("Please select a valid video file.");
+                }
+        
+                video.src = window.URL.createObjectURL(file);
+            } catch (e) {
+                reject(e);
+            }
+        });
 
-        //run ffmpeg command
-        await ffmpeg.run('-i', 'video.mp4', '-i', 'audio.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
+        if(!videoFile || !audioFile){
+            setMixMessage('Please select an audio and video file to mix!');
+        }
+        else if(await videoFile.type.includes('image')){
+            //if input is an image
+            setMixMessage('');
+            setIsMixing(true);
 
-        //read ffmpeg output
-        const data = ffmpeg.FS('readFile', 'out.mp4')
+            console.log(videoFile.type);
+            ffmpeg.FS('writeFile', 'video.png', await fetchFile(videoFile));
+            ffmpeg.FS('writeFile', 'audio.wav', await fetchFile(audioFile));
+            
+            const audioDuration = await loadVideo(audioFile);
+            const audioDur = await audioDuration.duration;
 
-        const rf = new Blob([data.buffer], {type: 'video/mp4'});
+            await ffmpeg.run('-framerate', '1/10', '-i', 'video.png', '-c:v', 'libx264', '-t', `${audioDur}`, '-pix_fmt', 'yuv420p', '-vf', 'scale=4000:4000', 'output.mp4');
+            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
+            const data = ffmpeg.FS('readFile', 'out.mp4');
+
+            await setResultFile(data);
+
+            //create url
+            const url = URL.createObjectURL(new Blob([data.buffer], {type: 'video/mp4'}));
+            await setGif(url);
+            setIsMixing(false);
+        }
+        else if(await videoFile.type.includes('video')){
+            //if file is a video
+            setMixMessage('');
+        
+            //write the file to memory
+            setIsMixing(true);
+            ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
+            ffmpeg.FS('writeFile', 'audio.wav', await fetchFile(audioFile));
+
+            const videoDuration = await loadVideo(videoFile);
+            const audioDuration = await loadVideo(audioFile);
+
+            const videoDur = await videoDuration.duration;
+            const audioDur = await audioDuration.duration;
+
+            const mult = 1/(videoDur/audioDur);
+            
+            const setDuration = "setpts="+`${mult}`+"*PTS"
+
+            await ffmpeg.run('-i', 'video.mp4', '-filter:v', `${setDuration}`, 'output.mp4')
+
+            // //run ffmpeg command
+            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
+
+            const data = ffmpeg.FS('readFile', 'out.mp4')
 
         
-        await setResultFile(data)
 
-        //create a URL
-        const url = URL.createObjectURL(rf);
-        await setGif(url)
+            const rf = new Blob([data.buffer], {type: 'video/mp4'});
+
+        
+            await setResultFile(data)
+
+            //create a URL
+            const url = URL.createObjectURL(rf);
+            await setGif(url)
+            setIsMixing(false)
+        }
 
     }  
 
     const handleSaveIPFS = async (file) => {
-
-       //console.log(resultFile)
-
-       //const data = new FormData();
-       
-        //data.append("video", file, 'result.mp4')
-
-       /* for (var [key, value] of data.entries()) { 
-            console.log(key, value);
-           }*/
-           
-        //upload to express
         
-        /*try{
-            const res = await Axios.post('http://localhost:5000/upload', data, {
-                headers:{
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-
-            const { fileName, filePath} = res.data
-            await setUploadedFile({fileName, filePath})
-            console.log(uploadedFile);
-        } catch(err){
-            //
-        }*/
-
-
-        /*const response = await fetch('http://localhost:5000/upload', {
-            method: 'POST', 
-            body: data,
-        })
-
-        if(response){
-            console.log(response)
+        if(!name || !description){
+            setMintErrMessage('Please enter a name and description to mint.');
         }
         else{
-            console.log('file did not upload')
-        }*/
+            setMintErrMessage('');
 
-
-        
-
-        //upload to ipfs 
-
-       //const gifFile = new Moralis.File("gifFile.mp4", {base64: resultFile});
-        
-        
+        setMintProgress(10)
+        setMintProgressLabel('Saving Content to IPFS')
         const arr = new Moralis.File("video.mp4", Array.from(resultFile))
         const gifIPFS = await arr.saveIPFS();
-        
-        /* let gifIPFS = await saveFile(arr._name, arr, {
-            saveIPFS:true
-        });*/
 
-        console.log(gifIPFS)
+        if(gifIPFS){
+            setMintProgress(30)
+            setMintProgressLabel('Uploading Metadata')
+            let gifHash = gifIPFS._hash;
 
-        let gifHash = gifIPFS._hash;
-
-        console.log(gifIPFS._hash);
-        console.log(gifIPFS._ipfs);
-
-        //Create metadata with video hash & data
-        const metadata = {
-            name: name,
-            description: description,
-            image: '/ipfs/' + gifHash
-        };
-
-        console.log(metadata);
-
-        //save metadata file and upload to rarible
-        const metadataFileIPFS = await saveFile('metadata.json', {
-            base64: btoa(JSON.stringify(metadata))
-        }, {
-            saveIPFS:true, 
-            onSuccess: async (metadataFile) => {
-                console.log(metadataFile);
-                await Moralis.enableWeb3();
-                await lazyMint({
-                    params:{
-                        tokenUri: '/ipfs/' + metadataFile._hash
-                    }, 
-                    onSuccess: (res) => {
-                        console.log(res);
-                    }
-                })
-            }
-        }); 
-       
+            console.log(gifIPFS._hash);
+            console.log(gifIPFS._ipfs);
+    
+            //Create metadata with video hash & data
+            const metadata = {
+                name: name,
+                description: description,
+                image: '/ipfs/' + gifHash
+            };
+    
+            console.log(metadata);
+    
+            //save metadata file and upload to rarible
+            const metadataFileIPFS = await saveFile('metadata.json', {
+                base64: btoa(JSON.stringify(metadata))
+            }, {
+                saveIPFS:true, 
+                onSuccess: async (metadataFile) => {
+                    console.log(metadataFile);
+                    setMintProgress(60)
+                    setMintProgressLabel('Awaiting Signature')
+                    await Moralis.enableWeb3();
+                    await lazyMint({
+                        params:{
+                            tokenUri: 'ipfs://' + metadataFile._hash
+                        }, 
+                        onSuccess: (res) => {
+                            console.log(res)
+                            setMintProgress(100)
+                            setMintProgressLabel('Done!')
+                            setMintSuccessMsg(`https://rinkeby.rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
+                            setMintProgress(null)
+                            setMintProgressLabel(null)
+                        }
+                    })
+                }
+            }); 
+        }
+  //console.log(gifIPFS)
+    }
 
 
 
@@ -288,13 +333,25 @@ function NFTForm() {
                                     
                         </Card.Body>
                     </Card> 
-
+                    {mixMessage &&
+                        <Alert variant='danger'>
+                        {mixMessage}
+                      </Alert>
+                    }
+                    {isMixing &&
+                        <Stack gap={2} className="col-lg-5 mx-auto mt-5">
+                                <h4 className = 'text-light'>Crafting your NFT (This may take a moment)</h4>
+                                <Spinner as='span' animation="border" variant='light'/>
+                       </Stack>
+                        
+                    
+                    }
                     {gif && 
-                        <Modal show={show} onHide={handleClose} className="modal-fullscreen">
+                        <Modal show={show} onHide={handleClose} className="modal-fullscreen" backdrop="static" keyboard={false}>
                         
                         <Modal.Body>
                         <Row>
-                            <small className="display-5 text-center"> Preview NFT</small>
+                            <small className="display-5 text-center">Preview NFT</small>
                             <Col>
                                 <VideoContainer className="border border-primary border-5 rounded">
                                     <ReactPlayer
@@ -339,7 +396,26 @@ function NFTForm() {
                            </Form>
                            </Col>
                         </Row>
-                          
+                            {mintErrMessage &&
+                                <Alert variant='danger'>
+                                {mintErrMessage}
+                                </Alert>
+                            }
+                            {mintSuccessMsg &&
+                                <Alert variant='success'>
+                                Congrats! You're NFT has been minted. View and Sell in 
+                                <Alert.Link href={mintSuccessMsg}>Rarible</Alert.Link>
+                                </Alert>
+                            }
+                            {mintProgress && mintProgressLabel &&
+                                <Container>
+                                    <ProgressBar animated variant="primary" now={mintProgress}/>
+                                    <div class = "d-flex justify-content-center mt-2">
+                                        <Badge bg="dark">{mintProgressLabel}</Badge>
+                                    </div>
+                                </Container>
+
+                            }
                            {/*NFT metadata end */}
                         </Modal.Body>
                         <Modal.Footer>
@@ -347,7 +423,7 @@ function NFTForm() {
                             Cancel
                           </Button>
                           <Button variant="primary" onClick={handleNext}>
-                            Next
+                            Lazy Mint !
                           </Button>
                         </Modal.Footer>
                       </Modal>
@@ -357,7 +433,16 @@ function NFTForm() {
             </Container> 
     ): (
         
-        <Spinner animation="grow" size="sm" variant="primary">  </Spinner>
+        <Container fluid>
+            <Row>
+                <h4 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h4>
+            </Row>
+            <Row>
+                <Col>
+                 <Spinner as='span' animation="border" variant='primary'/>
+                </Col>
+            </Row>
+        </Container>
     
     );
 }

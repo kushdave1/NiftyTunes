@@ -14,20 +14,7 @@ import APIService from './services/APIService';
 
 function App() {
 
-  /*const [data, setData] = useState([{}])*/
-
-  /*
-  useEffect(() => {
-    fetch("/merch").then(
-      res => res.json()
-    ).then(
-      data => { 
-        setData(data)
-        console.log(data)
-      }
-    )
-  }, []) */
-
+ 
   return (
     
       <Router>
@@ -40,18 +27,6 @@ function App() {
       </Router>
     
 
-
-
-    /*
-    <div className="App">
-      {(typeof data.merch === 'undefined') ? (
-        <p>Loading...</p>
-      ) : (
-          data.merch.map((merch,i) => (
-            <p key={i}>{merch}</p>
-          ))
-      )}
-    </div> */
   );
 
 }
