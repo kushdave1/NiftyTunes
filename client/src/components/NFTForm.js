@@ -407,7 +407,9 @@ function NFTForm() {
                                         controls
                                         width="400"
                                         src={gif}
-                                        loop={true}>
+                                        loop={true}
+                                        autoPlay
+                                        muted>
                                     </video>
                                 </div>
                             </Col>

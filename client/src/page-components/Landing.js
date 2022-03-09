@@ -95,7 +95,9 @@ function Landing() {
                                             controls
                                             width="400"
                                             src={Video}
-                                            loop={true}>
+                                            loop={true}
+                                            autoPlay
+                                            muted>
                                         </video>
                                     </VideoContainer>
                             </Row>
