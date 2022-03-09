@@ -10,23 +10,26 @@ import Button from 'react-bootstrap/Button'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Bg_image from '../assets/images/background1.jpg'
 import LandingCards from '../components/LandingCards'
+import Video from "../assets/videos/landing_video.mp4";
 
 const Body = styled.div `
     width:100%;
     height: 100vh;
+    min-height:100vh;
+    max-height:100vh;
+    display:flex;
+    flex-direction:column;
     background-color:#111111;
+    overflow:auto;
 `;
 const HeaderSection = styled.div `
-    margin:0;
-    position:absolute;
-    top:50%;
-    left:10%;
-    -ms-transform: translate-Y(-40%);
-    transform: translateY(-40%);
+    display:flex;
+    flex:1;
+    overflow:hidden;
 `;
 
 
-const Section = styled.div `
+const NavigationSection = styled.div `
    
 `;
 
@@ -35,10 +38,8 @@ const Ellipse1 = styled.div `
 
 
     position: absolute;
-    width: 311.52px;
-    height: 311.52px;
-    right: 144px;
-    top: 250.15px;
+    width: 425px;
+    height: 425px;
 
     /* Pink */
 
@@ -51,11 +52,8 @@ const Ellipse2 = styled.div `
 
 
     position: absolute;
-    width: 216.65px;
-    height: 216.65px;
-    right: 281.35px;
-    top: 415.21px;
-
+    width: 450px;
+    height: 450px;
     /* Orange */
 
     background: #FCA17D;
@@ -65,81 +63,103 @@ const Ellipse2 = styled.div `
 const VideoContainer = styled.div `
     /* Example Video */
     position: absolute;
-    right: 150px;
-    top: 300px;
-    
-    overflow:hidden;
+    height:100vh;
 `;
 
 
 
 function Landing() {
+    document.body.style.overflow = "hidden";
     return (
     <React.Fragment>
-        <Navigation />
-        
         <Body>
+            <NavigationSection>
+                <Navigation />
+            </NavigationSection>
             <HeaderSection>
-                <Container fluid='md' className='align-middle'>
-                    <Row className="align-items-center">
-                        <Col>
+                <Container className='d-flex flex-column col-xl-12  px-1 py-1 align-items-stretch'>
+                    <Row className='mt-auto'>
+                        <Col md={4} xs={{ order: 'last' }}> 
+                            <Row className='mt-auto'>
+                                    <Col>
+                                        <Ellipse1 />
+                                    </Col>
+                                    <Col>
+                                        <Ellipse2 />
+                                    </Col>
+                        
+
+                                    <VideoContainer >
+                                        <video
+                                            className="rounded"
+                                            controls
+                                            width="400"
+                                            src={Video}
+                                            loop={true}>
+                                        </video>
+                                    </VideoContainer>
+                            </Row>
+                       </Col>
+                       
+                        <Col xs={6} md={8}>
+                            <Row className='mt-auto'>
                             <small className = 'text-primary' style={{fontWeight:"700"}}>Launching Soon</small>
                             <h1 className="text-light display-3"> Build Value Through Experiences, Not Hype.</h1>
-                            <h5 className="text-muted">Dont miss out on the launch of our new NFT platform and marketplace. Join our mailing list and tap into the largest community of professionally made audio and visual NFTs!</h5>
+                            <Col xs={6} md={8}>
+                                <p className="lead text-light">Powered by a community of professional artists you know and love, 
+                                                                the NiftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.
+                                                                </p>
+                            </Col>
+                            </Row>
                         </Col>
-                        <Col>
-                        
-                        </Col>
-                    </Row>
 
-                    <Col xs={6}>
-                    <Form className="mt-3 d-flex gap-2">
-                        <FloatingLabel
-                            controlId="floatingInput"
-                            label="alan@turing.com"
+                    </Row>
+                    
+                    
+                    <Row xs={12} className = 'mt-auto justify-content-between'>
+                        <Col xs={3}>
+                            <Row>
+                            <Col>
+                                    <a href="http://twitter.com/nftytunes">
+                                        <i class="bi bi-twitter" style={{fontSize: "2rem", color: "cornflowerblue"}}></i>
+                                    </a>
+                                </Col>
+                            <Col>
+                                    <a href="#">
+                                        <i class="bi bi-discord" style={{fontSize: "2rem", color: "#7289DA"}}></i>
+                                    </a>
+                                </Col>
+                            <Col>
+                                    <a href="#">
+                                        <i class="bi bi-reddit" style={{fontSize: "2rem", color: "#FF5700"}}></i>
+                                    </a>
+                                </Col>
+                            <Col>
+                                    <a href="#">
+                                        <i class="bi bi-instagram" style={{fontSize: "2rem", color: "#8a3ab9"}}></i>
+                                    </a>
+                                </Col>
                             
-                        >
-                        <Form.Control 
-                                size="lg"
-                                type="email"
-                                placeholder="alan@turing.com"
-                                
-                                aria-label="email-input"
-                                style={{width:"100%"}}/>
-                        </FloatingLabel>
-                                <Button variant="secondary" size="md" style={{width:"30%"}}>Sign up</Button>
-                        </Form>
-                            
-                    </Col>
+                            </Row>
+                            <Row>
+                            <Col xs={12}>
+                            <small className="text-light"> Don't miss out on our hard launch! Follow us on social media.</small>
+                            </Col>
+                        </Row>
+                        </Col>
+                        
+                        <Col className='border border-right-0 border-white rounded p-3' md={4}>
+                                <h4 className='text-light text-center align-middle'>Authenticate with MetaMask to get started.</h4>
+                            </Col>
+                      
+                    </Row>
 
                 </Container>
             </HeaderSection>
 
-            {/*
-            <Section>
-            <Container className="p-5">
-                <Row xs={1} md={1} className="g-4">
-                    <LandingCards />
-                </Row>
-            </Container>
-            </Section> */}
-
-                        
-            <Ellipse1 />
-            <Ellipse2 />
-            <VideoContainer>
-                    <video
-                       className="rounded"
-                       controls
-                       width="400"
-                       src="../assets/videos/RPReplay_Final1643433712.mov">
-                    </video>
-            </VideoContainer>
-
         </Body>
         
-        
-       
+    
 
     </React.Fragment>
         

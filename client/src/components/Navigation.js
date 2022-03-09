@@ -6,34 +6,39 @@ import NavDropdown from 'react-bootstrap/NavDropdown'
 import Button from 'react-bootstrap/Button'
 import {useNavigate} from 'react-router'
 import styled from 'styled-components'
+import {useMoralis} from 'react-moralis'
 
 import ConnectButton from './ConnectButton'
-import logo from '../assets/images/NT_White.png'
+import Logo from '../assets/images/NT_White_Isotype.png'
 
 const NavFormat = styled.div `
     font-weight : 200;
 `;
 
 function Navigation() {
+    const {isAuthenticated, user} = useMoralis();
 
     let navigate = useNavigate();
 
+    useEffect(() => {
+        if(!user) return null;
+    }, [user]);
 
     return (
-        <Container>
-            <Navbar fixed='top'>
+            <Navbar bg='dark'>
                 <Container>   
-                <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="#">
-                    NiftyTunes
+                <Navbar.Brand className="text-light" style={{fontSize: '40px'}} href="#">
+                    NftyTunes
                     </Navbar.Brand> 
                         <NavFormat>  
                         <Navbar.Collapse className='ms-5'>
                             
-                            <Nav.Link className="text-light" href="#action1">Prices</Nav.Link>
-                            <Nav.Link className="text-light" href="#action2">Learn</Nav.Link>
-                            <Nav.Link className="text-light" href="#action3">Individuals</Nav.Link>
-                            <Nav.Link className="text-light" href="#action4">Creators</Nav.Link>
-                            <Nav.Link className="text-light" href="#action5">Company</Nav.Link>
+                            <Nav.Link className="text-light" href="#action1" style={{fontWeight:"500"}}>MarketPlace</Nav.Link>
+                            <Nav.Link className="text-light" href="#action2" style={{fontWeight:"500"}}>Individuals</Nav.Link>
+                            <Nav.Link className="text-light" href="#action3" style={{fontWeight:"500"}}>Creators</Nav.Link>
+                            {user &&
+                            <Nav.Link className="text-primary" href="/createnft" style={{fontWeight:"500"}}>Create</Nav.Link>
+                            }
                             </Navbar.Collapse>
                             </NavFormat>
                                 
@@ -43,7 +48,6 @@ function Navigation() {
                                 </Navbar.Collapse>
                     </Container>
             </Navbar>
-        </Container>
     )
 }
 

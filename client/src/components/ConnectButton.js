@@ -42,11 +42,11 @@ function ConnectButton() {
 
 
     return isAuthenticated?(
-                <Button variant ="outline-success" onClick={handleDisconnect}>
+                <Button variant ="success" onClick={handleDisconnect}>
                     Authenticated
                 </Button>
     ) : (
-        <Button variant="primary" onClick={handleConnect}>Authenticate via MetaMask</Button>
+        <Button variant="outline-primary" onClick={handleConnect}>Authenticate via MetaMask</Button>
     )
 }
 

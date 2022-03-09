@@ -12,16 +12,13 @@ const Background = styled.div`
     height: 100vh;
     width: 100%;
     background: hsla(346, 84%, 61%, 1);
-    background: #111111
+    background: #111111;
+    overflow:hidden;
 `;
 
 const FormSection = styled.div `
-    margin:0;
-    position:absolute;
-    top:50%;
-    left:25%;
-    -ms-transform: translate-Y(-35%);
-    transform: translateY(-35%);
+    position: relative;
+    top:5%;
 `;
 
 function CreateNFT() {
@@ -30,14 +27,9 @@ function CreateNFT() {
     return (
         <Background>
             <AccountNav />
-            
-            <FormSection>
-                <Row>
-                    <Col>
+                    <FormSection className="d-flex justify-content-center">
                         <NFTForm />
-                    </Col>
-                </Row>
-            </FormSection>
+                    </FormSection>
         </Background>
     )
 }
