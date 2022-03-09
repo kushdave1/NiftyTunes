@@ -1,11 +1,10 @@
-import React, {useState, useRef, useEffect} from 'react'
+import React, {useState, useEffect} from 'react'
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Nav from 'react-bootstrap/Nav'
 import Modal from 'react-bootstrap/Modal'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import FormGroup from 'react-bootstrap/FormGroup'
@@ -26,8 +25,6 @@ import styled from 'styled-components'
 
 import ReactPlayer from 'react-player'
 import Moralis from 'moralis'
-
-import Axios from 'axios'
 
 const ffmpeg = createFFmpeg({log: true});
 
@@ -60,12 +57,13 @@ const VideoContainer = styled(Container)`
     display: flex;
     justify-content: center;
     width:100%;
-    background-color: #bdbdbd;
+    background-color: #000000;
 `;
 
 
 
 function NFTForm() {
+    document.body.style.overflow = "hidden";
 
     /*file states*/
     const [audioFile, setAudioFile] = useState();
@@ -73,7 +71,6 @@ function NFTForm() {
     const [ready, setReady] = useState(false);
     const [gif, setGif] = useState();
     const [resultFile, setResultFile] = useState();
-    const [uploadedFile, setUploadedFile] = useState({});
     const [mixMessage, setMixMessage] = useState('');
     const [mintErrMessage, setMintErrMessage] = useState('');
     const [isMixing, setIsMixing] = useState(false);
@@ -82,7 +79,6 @@ function NFTForm() {
     const [mintProgressLabel, setMintProgressLabel] = useState('')
     /* form states */
     const [name, setName] = useState('');
-    const [link, setLink] = useState();
     const [description, setDescription] = useState('');
     const [supply, setSupply] = useState();
     const [blockchain, setBlockchain] = useState();
@@ -98,9 +94,9 @@ function NFTForm() {
     const [address, setAddress] = useState();
 
     const {lazyMint} = useRaribleLazyMint({
-            chain: 'rinkeby',
+            chain: 'eth',
             userAddress: address,
-            tokenType: 'ERC1155', 
+            tokenType: 'ERC721', 
             supply: 1, 
             royaltiesAmount: 5
      });
@@ -160,9 +156,13 @@ function NFTForm() {
             
             const audioDuration = await loadVideo(audioFile);
             const audioDur = await audioDuration.duration;
+            const audioDurSecond = audioDur-0.25;
+            const fadeIn = "afade=t=in:st=0:d=0.25,afade=t=out:st="+`${audioDurSecond}`+":d=0.25";
+
+            await ffmpeg.run('-i', 'audio.wav', '-af', `${fadeIn}`, 'audio1.wav')
 
             await ffmpeg.run('-framerate', '1/10', '-i', 'video.png', '-c:v', 'libx264', '-t', `${audioDur}`, '-pix_fmt', 'yuv420p', '-vf', 'scale=4000:4000', 'output.mp4');
-            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
+            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio1.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
             const data = ffmpeg.FS('readFile', 'out.mp4');
 
             await setResultFile(data);
@@ -187,14 +187,20 @@ function NFTForm() {
             const videoDur = await videoDuration.duration;
             const audioDur = await audioDuration.duration;
 
+            const audioDurSecond = audioDur-0.25;
+
             const mult = 1/(videoDur/audioDur);
             
             const setDuration = "setpts="+`${mult}`+"*PTS"
 
             await ffmpeg.run('-i', 'video.mp4', '-filter:v', `${setDuration}`, 'output.mp4')
 
+            const fadeIn = "afade=t=in:st=0:d=0.25,afade=t=out:st="+`${audioDurSecond}`+":d=0.25";
+
+            await ffmpeg.run('-i', 'audio.wav', '-af', `${fadeIn}`, 'audio1.wav')
+
             // //run ffmpeg command
-            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
+            await ffmpeg.run('-i', 'output.mp4', '-i', 'audio1.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
 
             const data = ffmpeg.FS('readFile', 'out.mp4')
 
@@ -211,7 +217,7 @@ function NFTForm() {
             setIsMixing(false)
         }
 
-    }  
+    }
 
     const handleSaveIPFS = async (file) => {
         
@@ -261,7 +267,7 @@ function NFTForm() {
                             console.log(res)
                             setMintProgress(100)
                             setMintProgressLabel('Done!')
-                            setMintSuccessMsg(`https://rinkeby.rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
+                            setMintSuccessMsg(`https://rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
                             setMintProgress(null)
                             setMintProgressLabel(null)
                         }
@@ -296,78 +302,134 @@ function NFTForm() {
 
     return ready?(
 
-      <Container className = "h-100">
+      <Container>
             <Row>
+                    <div className='d-flex justify-content-center'>
+                    <Card className="shadow-lg" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
+                        <Card.Body className ="p-5">
+                            <h2 class="fw-bold mb-0">Create an original NFT</h2>
+                            <small class="mb-5 fw-bold text-primary">in 3 easy steps</small>
+                                      <Form onSubmit={handleMix} className='my-5'>
+                                      <Stack gap={4}>
+                                        <Row>
+                                            <Col xs={1}>
+                                                <i class="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
+                                            </Col>
+                                            <Col className="align-self-center">
+                                                <div>
+                                                 <h4 className="text-start fw-bold mb-0">Upload your tripiest <span class="text-primary">visual</span></h4>
+                                                 <small className='text-muted'>Any video or image file works!</small>
+                                                </div>
+                                            </Col>
+                                            <Col xs={6}>
+                                                 <FormGroup controlId = "uploadVideoFile">
+                                                    <Form.Control 
+                                                         type="file" 
+                                                         placeholder="Upload File" 
+                                                         onChange={(e) => setVideoFile(e.target.files?.item(0))}
+                                                     />
+                                                </FormGroup>
+                                            </Col>
+                                            </Row>
+                                        
+                                        
 
-            </Row>
-            <Row className="p-2">
-                <Col lg>
-                    <Card className="shadow-lg rounded">
-                       
-                        <Card.Body>
-
-                                      <Form onSubmit={handleMix}>
-                                      <Row className="mb-3">
-                                        <FormGroup as= {Col} controlId = "uploadVideoFile">
-                                        <Form.Label>Upload Video File</Form.Label>
-                                            <Form.Control 
-                                                type="file" 
-                                                placeholder="Upload File" 
-                                                onChange={(e) => setVideoFile(e.target.files?.item(0))}
-                                            />
-                                        </FormGroup>
-                                        <FormGroup as={Col} controlId = "uploadAudioFile">
-                                            <Form.Label>Upload Audio File</Form.Label>
-                                            <Form.Control 
-                                                type="file" 
-                                                placeholder="Upload File" 
-                                                onChange={(e) => setAudioFile(e.target.files?.item(0))}
-                                            />
-                                         </FormGroup>
+                                        <Row>
+                                            <Col xs={1}>
+                                                <i class="bi bi-boombox" style={{fontSize: "2rem", color: "#FCA17D"}}></i>
+                                            </Col>
+                                            <Col className="align-self-center">
+                                                <div>
+                                                    <h4 className="text-start fw-bold mb-0">Upload an absolute <span class="text-secondary">chune</span></h4>
+                                                    <small className='text-muted'>Make sure you own this shit...</small>
+                                                </div>
+                                            </Col>
+                                            <Col xs={6}>
+                                                <FormGroup controlId = "uploadAudioFile">
+                                                    <Form.Control 
+                                                        type="file" 
+                                                        placeholder="Upload File" 
+                                                        onChange={(e) => setAudioFile(e.target.files?.item(0))}
+                                                    />
+                                                </FormGroup>
+                                            </Col>
                                         </Row>
-                                            <Button variant="primary" type="submit">
-                                                Mix
-                                            </Button>
+
+                                        <Row>
+                                            <Col xs={1}>
+                                                <i class="bi bi-stars" style={{fontSize: "2rem", color: "#39FFA0"}}></i>
+                                            </Col>
+                                            <Col className="align-self-center">
+                                                <div>
+                                                    <h4 className="text-start fw-bold mb-0">Create something <span className='text-success'>unique</span></h4>
+                                                    <small className='text-muted'>View and mint your new NFT on Rarible. No gas fees! Lucky You.</small>
+                                                </div>
+                                            </Col>
+                                            <Col xs={6}>
+                                                <Button className='mb-2 w-100' size='lg' variant="outline-success" type="submit">
+                                                    Mix Your Tune
+                                                </Button>
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                        {mixMessage &&
+                                            <Alert variant='danger'>
+                                                <i class="bi bi-radioactive"></i>
+                                                {'  '}{mixMessage}    
+                                             </Alert>
+                                        }
+                                         {isMixing &&
+                                             <Alert variant='dark'>
+                                                <i class="bi bi-bag-check-fill"></i>
+                                                {'  '}<strong> Hang Tight</strong>, we're building the NFT as we speak 
+                                               {'   '} <Spinner as='span' size='sm' animation="border" variant='dark'/>
+                                            </Alert>
+                                        }
+                                        </Row>
+                                        </Stack>
+                                        
                                      </Form>
-                                    
                                     
                         </Card.Body>
                     </Card> 
-                    {mixMessage &&
-                        <Alert variant='danger'>
-                        {mixMessage}
-                      </Alert>
-                    }
-                    {isMixing &&
-                        <Stack gap={2} className="col-lg-5 mx-auto mt-5">
-                                <h4 className = 'text-light'>Crafting your NFT (This may take a moment)</h4>
-                                <Spinner as='span' animation="border" variant='light'/>
-                       </Stack>
-                        
+                </div>
                     
-                    }
                     {gif && 
-                        <Modal show={show} onHide={handleClose} className="modal-fullscreen" backdrop="static" keyboard={false}>
-                        
+                        <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" keyboard={false} >
                         <Modal.Body>
-                        <Row>
-                            <small className="display-5 text-center">Preview NFT</small>
+
+                        <h2 className='text-start fw-bold py-3 mb-3'>Done, let's take a look!</h2>
+                        <Row className='mb-3'>
                             <Col>
-                                <VideoContainer className="border border-primary border-5 rounded">
-                                    <ReactPlayer
+                                <div className='d-flex justify-content-center'>
+                                     <video
+                                        className="rounded shadow mb-5"
                                         controls
-                                        url={gif}
-                                        height='400px'
-                                        style={{width:'100%'}}
-                                        muted={true}
-                                        loop={true}
-                                        playing={true}>
-                                    </ReactPlayer>
-                                </VideoContainer>
+                                        width="400"
+                                        src={gif}
+                                        loop={true}>
+                                    </video>
+                                </div>
                             </Col>
+                            <div className='d-flex justify-content-center mt-0'>
+                                <small className='text-muted'>Make sure to turn the sound all the way up!</small>
+                            </div>
+                        </Row>
+                        <Row className='mb-5'>
+                            <Col>
+                            <div className='d-flex justify-content-center mb-5 '>
+                                <Button variant="dark" className = 'w-75' onClick={handleClose}>
+                                    Meh, lemme try that again
+                                </Button>
+                            </div>
+                            </Col>
+
+                            <div className='d-flex justify-content-center'>
+                                <small className='fw-bold'>Or</small>
+                            </div>
                         </Row>
                         <Row>
-                            <small className="display-5 text-center"> Add metadata</small>
+                            <h2 className='text-start fw-bold py-3 mb-3'>Glad you like it! Let's add some details. </h2>
                             <Col>
                              {/* NFT metadata */}
                            <Form>
@@ -375,36 +437,47 @@ function NFTForm() {
                             <Form.Group className="mb-3" controlId="nft.Name">
                                 <FloatingLabel
                                     controlId="floatingInput"
-                                    label="NFT Name"
+                                    label="Name your masterpiece"
                                     className="mb-3"
                                 >
                                 <Form.Control 
                                     type="input"
+                                    placeholder= 'Name your masterpiece'
                                     onChange={e => setName(e.target.value)}/>
                                 </FloatingLabel>
                             </Form.Group>
 
                              {/* Description */}
                             <Form.Group className="mb-3" controlId="nft.Desc">
-                                 <FloatingLabel controlId="floatingInput" label="NFT Description">
+                                 <FloatingLabel controlId="floatingInput" label="Give it a description">
                                     <Form.Control 
                                         as="textarea" 
-                                        rows={3}
+                                        placeholder='Give it a description'
+                                        rows={5}
                                         onChange={e => setDescription(e.target.value)}/>
                                 </FloatingLabel>
                             </Form.Group>
                            </Form>
                            </Col>
                         </Row>
+                        <Row>
+                            <div className='d-flex justify-content-center mt-1 mb-5'>
+                                <Button variant="outline-primary" className = 'w-75' onClick={handleNext}>
+                                    Let's mint!
+                                </Button>
+                            </div>
+                        </Row>
                             {mintErrMessage &&
-                                <Alert variant='danger'>
-                                {mintErrMessage}
-                                </Alert>
+                                 <Alert variant='danger'>
+                                 <i class="bi bi-radioactive"></i>
+                                 {'  '}{mintErrMessage}    
+                              </Alert>
                             }
                             {mintSuccessMsg &&
                                 <Alert variant='success'>
-                                Congrats! You're NFT has been minted. View and Sell in 
-                                <Alert.Link href={mintSuccessMsg}>Rarible</Alert.Link>
+                                <i class="bi bi-check-circle-fill"></i>
+                               {' '} Congrats! Your NFT has been minted. View and Sell in 
+                                <Alert.Link href={mintSuccessMsg}> Rarible</Alert.Link>
                                 </Alert>
                             }
                             {mintProgress && mintProgressLabel &&
@@ -418,29 +491,22 @@ function NFTForm() {
                             }
                            {/*NFT metadata end */}
                         </Modal.Body>
-                        <Modal.Footer>
-                          <Button variant="secondary" onClick={handleClose}>
-                            Cancel
-                          </Button>
-                          <Button variant="primary" onClick={handleNext}>
-                            Lazy Mint !
-                          </Button>
-                        </Modal.Footer>
                       </Modal>
                     }
-            </Col>
             </Row>
             </Container> 
     ): (
-        
+         
         <Container fluid>
             <Row>
-                <h4 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h4>
+                <div className='d-flex justify-content-center'>
+                    <h4 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h4>
+                </div>
             </Row>
             <Row>
-                <Col>
+                <div className='d-flex justify-content-center'>
                  <Spinner as='span' animation="border" variant='primary'/>
-                </Col>
+                </div>
             </Row>
         </Container>
     
