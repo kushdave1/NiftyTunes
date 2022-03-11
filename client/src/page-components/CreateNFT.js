@@ -2,35 +2,43 @@ import React, {useState} from 'react'
 import styled from 'styled-components'
 
 import Container from 'react-bootstrap/Container'
-import AccountNav from '../components/AccountNav'
+import Navigation from '../components/Navigation'
 import NFTForm from '../components/NFTForm'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 
 import { useMoralis } from 'react-moralis'
-const Background = styled.div`
+const Body = styled.div `
+    width:100%;
     height: 100vh;
-    width: 100%;
-    background: hsla(346, 84%, 61%, 1);
-    background: #111111;
-    overflow:hidden;
+    min-height:100vh;
+    max-height:100vh;
+    display:flex;
+    flex-direction:column;
+    background-color:#111111;
+    overflow:auto;
+`;
+const NavigationSection = styled.div`
+
 `;
 
 const FormSection = styled.div `
-    position: relative;
-    top:5%;
+    flex:1;
+    overflow:hidden;
 `;
 
 function CreateNFT() {
     const {isAuthenticated, user} = useMoralis();
 
     return (
-        <Background>
-            <AccountNav />
+        <Body>
+             <NavigationSection>
+                <Navigation />
+            </NavigationSection>
                     <FormSection className="d-flex justify-content-center">
                         <NFTForm />
                     </FormSection>
-        </Background>
+        </Body>
     )
 }
 

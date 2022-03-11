@@ -27,17 +27,16 @@ function Navigation() {
     return (
             <Navbar bg='dark'>
                 <Container>   
-                <Navbar.Brand className="text-light" style={{fontSize: '40px'}} href="#">
+                <Navbar.Brand className="text-light" style={{fontSize: '40px'}} href="#" onClick={()=> navigate('/')}>
                     NftyTunes
                     </Navbar.Brand> 
                         <NavFormat>  
                         <Navbar.Collapse className='ms-5'>
-                            
-                            <Nav.Link className="text-light" href="#action1" style={{fontWeight:"500"}}>MarketPlace</Nav.Link>
                             <Nav.Link className="text-light" href="#action2" style={{fontWeight:"500"}}>Individuals</Nav.Link>
                             <Nav.Link className="text-light" href="#action3" style={{fontWeight:"500"}}>Creators</Nav.Link>
+                            <Nav.Link className="text-secondary" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
                             {user &&
-                            <Nav.Link className="text-primary" href="/createnft" style={{fontWeight:"500"}}>Create</Nav.Link>
+                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>Create</Nav.Link>
                             }
                             </Navbar.Collapse>
                             </NavFormat>

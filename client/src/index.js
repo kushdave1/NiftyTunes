@@ -6,6 +6,9 @@ import { BrowserRouter as Router } from 'react-router-dom'
 /* bootstrap css*/
 import './assets/sass/custom-strap.scss';
 
+/* animate css */
+import 'animate.css';
+
 /* bootstrap icons */
 import "bootstrap-icons/font/bootstrap-icons.css";
 

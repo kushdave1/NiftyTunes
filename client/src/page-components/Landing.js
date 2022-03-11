@@ -91,11 +91,13 @@ function Landing() {
 
                                     <VideoContainer >
                                         <video
-                                            className="rounded"
+                                            className="rounded animate__animated animate__fadeIn animate__delay-4s"
                                             controls
                                             width="400"
                                             src={Video}
-                                            loop={true}>
+                                            loop={true}
+                                            autoPlay
+                                            muted>
                                         </video>
                                     </VideoContainer>
                             </Row>
@@ -103,10 +105,12 @@ function Landing() {
                        
                         <Col xs={6} md={8}>
                             <Row className='mt-auto'>
-                            <small className = 'text-primary' style={{fontWeight:"700"}}>Launching Soon</small>
-                            <h1 className="text-light display-3"> Build Value Through Experiences, Not Hype.</h1>
+                            <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small>
+                            <h1 className="text-light display-3"> 
+                                <span className = "animate__animated animate__fadeIn animate__delay-1s">Build Value Through Experiences,</span> 
+                                <span className = "animate__animated animate__fadeIn animate__delay-2s">{' '}Not Hype.</span></h1>
                             <Col xs={6} md={8}>
-                                <p className="lead text-light">Powered by a community of professional artists you know and love, 
+                                <p className="lead text-light animate__animated animate__fadeInLeft animate__delay-4s">Powered by a community of professional artists you know and love, 
                                                                 the NiftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.
                                                                 </p>
                             </Col>
@@ -116,7 +120,7 @@ function Landing() {
                     </Row>
                     
                     
-                    <Row xs={12} className = 'mt-auto justify-content-between'>
+                    <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-4s'>
                         <Col xs={3}>
                             <Row>
                             <Col>
@@ -149,7 +153,7 @@ function Landing() {
                         </Col>
                         
                         <Col className='border border-right-0 border-white rounded p-3' md={4}>
-                                <h4 className='text-light text-center align-middle'>Authenticate with MetaMask to get started.</h4>
+                                <h4 className='text-light text-center align-middle'>Authenticate with MetaMask to get started!</h4>
                             </Col>
                       
                     </Row>
