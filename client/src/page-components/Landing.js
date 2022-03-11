@@ -111,7 +111,7 @@ function Landing() {
                                 <span className = "animate__animated animate__fadeIn animate__delay-2s">{' '}Not Hype.</span></h1>
                             <Col xs={6} md={8}>
                                 <p className="lead text-light animate__animated animate__fadeInLeft animate__delay-4s">Powered by a community of professional artists you know and love, 
-                                                                the NiftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.
+                                                                the NftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.
                                                                 </p>
                             </Col>
                             </Row>
