@@ -13,6 +13,7 @@ import Alert from 'react-bootstrap/Alert'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
+import InputGroup from 'react-bootstrap/InputGroup'
 
 import {useDropzone} from 'react-dropzone'
 
@@ -65,6 +66,7 @@ const VideoContainer = styled(Container)`
 function NFTForm() {
     document.body.style.overflow = "hidden";
 
+
     /*file states*/
     const [audioFile, setAudioFile] = useState();
     const [videoFile, setVideoFile] = useState()    
@@ -80,7 +82,8 @@ function NFTForm() {
     /* form states */
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
-    const [supply, setSupply] = useState();
+    const [royalties, setRoyalties] = useState('');
+    const [supply, setSupply] = useState(1);
     const [blockchain, setBlockchain] = useState();
 
     /* modal state */
@@ -93,12 +96,14 @@ function NFTForm() {
 
     const [address, setAddress] = useState();
 
+
+
     const {lazyMint} = useRaribleLazyMint({
             chain: 'eth',
             userAddress: address,
             tokenType: 'ERC721', 
-            supply: 1, 
-            royaltiesAmount: 5
+            supply: 1, //parseInt(supply) 
+            royaltiesAmount: parseInt(royalties)
      });
 
 
@@ -110,7 +115,7 @@ function NFTForm() {
     }
 
     useEffect(() => {
-        if(!user) return null;
+        if(!user) return null
         setAddress(user.get('ethAddress'))
         load();
     }, [user]);
@@ -219,11 +224,27 @@ function NFTForm() {
 
     }
 
+    function handleIncreaseSupply(){
+        setSupply(parseInt(supply) + 1);
+    }
+
+    function handleDecreaseSupply(){
+        if(parseInt(supply) > 1){
+            setSupply(parseInt(supply) - 1);
+        }
+    }
+
     const handleSaveIPFS = async (file) => {
         
         if(!name || !description){
             setMintErrMessage('Please enter a name and description to mint.');
         }
+        else if(isNaN(parseInt(royalties)) || parseInt(royalties) % 1 != 0){
+            setMintErrMessage('Royalty amount must be an integer.')
+        }
+        /*else if(isNaN(parseInt(supply)) || supply % 1 != 0){
+            setMintErrMessage('Supply amount must be an integer.')
+        }*/
         else{
             setMintErrMessage('');
 
@@ -305,7 +326,7 @@ function NFTForm() {
       <Container>
             <Row>
                     <div className='d-flex justify-content-center'>
-                    <Card className="shadow-lg" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
+                    <Card className="shadow-lg animate__animated animate__fadeInUp" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
                         <Card.Body className ="p-5">
                             <h2 class="fw-bold mb-0">Create an original NFT</h2>
                             <small class="mb-5 fw-bold text-primary">in 3 easy steps</small>
@@ -317,7 +338,7 @@ function NFTForm() {
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>
-                                                 <h4 className="text-start fw-bold mb-0">Upload your tripiest <span class="text-primary">visual</span></h4>
+                                                 <h4 className="text-start fw-bold mb-0">Upload your trippiest <span class="text-primary">visual</span></h4>
                                                  <small className='text-muted'>Any video or image file works!</small>
                                                 </div>
                                             </Col>
@@ -341,7 +362,7 @@ function NFTForm() {
                                             <Col className="align-self-center">
                                                 <div>
                                                     <h4 className="text-start fw-bold mb-0">Upload an absolute <span class="text-secondary">chune</span></h4>
-                                                    <small className='text-muted'>Make sure you own this shit...</small>
+                                                    <small className='text-muted'>We'll merge and loop this over your file.</small>
                                                 </div>
                                             </Col>
                                             <Col xs={6}>
@@ -407,7 +428,9 @@ function NFTForm() {
                                         controls
                                         width="400"
                                         src={gif}
-                                        loop={true}>
+                                        loop={true}
+                                        autoPlay
+                                        muted>
                                     </video>
                                 </div>
                             </Col>
@@ -419,17 +442,13 @@ function NFTForm() {
                             <Col>
                             <div className='d-flex justify-content-center mb-5 '>
                                 <Button variant="dark" className = 'w-75' onClick={handleClose}>
-                                    Meh, lemme try that again
+                                    Meh, let me try that again
                                 </Button>
                             </div>
                             </Col>
-
-                            <div className='d-flex justify-content-center'>
-                                <small className='fw-bold'>Or</small>
-                            </div>
                         </Row>
                         <Row>
-                            <h2 className='text-start fw-bold py-3 mb-3'>Glad you like it! Let's add some details. </h2>
+                            <h2 className='text-start fw-bold py-3 mb-3'>Ready to mint? Let's add some details. </h2>
                             <Col>
                              {/* NFT metadata */}
                            <Form>
@@ -457,6 +476,39 @@ function NFTForm() {
                                         onChange={e => setDescription(e.target.value)}/>
                                 </FloatingLabel>
                             </Form.Group>
+                           <InputGroup className="mb-3 justify-content-center">
+                                    <FloatingLabel controlId="floatingInput" label="Set your royalty scheme">
+                                        <Form.Control 
+                                             as="input" 
+                                             placeholder="Set your royalty percentage"
+                                             aria-label="Dollar amount (with dot and 1 decimal places)" 
+                                             onChange={e => setRoyalties(e.target.value)}/>
+                                    </FloatingLabel>
+                                    
+                                    <Button variant="outline-secondary" disabled><i class="bi bi-percent"></i>
+                                        </Button>
+                                 </InputGroup>
+            
+                            {/*
+                            <InputGroup className="mb-3 justify-content-center">
+                                    <FloatingLabel controlId="floatingInput" label="How many?">
+                                        <Form.Control 
+                                             as="input" 
+                                             placeholder="Set your supply percentage"
+                                             aria-label="integer for supply" 
+                                             value = {parseInt(supply)}
+                                             onChange={e => setSupply(e.target.value)}/>
+                                    </FloatingLabel>
+                                    <Button variant="outline-secondary"
+                                            onClick={handleDecreaseSupply}
+                                            >
+                                            <i class="bi bi-dash-circle-fill"></i>
+                                        </Button>
+                                    <Button variant="outline-secondary"
+                                            onClick={handleIncreaseSupply}
+                                            ><i class="bi bi-plus-circle-fill"></i>
+                                        </Button>
+                            </InputGroup>*/}
                            </Form>
                            </Col>
                         </Row>
@@ -498,9 +550,14 @@ function NFTForm() {
     ): (
          
         <Container fluid>
-            <Row>
+            <Row className = 'mt-5'>
                 <div className='d-flex justify-content-center'>
-                    <h4 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h4>
+                    <h1 className = 'text-primary animate__animated animate__bounce animate__infinite infinite' style={{ fontFamily:"Pixeboy"}}>NiftyTunes</h1>
+                </div>
+            </Row>
+            <Row className = 'mt-5'>
+                <div className='d-flex justify-content-center'>
+                    <h6 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h6>
                 </div>
             </Row>
             <Row>
