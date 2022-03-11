@@ -37,7 +37,7 @@ function Explore() {
                 <Container fluid='md' className='align-middle'>
                     <Row className="align-items-center">
                         <Col>
-                            <h1 className="text-light display-3"> NiftyTunes Marketplace Coming Soon</h1>
+                            <h1 className="text-light display-3"> NftyTunes Marketplace Coming Soon</h1>
                             <h5 className="text-light">In the meantime check out our NFT builder to create and view NFTs on Rarible!</h5>
                         </Col>
                         <Col>
