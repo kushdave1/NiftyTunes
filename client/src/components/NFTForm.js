@@ -1,4 +1,8 @@
+//React
 import React, {useState, useEffect} from 'react'
+import styled from 'styled-components'
+
+//Bootstrap
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
@@ -15,62 +19,22 @@ import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
 
-import {useDropzone} from 'react-dropzone'
-
+//APIs
 import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
-
-
 import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
-
-import styled from 'styled-components'
-
-import ReactPlayer from 'react-player'
 import Moralis from 'moralis'
 
-const ffmpeg = createFFmpeg({log: true});
-
-const getColor = (props)=> {
-    if (props.isDragAccept) {
-        return '#00e676';
-    }
-    if (props.isDragReject) {
-        return '#ff1744';
-    }
-    return '#eeeeee';
-}
-
-const FileZone = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20px;
-  border-width: 2px;
-  border-radius: 2px;
-  border-style: dashed;
-  background-color: ${props => getColor(props)};
-  color: #bdbdbd;
-  outline: none;
-  transition: border .24s ease-in-out;
-`;
-
-const VideoContainer = styled(Container)`
-    display: flex;
-    justify-content: center;
-    width:100%;
-    background-color: #000000;
-`;
 
 
-
-function NFTForm() {
+function NFTForm (props) {
     document.body.style.overflow = "hidden";
 
+    let ffmpeg = props.ffmpeg;
+    let address = props.address;
 
     /*file states*/
     const [audioFile, setAudioFile] = useState();
-    const [videoFile, setVideoFile] = useState()    
-    const [ready, setReady] = useState(false);
+    const [videoFile, setVideoFile] = useState();    
     const [gif, setGif] = useState();
     const [resultFile, setResultFile] = useState();
     const [mixMessage, setMixMessage] = useState('');
@@ -79,23 +43,19 @@ function NFTForm() {
     const [mintProgress, setMintProgress] = useState();
     const [mintSuccessMsg, setMintSuccessMsg] = useState('')
     const [mintProgressLabel, setMintProgressLabel] = useState('')
+
     /* form states */
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [royalties, setRoyalties] = useState('');
     const [supply, setSupply] = useState(1);
-    const [blockchain, setBlockchain] = useState();
 
     /* modal state */
     const [show, setShow] = useState(false);
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const {error, isUploading, saveFile, moralisFile} = useMoralisFile();
-    const {isAuthenticated, user} = useMoralis();
-
-    const [address, setAddress] = useState();
-
+    const {saveFile} = useMoralisFile();
 
 
     const {lazyMint} = useRaribleLazyMint({
@@ -103,22 +63,9 @@ function NFTForm() {
             userAddress: address,
             tokenType: 'ERC721', 
             supply: 1, //parseInt(supply) 
-            royaltiesAmount: parseInt(royalties)
+            royaltiesAmount: parseInt(royalties) * 100
      });
 
-
-    
-
-    const load = async() => {
-        await ffmpeg.load();
-        setReady(true);
-    }
-
-    useEffect(() => {
-        if(!user) return null
-        setAddress(user.get('ethAddress'))
-        load();
-    }, [user]);
 
 
     
@@ -321,14 +268,14 @@ function NFTForm() {
 
    
 
-    return ready?(
+    return(
 
       <Container>
             <Row>
                     <div className='d-flex justify-content-center'>
                     <Card className="shadow-lg animate__animated animate__fadeInUp" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
                         <Card.Body className ="p-5">
-                            <h2 class="fw-bold mb-0">Create an original NFT</h2>
+                            <h2 className="fw-bold mb-0">Build a NFTYTUNE from scratch</h2>
                             <small class="mb-5 fw-bold text-primary">in 3 easy steps</small>
                                       <Form onSubmit={handleMix} className='my-5'>
                                       <Stack gap={4}>
@@ -387,8 +334,8 @@ function NFTForm() {
                                                 </div>
                                             </Col>
                                             <Col xs={6}>
-                                                <Button className='mb-2 w-100' size='lg' variant="outline-success" type="submit">
-                                                    Mix Your Tune
+                                                <Button className='mb-2 w-100 fw-bold' size='lg' variant="outline-success" type="submit">
+                                                    Make NFTYTUNE
                                                 </Button>
                                             </Col>
                                         </Row>
@@ -401,7 +348,7 @@ function NFTForm() {
                                         }
                                          {isMixing &&
                                              <Alert variant='dark'>
-                                                <i class="bi bi-bag-check-fill"></i>
+                                                <i class="bi-check-circle-fill"></i>
                                                 {'  '}<strong> Hang Tight</strong>, we're building the NFT as we speak 
                                                {'   '} <Spinner as='span' size='sm' animation="border" variant='dark'/>
                                             </Alert>
@@ -547,27 +494,7 @@ function NFTForm() {
                     }
             </Row>
             </Container> 
-    ): (
-         
-        <Container fluid>
-            <Row className = 'mt-5'>
-                <div className='d-flex justify-content-center'>
-                    <h1 className = 'text-primary animate__animated animate__bounce animate__infinite infinite' style={{ fontFamily:"Pixeboy"}}>NiftyTunes</h1>
-                </div>
-            </Row>
-            <Row className = 'mt-5'>
-                <div className='d-flex justify-content-center'>
-                    <h6 className = 'text-primary' style={{fontWeight:"700"}}>Loading Packages...</h6>
-                </div>
-            </Row>
-            <Row>
-                <div className='d-flex justify-content-center'>
-                 <Spinner as='span' animation="border" variant='primary'/>
-                </div>
-            </Row>
-        </Container>
-    
-    );
+    )
 }
 
 export default NFTForm
