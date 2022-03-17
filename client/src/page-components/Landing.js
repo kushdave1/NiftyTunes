@@ -129,17 +129,17 @@ function Landing() {
                                     </a>
                                 </Col>
                             <Col>
-                                    <a href="#">
+                                    <a href="https://discord.gg/hYdz34KF">
                                         <i class="bi bi-discord" style={{fontSize: "2rem", color: "#7289DA"}}></i>
                                     </a>
                                 </Col>
                             <Col>
-                                    <a href="#">
+                                    <a href="https://www.reddit.com/user/nftytunes">
                                         <i class="bi bi-reddit" style={{fontSize: "2rem", color: "#FF5700"}}></i>
                                     </a>
                                 </Col>
                             <Col>
-                                    <a href="#">
+                                    <a href="https://www.instagram.com/nftytunes/">
                                         <i class="bi bi-instagram" style={{fontSize: "2rem", color: "#8a3ab9"}}></i>
                                     </a>
                                 </Col>
@@ -147,7 +147,7 @@ function Landing() {
                             </Row>
                             <Row>
                             <Col xs={12}>
-                            <small className="text-light"> Don't miss out on our hard launch! Follow us on social media.</small>
+                                <small className="text-light"> Don't miss out on our hard launch! Follow us on social media.</small>
                             </Col>
                         </Row>
                         </Col>
