@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Bg_image from '../assets/images/background1.jpg'
-import LandingCards from '../components/Marketplace'
+import MyListedNFTs from '../components/MyListedNFTs'
 import { useMoralis } from 'react-moralis'
 
 
@@ -40,7 +40,7 @@ const FormSection = styled.div `
     overflow:hidden;
 `;
 
-function Explore() {
+function ViewListedNFTs() {
     const {isAuthenticated, user} = useMoralis();
 
     return (
@@ -49,13 +49,13 @@ function Explore() {
                 <Navigation />
             </NavigationSection>
                     <FormSection className="d-flex justify-content-center">
-                        <LandingCards />
+                        <MyListedNFTs />
                     </FormSection>
         </Body>
     )
 }
 
-export default Explore
+export default ViewListedNFTs
 
 
 
