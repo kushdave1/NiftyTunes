@@ -38,6 +38,12 @@ function Navigation() {
                             {user &&
                             <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>Create</Nav.Link>
                             }
+                            {user &&
+                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/viewnfts')}>View My NFTs</Nav.Link>
+                            }
+                            {user &&
+                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/viewlistednfts')}>View My Listed NFTs</Nav.Link>
+                            }
                             </Navbar.Collapse>
                             </NavFormat>
                                 

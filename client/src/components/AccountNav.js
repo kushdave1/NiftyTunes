@@ -20,6 +20,11 @@ function AccountNav() {
         navigate('/createnft')
     }
 
+    const nftRoute = () => {
+        navigate('/viewnfts')
+    }
+
+
 
 
     return (
@@ -31,7 +36,7 @@ function AccountNav() {
                                  
                                         <Button variant="dark" onClick={exploreRoute}>Explore</Button>
                                         <Button variant="dark" onClick={createRoute}>Create</Button>
-
+                                        <Button variant="dark" onClick={nftRoute}>View my NFTs</Button>
                                         <ConnectButton />
                                 
                                 </Navbar.Collapse>

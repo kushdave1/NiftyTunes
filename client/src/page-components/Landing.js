@@ -9,7 +9,7 @@ import FormControl from 'react-bootstrap/FormControl'
 import Button from 'react-bootstrap/Button'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Bg_image from '../assets/images/background1.jpg'
-import LandingCards from '../components/LandingCards'
+import LandingCards from '../components/Marketplace'
 import Video from "../assets/videos/landing_video.mp4";
 
 const Body = styled.div `
