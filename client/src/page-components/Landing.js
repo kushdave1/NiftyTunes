@@ -118,7 +118,7 @@ function Landing() {
                     
                     
                     <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-4s'>
-                        <Col xs={3}>
+                        <Col xs={12} lg={3}>
                             <Row>
                             <Col>
                                     <a href="http://twitter.com/nftytunes">
