@@ -25,7 +25,7 @@ function Navigation() {
     }, [user]);
 
     return (
-            <Navbar bg='dark'>
+            <Navbar bg='dark' expand="lg">
                 <Container>   
                 <Navbar.Brand className="text-light" style={{fontSize: '40px'}} href="#" onClick={()=> navigate('/')}>
                     NftyTunes
