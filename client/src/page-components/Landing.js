@@ -22,7 +22,8 @@ const Body = styled.div `
     background-color:#111111;
     overflow:auto;
 `;
-const HeaderSection = styled.div `
+
+const HeaderSection = styled.div`
     display:flex;
     flex:1;
     overflow:hidden;

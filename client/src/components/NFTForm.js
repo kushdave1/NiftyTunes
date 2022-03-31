@@ -2,6 +2,9 @@
 import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
 
+//components 
+import NFTModalNfty from './NFTModalNfty'
+
 //Bootstrap
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -35,7 +38,7 @@ function NFTForm (props) {
     /*file states*/
     const [audioFile, setAudioFile] = useState();
     const [videoFile, setVideoFile] = useState();    
-    const [gif, setGif] = useState();
+    const [output, setOutput] = useState();
     const [resultFile, setResultFile] = useState();
     const [mixMessage, setMixMessage] = useState('');
     const [mintErrMessage, setMintErrMessage] = useState('');
@@ -43,6 +46,7 @@ function NFTForm (props) {
     const [mintProgress, setMintProgress] = useState();
     const [mintSuccessMsg, setMintSuccessMsg] = useState('')
     const [mintProgressLabel, setMintProgressLabel] = useState('')
+    const [fileType, setFileType] = useState('');
 
     /* form states */
     const [name, setName] = useState('');
@@ -52,8 +56,8 @@ function NFTForm (props) {
 
     /* modal state */
     const [show, setShow] = useState(false);
-    const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+    const toggleShow = () => setShow(p => !p);
 
     const {saveFile} = useMoralisFile();
 
@@ -71,7 +75,7 @@ function NFTForm (props) {
     
 
     const convertToGif = async() => {
-        setGif(null);
+        setOutput(null);
         setMintProgress(null);
         setMintProgressLabel('');
 
@@ -121,7 +125,8 @@ function NFTForm (props) {
 
             //create url
             const url = URL.createObjectURL(new Blob([data.buffer], {type: 'video/mp4'}));
-            await setGif(url);
+            await setOutput(url);
+            await setFileType('video')
             setIsMixing(false);
         }
         else if(await videoFile.type.includes('video')){
@@ -165,108 +170,19 @@ function NFTForm (props) {
 
             //create a URL
             const url = URL.createObjectURL(rf);
-            await setGif(url)
+            await setOutput(url)
+            await setFileType('video')
             setIsMixing(false)
         }
 
     }
 
-    function handleIncreaseSupply(){
-        setSupply(parseInt(supply) + 1);
-    }
-
-    function handleDecreaseSupply(){
-        if(parseInt(supply) > 1){
-            setSupply(parseInt(supply) - 1);
-        }
-    }
-
-    const handleSaveIPFS = async (file) => {
-        
-        if(!name || !description){
-            setMintErrMessage('Please enter a name and description to mint.');
-        }
-        else if(isNaN(parseInt(royalties)) || parseInt(royalties) % 1 != 0){
-            setMintErrMessage('Royalty amount must be an integer.')
-        }
-        /*else if(isNaN(parseInt(supply)) || supply % 1 != 0){
-            setMintErrMessage('Supply amount must be an integer.')
-        }*/
-        else{
-            setMintErrMessage('');
-
-        setMintProgress(10)
-        setMintProgressLabel('Saving Content to IPFS')
-        const arr = new Moralis.File("video.mp4", Array.from(resultFile))
-        const gifIPFS = await arr.saveIPFS();
-
-        if(gifIPFS){
-            setMintProgress(30)
-            setMintProgressLabel('Uploading Metadata')
-            let gifHash = gifIPFS._hash;
-
-            console.log(gifIPFS._hash);
-            console.log(gifIPFS._ipfs);
-    
-            //Create metadata with video hash & data
-            const metadata = {
-                name: name,
-                description: description,
-                image: '/ipfs/' + gifHash
-            };
-    
-            console.log(metadata);
-    
-            //save metadata file and upload to rarible
-            const metadataFileIPFS = await saveFile('metadata.json', {
-                base64: btoa(JSON.stringify(metadata))
-            }, {
-                saveIPFS:true, 
-                onSuccess: async (metadataFile) => {
-                    console.log(metadataFile);
-                    setMintProgress(60)
-                    setMintProgressLabel('Awaiting Signature')
-                    await Moralis.enableWeb3();
-                    await lazyMint({
-                        params:{
-                            tokenUri: 'ipfs://' + metadataFile._hash
-                        }, 
-                        onSuccess: (res) => {
-                            console.log(res)
-                            setMintProgress(100)
-                            setMintProgressLabel('Done!')
-                            setMintSuccessMsg(`https://rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
-                            setMintProgress(null)
-                            setMintProgressLabel(null)
-                        }
-                    })
-                }
-            }); 
-        }
-  //console.log(gifIPFS)
-    }
-
-
-
-    }
-
-
     const handleMix = (e) => {
         e.preventDefault();
-
         convertToGif();
-
         handleShow();
-        /*handleSaveIPFS(audioFile);*/
 
     }
-
-    const handleNext = (e) => {
-        e.preventDefault();
-        handleSaveIPFS(resultFile)
-    }
-
-   
 
     return(
 
@@ -362,135 +278,19 @@ function NFTForm (props) {
                     </Card> 
                 </div>
                     
-                    {gif && 
-                        <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" keyboard={false} >
-                        <Modal.Body>
-
-                        <h2 className='text-start fw-bold py-3 mb-3'>Done, let's take a look!</h2>
-                        <Row className='mb-3'>
-                            <Col>
-                                <div className='d-flex justify-content-center'>
-                                     <video
-                                        className="rounded shadow mb-5"
-                                        controls
-                                        width="400"
-                                        src={gif}
-                                        loop={true}
-                                        autoPlay
-                                        muted>
-                                    </video>
-                                </div>
-                            </Col>
-                            <div className='d-flex justify-content-center mt-0'>
-                                <small className='text-muted'>Make sure to turn the sound all the way up!</small>
-                            </div>
-                        </Row>
-                        <Row className='mb-5'>
-                            <Col>
-                            <div className='d-flex justify-content-center mb-5 '>
-                                <Button variant="dark" className = 'w-75' onClick={handleClose}>
-                                    Meh, let me try that again
-                                </Button>
-                            </div>
-                            </Col>
-                        </Row>
-                        <Row>
-                            <h2 className='text-start fw-bold py-3 mb-3'>Ready to mint? Let's add some details. </h2>
-                            <Col>
-                             {/* NFT metadata */}
-                           <Form>
-                               {/* Name */}
-                            <Form.Group className="mb-3" controlId="nft.Name">
-                                <FloatingLabel
-                                    controlId="floatingInput"
-                                    label="Name your masterpiece"
-                                    className="mb-3"
-                                >
-                                <Form.Control 
-                                    type="input"
-                                    placeholder= 'Name your masterpiece'
-                                    onChange={e => setName(e.target.value)}/>
-                                </FloatingLabel>
-                            </Form.Group>
-
-                             {/* Description */}
-                            <Form.Group className="mb-3" controlId="nft.Desc">
-                                 <FloatingLabel controlId="floatingInput" label="Give it a description">
-                                    <Form.Control 
-                                        as="textarea" 
-                                        placeholder='Give it a description'
-                                        rows={5}
-                                        onChange={e => setDescription(e.target.value)}/>
-                                </FloatingLabel>
-                            </Form.Group>
-                           <InputGroup className="mb-3 justify-content-center">
-                                    <FloatingLabel controlId="floatingInput" label="Set your royalty scheme">
-                                        <Form.Control 
-                                             as="input" 
-                                             placeholder="Set your royalty percentage"
-                                             aria-label="Dollar amount (with dot and 1 decimal places)" 
-                                             onChange={e => setRoyalties(e.target.value)}/>
-                                    </FloatingLabel>
-                                    
-                                    <Button variant="outline-secondary" disabled><i class="bi bi-percent"></i>
-                                        </Button>
-                                 </InputGroup>
-            
-                            {/*
-                            <InputGroup className="mb-3 justify-content-center">
-                                    <FloatingLabel controlId="floatingInput" label="How many?">
-                                        <Form.Control 
-                                             as="input" 
-                                             placeholder="Set your supply percentage"
-                                             aria-label="integer for supply" 
-                                             value = {parseInt(supply)}
-                                             onChange={e => setSupply(e.target.value)}/>
-                                    </FloatingLabel>
-                                    <Button variant="outline-secondary"
-                                            onClick={handleDecreaseSupply}
-                                            >
-                                            <i class="bi bi-dash-circle-fill"></i>
-                                        </Button>
-                                    <Button variant="outline-secondary"
-                                            onClick={handleIncreaseSupply}
-                                            ><i class="bi bi-plus-circle-fill"></i>
-                                        </Button>
-                            </InputGroup>*/}
-                           </Form>
-                           </Col>
-                        </Row>
-                        <Row>
-                            <div className='d-flex justify-content-center mt-1 mb-5'>
-                                <Button variant="outline-primary" className = 'w-75' onClick={handleNext}>
-                                    Let's mint!
-                                </Button>
-                            </div>
-                        </Row>
-                            {mintErrMessage &&
-                                 <Alert variant='danger'>
-                                 <i class="bi bi-radioactive"></i>
-                                 {'  '}{mintErrMessage}    
-                              </Alert>
-                            }
-                            {mintSuccessMsg &&
-                                <Alert variant='success'>
-                                <i class="bi bi-check-circle-fill"></i>
-                               {' '} Congrats! Your NFT has been minted. View and Sell in 
-                                <Alert.Link href={mintSuccessMsg}> Rarible</Alert.Link>
-                                </Alert>
-                            }
-                            {mintProgress && mintProgressLabel &&
-                                <Container>
-                                    <ProgressBar animated variant="primary" now={mintProgress}/>
-                                    <div class = "d-flex justify-content-center mt-2">
-                                        <Badge bg="dark">{mintProgressLabel}</Badge>
-                                    </div>
-                                </Container>
-
-                            }
-                           {/*NFT metadata end */}
-                        </Modal.Body>
-                      </Modal>
+                    {output && 
+                            <NFTModalNfty 
+                                show = {show}
+                                setShow = {setShow} 
+                                toggleShow = {toggleShow}
+                                output={output} 
+                                resultFile = {resultFile}
+                                fileType = {fileType}
+                                userAddress = {props.address}
+                                mintProgress = {mintProgress}
+                                mintProgressLabel = {mintProgressLabel}
+                                setMintProgress = {setMintProgress}
+                                setMintProgressLabel = {setMintProgressLabel} />
                     }
             </Row>
             </Container> 

@@ -55,9 +55,16 @@ function CreateNFT() {
     }
 
     useEffect(() => {
-        if(!user) return null
-        setAddress(user.get('ethAddress'))
-        load();
+        if(!user) return null;
+
+        setAddress(user.get('ethAddress'));
+
+        if(!ffmpeg.isLoaded()){
+            load();
+        }
+        else{
+            setReady(true)
+        }
     }, [user]);
 
 

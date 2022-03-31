@@ -35,14 +35,14 @@ function Navigation() {
                             <Nav.Link className="text-light" href="#action2" style={{fontWeight:"500"}}>Individuals</Nav.Link>
                             <Nav.Link className="text-light" href="#action3" style={{fontWeight:"500"}}>Creators</Nav.Link>
                             <Nav.Link className="text-secondary" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
-                            {user &&
-                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>Create</Nav.Link>
-                            }
-                            {user &&
-                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/viewnfts')}>View My NFTs</Nav.Link>
-                            }
-                            {user &&
-                            <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/viewlistednfts')}>View My Listed NFTs</Nav.Link>
+                            {user?
+                                (
+                                <>
+                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT builder</Nav.Link>
+                                <Nav.Link className="text-light" style={{fontWeight:"500"}} onClick={()=> navigate('/profile')}>My profile</Nav.Link>
+                                </>
+                                ):
+                                (<></>)
                             }
                             </Navbar.Collapse>
                             </NavFormat>
