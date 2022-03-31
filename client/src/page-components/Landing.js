@@ -13,14 +13,14 @@ import LandingCards from '../components/Marketplace'
 import Video from "../assets/videos/landing_video.mp4";
 
 const Body = styled.div `
+    position:relative;
     width:100%;
-    height: 100vh;
+    height:100%;
     min-height:100vh;
-    max-height:100vh;
     display:flex;
     flex-direction:column;
     background-color:#111111;
-    overflow:auto;
+    overflow:hidden;
 `;
 
 const HeaderSection = styled.div`
@@ -63,14 +63,13 @@ const Ellipse2 = styled.div `
 
 const VideoContainer = styled.div `
     /* Example Video */
-    position: absolute;
-    height:100vh;
+    
 `;
 
 
 
 function Landing() {
-    document.body.style.overflow = "hidden";
+    /* document.body.style.overflow = "hidden";*/
     return (
     <React.Fragment>
         <Body>
@@ -78,9 +77,9 @@ function Landing() {
                 <Navigation />
             </NavigationSection>
             <HeaderSection>
-                <Container className='d-flex flex-column col-xl-12  px-1 py-1 align-items-stretch'>
+                <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
                     <Row className='mt-auto'>
-                        <Col md={4} xs={{ order: 'last' }}> 
+                        <Col lg={4} md={6} xs={{ order: 'last' }}> 
                             <Row className='mt-auto'>
                                     <Col>
                                         <Ellipse1 />
@@ -92,9 +91,8 @@ function Landing() {
 
                                     <VideoContainer >
                                         <video
-                                            className="rounded animate__animated animate__fadeIn animate__delay-4s"
+                                            className="rounded animate__animated animate__fadeIn animate__delay-4s landing-video"
                                             controls
-                                            width="400"
                                             src={Video}
                                             loop={true}
                                             autoPlay
@@ -104,16 +102,15 @@ function Landing() {
                             </Row>
                        </Col>
                        
-                        <Col xs={6} md={8}>
+                        <Col xs={12} md={6} lg={8}>
                             <Row className='mt-auto'>
                             <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small>
                             <h1 className="text-light display-3"> 
                                 <span className = "animate__animated animate__fadeIn animate__delay-1s">Build Value Through Experiences,</span> 
                                 <span className = "animate__animated animate__fadeIn animate__delay-2s">{' '}Not Hype.</span></h1>
-                            <Col xs={6} md={8}>
+                            <Col xs={12} md={8}>
                                 <p className="lead text-light animate__animated animate__fadeInLeft animate__delay-4s">Powered by a community of professional artists you know and love, 
-                                                                the NftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.
-                                                                </p>
+                                the NftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.</p>
                             </Col>
                             </Row>
                         </Col>
@@ -122,7 +119,7 @@ function Landing() {
                     
                     
                     <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-4s'>
-                        <Col xs={3}>
+                        <Col xs={12} lg={3}>
                             <Row>
                             <Col>
                                     <a href="http://twitter.com/nftytunes">
@@ -153,7 +150,7 @@ function Landing() {
                         </Row>
                         </Col>
                         
-                        <Col className='border border-right-0 border-white rounded p-3' md={4}>
+                        <Col className='border border-right-0 border-white rounded p-3 d-none d-lg-block' md={4}>
                                 <h4 className='text-light text-center align-middle'>Authenticate with MetaMask to get started!</h4>
                             </Col>
                       

@@ -58,3 +58,16 @@ textarea,
 select {
   font: inherit;
 }
+
+
+/* Emily Added CSS Classes */
+.landing-video {
+  width: calc(100vw - var(--bs-gutter-x));
+  max-width: 540px;
+}
+
+@media (min-width: 768px) {
+  .landing-video {
+    width: 100%;
+  }
+}
