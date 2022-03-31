@@ -153,30 +153,6 @@ function MyNFTs() {
     }
   };
 
-  // const NFTBalances = () => {
-  //   const nftsArray = [];
-  //   getNFTBalances({ }
-  //   );
-  //   var i ;
-  //   console.log(data);
-  //   for(i=0; i < data.result.length; i++) {
-  //     let url = data.result[i].token_uri;
-  //     let address = data.result[i].token_address;
-  //     let id = data.result[i].token_id;
-  //     fetch(url).then(response => response.json())
-  //     .then(data => nftsArray.push({
-  //       name: data.name,
-  //       description: data.description,
-  //       image: fixURL(data.image),
-  //       token_uri: url,
-  //       token_address: address,
-  //       token_id: id
-  //     }))
-  //   };
-  //   setNFTs(nftsArray);
-  //   console.log(nftsArray);
-  // };
-
 
   const NFTBalances = async() => {
     const web3Modal = new Web3Modal({})
@@ -297,7 +273,7 @@ function MyNFTs() {
     <Container>
       <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
         <div>
-          <button onClick={() => NFTBalances()}>Fetch NFTs you own</button>
+          <Button onClick={() => NFTBalances()}>Fetch NFTs you own</Button>
         </div>
       </Row>
       <Row>
@@ -323,10 +299,8 @@ function MyNFTs() {
               placeholder="Listing Price in ETH"
               onChange={(e) => setPrice(e.target.value)}
             />
-            <div>
-              {/* <button onClick={() => approveAll(nftToSend)}>Approve</button> */}
-              <button onClick={() => ListNFT(nftToSend, price)}>List</button>
-            </div>
+            
+              <Button variant = 'primary' onClick={() => ListNFT(nftToSend, price)}>List</Button>
             
           </Modal>
         

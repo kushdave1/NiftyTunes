@@ -55,26 +55,6 @@ const NFTSection = styled.div `
     overflow:hidden;
 `;
 
-const routes = [
-    {
-        path: "/onsale", 
-        main: () => <h2>On Sale</h2>
-    }, 
-    {
-        path: "/sold", 
-        main: () => <h2> Sold </h2>
-    },
-    {
-        path: "/owned", 
-        main: () => <h2> Owned </h2>
-    },
-    { 
-        path: "/created", 
-        main: () => <h2> Created </h2>
-    }
-
-];
-
 function MyProfile() {
     const {isAuthenticated, user} = useMoralis();
 

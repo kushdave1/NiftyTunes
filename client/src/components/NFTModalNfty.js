@@ -1,5 +1,5 @@
 import React, {useState} from 'react'
-
+import {useNavigate} from 'react-router'
 //Bootstrap
 import Container from 'react-bootstrap/Container'
 import Row from 'react-bootstrap/Row'
@@ -33,6 +33,8 @@ import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 
 function NFTModalNfty(props) {
+     /* navigate hook */
+     let navigate = useNavigate();
 
      /* mint states */
      const [mintErrMessage, setMintErrMessage] = useState('');
@@ -78,40 +80,6 @@ function NFTModalNfty(props) {
  });
 
 
-
-
-    // Extraneous moralis functions -- ended up going with ethers for contract interaction //
-
-    async function list(nft, listPrice) {
-
-    setLoading(true);
-    const p = listPrice * ("1e" + 18);
-    const ops = {
-      contractAddress: marketAddress,
-      functionName: listItemFunction,
-      abi: contractABIJson,
-      params: {
-        tokenId: nft.token_id,
-        price: String(p),
-      },
-    };
-    console.log(ops);
-    await contractProcessor.fetch({
-      params: ops,
-      onSuccess: () => {
-        console.log("success");
-        setLoading(false);
-        setVisibility(false);
-        addItemImage();
-        succList();
-      },
-      onError: (error) => {
-        console.log(error);
-        setLoading(false);
-        failList();
-      },
-    });
-  }
 
 
     function succList() {
@@ -213,7 +181,7 @@ function NFTModalNfty(props) {
 
         props.setMintProgress(10)
         props.setMintProgressLabel('Saving Content to IPFS')
-        const arr = new Moralis.File(file.nam, file)
+        const arr = new Moralis.File(file.nam, file, {base64: 'video/mp4'})
         const fileIPFS = await arr.saveIPFS();
 
         if(fileIPFS){
@@ -243,25 +211,16 @@ function NFTModalNfty(props) {
                     props.setMintProgressLabel('Awaiting Signature')
                     await Moralis.enableWeb3();
                     const tokenURI = ('ipfs://' + metadataFile._hash);
-                    const success = await listNFTForSale(tokenURI, listingPrice, royalties);
-                    // await listNFTForSale({
-                    //     params:{
-                    //         url: tokenURI,
-                    //         listPrice:
-                    //     },  
-                    //     onSuccess: (res) => { d
-                    //         console.log(res)
-                    //         props.setMintProgress(100)
-                    //         props.setMintProgressLabel('Done!')
-                    //         setMintSuccessMsg(`https://rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
-                    //         props.setMintProgress(null)
-                    //         props.setMintProgressLabel(null)
-                    //     }
-                    // })
+                    const listNFT = await listNFTForSale(tokenURI, listingPrice, royalties);
+                        props.setMintProgress(100)
+                        props.setMintProgressLabel('Done!')
+                        setMintSuccessMsg(`Congrats, you have minted and listed your NFT for sale! `)
+                        props.setMintProgress(null)
+                        props.setMintProgressLabel(null)
+                   
                 }
             }); 
         }
-  //console.log(gifIPFS)
     }
     }
 
@@ -464,8 +423,8 @@ function NFTModalNfty(props) {
                             {mintSuccessMsg &&
                                 <Alert variant='success'>
                                 <i class="bi bi-check-circle-fill"></i>
-                               {' '} Congrats! Your NFT has been minted. View and Sell in 
-                                <Alert.Link href={mintSuccessMsg}> Rarible</Alert.Link>
+                               {' '} {mintSuccessMsg}
+                                <Alert.Link onClick={() => navigate('/profile/onsale')}>View in your profile</Alert.Link>
                                 </Alert>
                             }
                             {props.mintProgress && props.mintProgressLabel &&

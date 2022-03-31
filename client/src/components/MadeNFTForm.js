@@ -9,12 +9,10 @@ import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
-import Modal from 'react-bootstrap/Modal'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import FormGroup from 'react-bootstrap/FormGroup'
 import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
-import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
@@ -25,8 +23,6 @@ import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
 import Moralis from 'moralis'
 
 //Components
-import NFTModal from './NFTModal'
-
 import NFTModalNfty from './NFTModalNfty'
 
 function MadeNFTForm(props) {
@@ -42,7 +38,6 @@ function MadeNFTForm(props) {
      /*file states*/
      const [singleFile, setSingleFile] = useState();
      const [output, setOutput] = useState();
-     const [outputTwo, setOutputTwo] = useState();
      const [resultFile, setResultFile] = useState();
      const [fileType, setFileType] = useState('');
 
@@ -57,52 +52,6 @@ function MadeNFTForm(props) {
     const toggleShow = () => setShow(p => !p);
 
     const {saveFile} = useMoralisFile();
-
-
-    const renderInputTwo = async() => {
-        setOutputTwo(null);
-        setMintProgress(null);
-        setMintProgressLabel('');
-        setFileType('');
-
-        if(!singleFile){
-            setRenderMessage('Please select a file!');
-        }
-        else if(await singleFile.type.includes('image')){
-            //if file is an image
-            setRenderMessage('');
-            setIsRender(true);
-            setFileType('img');
-
-            await setResultFile(singleFile);
-            console.log(resultFile);
-            //create url
-            const url = URL.createObjectURL(singleFile, {type: 'image/png'});
-            await setOutputTwo(url);
-            setIsRender(false);
-        }
-        else if(await singleFile.type.includes('video')){
-            //if file is a video
-            setRenderMessage('');
-            setIsRender(true);
-            setFileType('video')
-
-            await setResultFile(singleFile);
-
-            //create url
-            const url = URL.createObjectURL(singleFile, {type: 'video/mp4'});
-            await setOutputTwo(url);
-            setIsRender(false);
-        }
-        else if(await singleFile.type.includes('audio')){
-            //if file is a video
-            setRenderMessage(`Audio files are unsupported (Rarible's fault)`);
-        }
-        else{
-            setRenderMessage('File type unsupported.');
-        }
-
-    }
 
     const renderInput = async() => {
         setOutput(null);
@@ -147,12 +96,6 @@ function MadeNFTForm(props) {
             setRenderMessage('File type unsupported.');
         }
 
-    }
-
-    const renderOnSite = (e) => {
-        e.preventDefault();
-        renderInputTwo();
-        handleShow();
     }
 
 
@@ -206,11 +149,6 @@ function MadeNFTForm(props) {
                                             </Col>
                                             <Col xs={6}>
                                                 <Button className='mb-2 w-100 fw-bold' size='lg' variant="outline-success" type="submit">
-                                                    Lazy Mint on Rarible
-                                                </Button>
-                                            </Col>
-                                            <Col className="align-self-right" xs={6}>
-                                                <Button className='mb-2 w-100 fw-bold' size='lg' variant="outline-success" onClick={(e) => renderOnSite(e)}>
                                                     Mint on NftyTunes
                                                 </Button>
                                             </Col>
@@ -238,25 +176,11 @@ function MadeNFTForm(props) {
                     </Card> 
                 </div>
                 {output &&
-                    <NFTModal 
+                    <NFTModalNfty 
                         show = {show}
                         setShow = {setShow} 
                         toggleShow = {toggleShow}
                         output={output} 
-                        resultFile = {resultFile}
-                        fileType = {fileType}
-                        userAddress = {props.address}
-                        mintProgress = {mintProgress}
-                        mintProgressLabel = {mintProgressLabel}
-                        setMintProgress = {setMintProgress}
-                        setMintProgressLabel = {setMintProgressLabel} />
-                }
-                {outputTwo &&
-                    <NFTModalNfty
-                        show = {show}
-                        setShow = {setShow} 
-                        toggleShow = {toggleShow}
-                        output={outputTwo} 
                         resultFile = {resultFile}
                         fileType = {fileType}
                         userAddress = {props.address}
