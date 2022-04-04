@@ -27,11 +27,8 @@ const Body = styled.div `
     max-height:100vh;
     display:flex;
     flex-direction:column;
-    background-color:#111111;
+    background-color:#17171b;
     overflow:auto;
-`;
-const NavigationSection = styled.div`
-
 `;
 
 const FormSection = styled.div `
@@ -79,9 +76,7 @@ function CreateNFT() {
     }
     return (
         <Body>
-             <NavigationSection>
                 <Navigation />
-            </NavigationSection>
                 
                 {ready?(
                         <>

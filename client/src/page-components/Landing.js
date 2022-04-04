@@ -19,7 +19,7 @@ const Body = styled.div `
     min-height:100vh;
     display:flex;
     flex-direction:column;
-    background-color:#111111;
+    background-color:#17171b;
     overflow:hidden;
 `;
 
@@ -29,10 +29,6 @@ const HeaderSection = styled.div`
     overflow:hidden;
 `;
 
-
-const NavigationSection = styled.div `
-   
-`;
 
 const Ellipse1 = styled.div `
     /* Ellipse 1 */
@@ -73,9 +69,7 @@ function Landing() {
     return (
     <React.Fragment>
         <Body>
-            <NavigationSection>
                 <Navigation />
-            </NavigationSection>
             <HeaderSection>
                 <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
                     <Row className='mt-auto'>

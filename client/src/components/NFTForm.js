@@ -220,7 +220,7 @@ function NFTForm (props) {
 
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-boombox" style={{fontSize: "2rem", color: "#FCA17D"}}></i>
+                                                <i class="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>

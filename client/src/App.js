@@ -11,7 +11,7 @@ import Explore from './page-components/Explore';
 import MyProfile from './page-components/MyProfile';
 import MyListedNFTs from './components/MyListedNFTs';
 import MyNFTs from './components/MyNFTs';
-
+import MultiStepForm from './page-components/MultiStepForm'
 import APIService from './services/APIService';
 
 
@@ -37,6 +37,7 @@ function App() {
               <Route path="created" element={console.log("created")} />
               <Route path="owned" element={<MyNFTs />} />
           </Route>
+          <Route path="/multistep" element={<MultiStepForm />} />
         </Routes>
       </Router>
     
