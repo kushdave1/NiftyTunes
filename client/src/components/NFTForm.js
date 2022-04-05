@@ -147,7 +147,7 @@ function NFTForm (props) {
 
             await ffmpeg.run('-i', 'video.mp4', '-filter:v', `${setDuration}`, 'output.mp4')
 
-            const fadeIn = "afade=t=in:st=0:d=0.25,afade=t=out:st="+`${audioDurSecond}`+":d=0.25";
+            const fadeIn = "afade=t=in:st=0:d=0.01,afade=t=out:st="+`${audioDurSecond}`+":d=0.125";
 
             await ffmpeg.run('-i', 'audio.wav', '-af', `${fadeIn}`, 'audio1.wav')
 

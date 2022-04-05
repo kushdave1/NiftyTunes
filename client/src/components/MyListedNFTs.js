@@ -210,6 +210,56 @@ function MyListedNFTs() {
     console.log(items);
     setLoading(true) 
   }
+  
+  const LazyBalancesListed = async() => {
+    const web3Modal = new Web3Modal({})
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+
+    const signerAddress = await signer.getAddress();
+    console.log(signerAddress)
+    const ItemImage = await Moralis.Object.extend("ItemImages");
+
+    const query = new Moralis.Query(ItemImage);
+
+    query.equalTo("signerAddress", signerAddress);
+    const data = await query.find();
+    const items = []
+    for (let i = 0; i < data.length; i++) {
+      const object = data[i];
+      const meta = await axios.get(fixURL(object.get('tokenURI')))
+      console.log(meta);
+      let item = {
+        price: object.get("price"), 
+        tokenId: object.get("tokenId"),
+        owner: object.get("signerAddress"),
+        image: fixImageURL(meta.data.image),
+        name: meta.data.name,
+        description: meta.data.description,
+        tokenURI: object.get("tokenUri")
+      }
+      items.push(item);
+    }
+    setNFTs(items);
+      // const meta = await axios.get(fixURL(tokenURI))
+      // console.log(meta)
+      // let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+      // let item = {
+      //   price,
+      //   tokenId: i.tokenId.toNumber(),
+      //   seller: i.seller,
+      //   owner: i.owner,
+      //   image: fixImageURL(meta.data.image),
+      //   name: meta.data.name,
+      //   description: meta.data.description,
+      //   tokenURI
+      // }
+      // return item
+    // setNFTs(items)
+    // console.log(items);
+    setLoading(true) 
+  }
 
 
   const deListNFT = async(nft) => {
@@ -296,7 +346,7 @@ function MyListedNFTs() {
     <Container>
       <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
         <div>
-          <button onClick={() => NFTBalancesListed()}>Fetch NFTs you own that are listed</button>
+          <button onClick={() => LazyBalancesListed()}>Fetch NFTs you own that are listed</button>
         </div>
       </Row>
       <Row>

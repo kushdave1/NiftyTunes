@@ -27,7 +27,7 @@ import Moralis from 'moralis'
 //Components
 import NFTModal from './NFTModal'
 
-import NFTModalNfty from './NFTModalNfty'
+import NFTModalNftyLazy from './NFTModalNftyLazy'
 
 function MadeNFTForm(props) {
     document.body.style.overflow = "hidden";
@@ -252,7 +252,7 @@ function MadeNFTForm(props) {
                         setMintProgressLabel = {setMintProgressLabel} />
                 }
                 {outputTwo &&
-                    <NFTModalNfty
+                    <NFTModalNftyLazy
                         show = {show}
                         setShow = {setShow} 
                         toggleShow = {toggleShow}
