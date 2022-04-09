@@ -207,15 +207,14 @@ function NFTModalNftyLazy(props) {
 
         /* next, create the item */
         const price = ethers.utils.parseUnits(listPrice, 'ether')
-        const royaltyFee = (royalty).toString()
+        const royaltyFee = royalty
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
-        console.log(galleryName);
-        console.log(marketAddress);
         let contract = new ethers.Contract(marketAddress, contractABIJson, signer)
         let listingPrice = await contract.getListingPrice()
         listingPrice = listingPrice.toString()
         const galleryAddress = await deployMyGallery(marketAddress, galleryName, 1);
-        await signMyItem(galleryAddress, artName, listPrice, url, royalty)
+        console.log(galleryAddress);
+        await signMyItem(galleryAddress, artName, listPrice, url, royaltyFee)
     }
 
 

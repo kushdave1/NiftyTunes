@@ -1,9 +1,9 @@
 /* eslint-disable no-nested-ternary */
-import { ethers } from 'ethers';
+import { ethers, utils } from 'ethers';
 // import Voucher from '../components/voucher.js';
 import Web3Modal from 'web3modal';
 import Moralis from 'moralis';
-import LazyFactory from '../contracts/LazyFactory.sol/LazyFactory.json';
+import LazyFactory from '../contracts/NFTMarketplace.sol/LazyFactory.json';
 // import LazyFactory from '../contracts/LazyFactory.sol/LazyFactory.json';
 // import { updateArtwork } from './artworkAction';
 // import { updateArtistGallery } from './artistAction';
@@ -11,8 +11,8 @@ import LazyFactory from '../contracts/LazyFactory.sol/LazyFactory.json';
 
 const decimalPlaces = 2;
 
-const SIGNING_DOMAIN_NAME = 'NFTY';
-const SIGNING_DOMAIN_VERSION = '1';
+const SIGNING_DOMAIN_NAME = "NFTY";
+const SIGNING_DOMAIN_VERSION = "1";
 
 
 class Voucher {
@@ -33,6 +33,7 @@ class Voucher {
 
 
     const { chainId } = await provider.getNetwork();
+    
     this.domainData = {
       name: SIGNING_DOMAIN_NAME,
       version: SIGNING_DOMAIN_VERSION,
@@ -43,35 +44,36 @@ class Voucher {
   }
 
   async signTransaction(
+    tokenId,
     artwork,
     totalInWei,
-    royalty,
     tokenUri,
-    tokenId
+    royalty
   ) {
     const domain = await this.designDomain();
     // define your data types
     const types = {
       Voucher: [
+        { name: 'tokenId', type: 'uint256' },
         { name: 'title', type: 'string' },
         { name: 'priceWei', type: 'uint256' },
-        { name: 'royalty', type: 'uint256' },
         { name: 'tokenUri', type: 'string' },
-        { name: 'tokenId', type: 'uint256' }
+        { name: 'royalty', type: 'uint256' }
       ],
     };
-
+    console.log(artwork);
     const voucher = {
+      tokenId,
       title: artwork,
       priceWei: totalInWei,
-      royalty: royalty,
       tokenUri,
-      tokenId,
-      content: `Hey, You are signing this work to be available for sale!`,
+      royalty,
+      content: `Hey, You are signing this work to be available for sale!`
     };
 
     // signer._signTypedData(domain, types, value) =>  returns a raw signature
     const signature = await this.signer._signTypedData(domain, types, voucher);
+
     return {
       ...voucher,
       signature,
@@ -168,8 +170,8 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     itemImage.set("signerAddress", signerAddress);
     itemImage.set("name", artwork);
     itemImage.set("price", artworkPriceEth);
-    itemImage.set("royalty", royalty);
     itemImage.set("tokenURI", tokenURI);
+    itemImage.set("royalty", royalty);
 
     const query = new Moralis.Query(ItemImage);
     const results = await query.find();
@@ -177,11 +179,11 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     itemImage.set("tokenId", results.length);
 
     voucher = await theSignature.signTransaction(
+        results.length,
         artwork,
         totalInWei,
-        royalty,
         tokenURI,
-        results.length
+        royalty
       );
 
     
@@ -193,64 +195,78 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
 
   
 
-// export const mintAndRedeem = async(formValues, artistGalleryAddress, voucher, feeEth) => {
-//       const web3Modal = new Web3Modal()
-//       const connection = await web3Modal.connect()
-//       const provider = new ethers.providers.Web3Provider(connection)
-//       const redeemer = provider.getSigner()
+export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
+      const web3Modal = new Web3Modal()
+      const connection = await web3Modal.connect()
+      const provider = new ethers.providers.Web3Provider(connection)
+      const { chainId } = await provider.getNetwork();
+      const redeemer = provider.getSigner()
 
-//       // Returns a new instance of the ContractFactory with the same interface and bytecode, but with a different signer.
-//       // const redeemerFactory = signerFactory.connect(redeemer);
-//       const redeemerFactory = new ethers.ContractFactory(
-//         LazyFactory.abi,
-//         LazyFactory.bytecode,
-//         redeemer
-//       );
+      const domain = {
+      name: SIGNING_DOMAIN_NAME,
+      version: SIGNING_DOMAIN_VERSION,
+      verifyingContract: artistGalleryAddress,
+      chainId,
+      };
 
-//       // Return an instance of a Contract attached to address. This is the same as using the Contract constructor
-//       // with address and this the interface and signerOrProvider passed in when creating the ContractFactory.
-//       const redeemerContract = redeemerFactory.attach(artistGalleryAddress);
-//       const redeemerAddress = await redeemer.getAddress();
+      // define your data types
+      const types = {
+        Voucher: [
+          { name: 'tokenId', type: 'uint256' },
+          { name: 'title', type: 'string' },
+          { name: 'priceWei', type: 'uint256' },
+          { name: 'tokenUri', type: 'string' },
+          { name: 'royalty', type: 'uint256' }
+        ],
+      };
 
-//       const theVoucher = {
-//         artworkId: parseInt(voucher.artwork_id),
-//         title: voucher.title,
-//         edition: voucher.edition,
-//         priceWei: voucher.price_wei,
-//         tokenUri: voucher.token_Uri,
+      const recoveredAddress = ethers.utils.verifyTypedData(domain, types, voucher, voucher.signature);
+      console.log(recoveredAddress);
 
-//         content: voucher.content,
-//         signature: voucher.signature,
-//       };
 
-//       const feeWei = ethers.utils.parseUnits(
-//         parseFloat(feeEth).toFixed(5).toString(),
-//         'ether'
-//       );
-//     // execute smart contract redeem function to buy nft and transfer fee to marketplace contract, can withdrawe using withdraw function on marketplace contract
-//       const redeemTx = await redeemerContract.redeem(
-//         redeemerAddress,
-//         theVoucher,
-//         feeWei,
-//         {
-//           value: voucher.price_wei,
-//         }
-//       );
-//       const transactionData = await redeemTx.wait();
-//       console.log(transactionData);
+      // Returns a new instance of the ContractFactory with the same interface and bytecode, but with a different signer.
+      const redeemerFactory = new ethers.ContractFactory(
+        LazyFactory.abi,
+        LazyFactory.bytecode,
+        redeemer
+      );
 
-//       const eventTokenId = parseInt(transactionData.events[2].args.tokenId);
-//       const { transactionHash } = transactionData;
+      // Return an instance of a Contract attached to address. This is the same as using the Contract constructor
+      // with address and this the interface and signerOrProvider passed in when creating the ContractFactory.
+      const redeemerContract = redeemerFactory.attach(artistGalleryAddress);
+      const redeemerAddress = await redeemer.getAddress();
 
-//           // look this up from artworkAction.js on how its structured, change for nfty
-//       updateArtwork(
-//           artistGalleryAddress,
-//           false,
-//           false,
-//           voucher,
-//           'RedeemAndMint',
-//           transactionHash,
-//           feeWei,
-//           formValues
-//       )
-//   };
+      console.log(redeemerAddress);
+
+      const theVoucher = {
+        artworkId: parseInt(voucher.tokenId),
+        title: voucher.title,
+        priceWei: voucher.priceWei,
+        tokenUri: voucher.tokenUri,
+        royalty: voucher.royalty,
+        content: voucher.content,
+        signature: voucher.signature
+      };
+      console.log(theVoucher)
+      const feeWei = ethers.utils.parseUnits(
+        parseFloat(feeEth).toFixed(5).toString(),
+        'ether'
+      );
+    // execute smart contract redeem function to buy nft and transfer fee to marketplace contract, can withdrawe using withdraw function on marketplace contract
+      const redeemTx = await redeemerContract.redeem(
+        redeemerAddress,
+        theVoucher,
+        recoveredAddress,
+        {
+          value: voucher.priceWei,
+        }
+      );
+      const transactionData = await redeemTx.wait();
+      console.log(transactionData);
+
+      const eventTokenId = parseInt(transactionData.events[2]);
+      console.log(eventTokenId);
+      const { transactionHash } = transactionData;
+
+          // look this up from artworkAction.js on how its structured, change for nfty
+  };

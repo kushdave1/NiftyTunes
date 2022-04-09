@@ -24,7 +24,7 @@ import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProv
 import { getExplorer } from "../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
-
+import { mintAndRedeem } from '../components/lazyFactoryAction'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
@@ -227,6 +227,71 @@ function LandingCards() {
 
   }
 
+  const BuyLazyNFT = async(nft) => {
+    const web3Modal = new Web3Modal({})
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+    const price = ethers.utils.parseUnits(nft.price, 'ether')
+
+    // const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+    let transaction = await mintAndRedeem(nft.gallery, nft.voucher, .05)
+    // let transaction = await marketplaceContract.createMarketSale(nft.tokenId, {value: price})
+    // await transaction.wait()
+    // console.log('success for sure')
+
+  }
+
+  const LazyNFTBalances = async() => {
+    const web3Modal = new Web3Modal({})
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+
+    const signerAddress = await signer.getAddress();
+    console.log(signerAddress)
+    const ItemImage = await Moralis.Object.extend("ItemImages");
+
+    const query = new Moralis.Query(ItemImage);
+
+    const data = await query.find();
+    const items = []
+    for (let i = 0; i < data.length; i++) {
+      const object = data[i];
+      const meta = await axios.get(fixURL(object.get('tokenURI')))
+      console.log(meta);
+      let item = {
+        price: object.get("price"), 
+        tokenId: object.get("tokenId"),
+        owner: object.get("signerAddress"),
+        gallery: object.get("galleryAddress"),
+        image: fixImageURL(meta.data.image),
+        name: meta.data.name,
+        description: meta.data.description,
+        tokenURI: object.get("tokenURI"),
+        voucher: object.get("voucher")
+      }
+      items.push(item);
+    }
+    setNFTs(items);
+      // const meta = await axios.get(fixURL(tokenURI))
+      // console.log(meta)
+      // let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+      // let item = {
+      //   price,
+      //   tokenId: i.tokenId.toNumber(),
+      //   seller: i.seller,
+      //   owner: i.owner,
+      //   image: fixImageURL(meta.data.image),
+      //   name: meta.data.name,
+      //   description: meta.data.description,
+      //   tokenURI
+      // }
+      // return item
+    // setNFTs(items)
+    // console.log(items);
+    setLoading(true) 
+  }
 
 
 
@@ -296,7 +361,7 @@ function LandingCards() {
     <Container>
       <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
         <div>
-          <button onClick={() => NFTBalances()}>Fetch NFTs on the marketplace</button>
+          <button onClick={() => LazyNFTBalances()}>Fetch NFTs on the marketplace</button>
         </div>
       </Row>
       <Row>
@@ -324,7 +389,7 @@ function LandingCards() {
             /> */}
             <div>
               {/* <button onClick={() => approveAll(nftToSend)}>Approve</button> */}
-              <button onClick={() => BuyNFT(nftToSend)}>Buy</button>
+              <button onClick={() => BuyLazyNFT(nftToSend)}>Buy</button>
             </div>
             
           </Modal>
