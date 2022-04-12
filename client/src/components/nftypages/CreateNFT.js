@@ -4,9 +4,8 @@ import styled from 'styled-components'
 
 //Bootstrap
 import Container from 'react-bootstrap/Container'
-import Navigation from '../components/Navigation'
-import NFTForm from '../components/NFTForm'
-import MadeNFTForm from '../components/MadeNFTForm'
+import NFTForm from '../NFTForm'
+import MadeNFTForm from '../MadeNFTForm'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
@@ -75,8 +74,7 @@ function CreateNFT() {
         setIsReadyMade(true)
     }
     return (
-        <Body>
-                <Navigation />
+        <React.Fragment>
                 
                 {ready?(
                         <>
@@ -134,7 +132,7 @@ function CreateNFT() {
                     )
                 }
 
-            </Body>
+        </React.Fragment>
                    
     )
 }

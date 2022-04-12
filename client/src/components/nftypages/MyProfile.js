@@ -9,7 +9,6 @@ import {
 } from "react-router-dom"
 
 //bootstrap
-import Navigation from '../components/Navigation'
 import Nav from 'react-bootstrap/Nav'
 import Container from 'react-bootstrap/Container'
 import styled from 'styled-components'
@@ -18,7 +17,7 @@ import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 
 //components
-import MyNFTs from '../components/MyNFTs'
+import MyNFTs from '../MyNFTs'
 
 //moralis
 import { useMoralis } from 'react-moralis'
@@ -32,18 +31,6 @@ const HeaderSection = styled.div `
     left:10%;
     -ms-transform: translate-Y(-40%);
     transform: translateY(-40%);
-`;
-const Body = styled.div `
-    width:100%;
-    height: 100vh;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background-color:#17171b;
-    overflow:auto;
-`;
-const NavigationSection = styled.div`
-
 `;
 
 const ProfileNavSection = styled.div `
@@ -59,11 +46,7 @@ function MyProfile() {
     const {isAuthenticated, user} = useMoralis();
 
     return (
-        <Body>
-            
-             <NavigationSection>
-                <Navigation />
-                </NavigationSection>
+        <React.Fragment>
                         <ProfileNavSection>
                            <Nav className="justify-content-center">
                             <Nav.Item>
@@ -78,13 +61,16 @@ function MyProfile() {
                             <Nav.Item>
                                 <Nav.Link as={Link} className = "text-light-3" to="created">Created</Nav.Link>
                             </Nav.Item>
+                            <Nav.Item>
+                                <Nav.Link as={Link} className = "text-light-3" to="activity">Activity</Nav.Link>
+                            </Nav.Item>
                         </Nav>
                         </ProfileNavSection>
                     
                             <NFTSection className="d-flex justify-content-center">
                                 <Outlet />
                             </NFTSection>  
-        </Body>
+        </React.Fragment>
     )
 }
 

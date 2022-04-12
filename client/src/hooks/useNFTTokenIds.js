@@ -1,75 +1,50 @@
-import { ContactsOutlined } from "@ant-design/icons";
-import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
+import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider";
 import { useEffect, useState } from "react";
 import { useMoralisWeb3Api, useMoralisWeb3ApiCall } from "react-moralis";
 import { useIPFS } from "./useIPFS";
 
-export const useNFTTokenIds = (addr) => {
-  const { token } = useMoralisWeb3Api();
-  const { chainId } = useMoralisDapp();
-  const { resolveLink } = useIPFS();
-  const [NFTTokenIds, setNFTTokenIds] = useState([]);
-  const [totalNFTs, setTotalNFTs] = useState();
-  const [fetchSuccess, setFetchSuccess] = useState(true);
-  const {
-    fetch: getNFTTokenIds,
-    data,
-    error,
-    isLoading,
-  } = useMoralisWeb3ApiCall(token.getAllTokenIds, {
-    chain: chainId,
-    address: addr,
-    limit: 10,
-  });
+export const useNFTTokenIds = (addr, limit = 3) => {
+    const { token } = useMoralisWeb3Api();
+    const { chainId } = useMoralis();
+    const { resolveLink } = useIPFS();
+    const getAllTokenIdsOpts = {
+        chain: chainId,
+        address: addr,
+        limit: limit,
+    };
 
-  useEffect(async () => {
-    if (data?.result) {
-      const NFTs = data.result;
-      setTotalNFTs(data.total);
-      setFetchSuccess(true);
-      for (let NFT of NFTs) {
-        if (NFT?.metadata) {
-          NFT.metadata = JSON.parse(NFT.metadata);
-          NFT.image = resolveLink(NFT.metadata?.image);
-        } else if (NFT?.token_uri) {
-          try {
-            await fetch(NFT.token_uri)
-              .then((response) => response.json())
-              .then((data) => {
-                NFT.image = resolveLink(data.image);
-              });
-          } catch (error) {
-            setFetchSuccess(false);
-              
-/*          !!Temporary work around to avoid CORS issues when retrieving NFT images!!
-            Create a proxy server as per https://dev.to/terieyenike/how-to-create-a-proxy-server-on-heroku-5b5c
-            Replace <your url here> with your proxy server_url below
-            Remove comments :)
+    const {
+        fetch: getNFTTokenIds,
+        data,
+        error,
+        isLoading,
+        isFetching,
+    } = useMoralisWeb3ApiCall(
+        token.getAllTokenIds,
+        getAllTokenIdsOpts,
+        { autoFetch: !!token && addr !== "explore" },
+    );
 
-              try {
-                await fetch(`<your url here>/${NFT.token_uri}`)
-                .then(response => response.json())
-                .then(data => {
-                  NFT.image = resolveLink(data.image);
-                });
-              } catch (error) {
-                setFetchSuccess(false);
-              }
-
- */
-          }
+    const NFTTokenIds = useMemo(() => {
+        console.log('fetching tokenIds data')
+        if (!data?.result || !data?.result.length) {
+            return data;
         }
-      }
-      setNFTTokenIds(NFTs);
-    }
-  }, [data]);
+        const formattedResult = data.result.map((nft) => {
+            try {
+                if (nft.metadata) {
+                    const metadata = JSON.parse(nft.metadata);
+                    const image = resolveLink(metadata?.image);
+                    return { ...nft, image, metadata };
+                }
+            } catch (error) {
+                return nft;
+            }
+            return nft;
+        });
 
-  return {
-    getNFTTokenIds,
-    NFTTokenIds,
-    totalNFTs,
-    fetchSuccess,
-    error,
-    isLoading,
-  };
+        return { ...data, result: formattedResult };
+    }, [data]);
+
+    return { getNFTTokenIds, data: NFTTokenIds, error, isLoading, isFetching };
 };

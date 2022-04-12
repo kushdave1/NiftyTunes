@@ -192,16 +192,16 @@ function NFTForm (props) {
                     <Card className="shadow-lg animate__animated animate__fadeInUp" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
                         <Card.Body className ="p-5">
                             <h2 className="fw-bold mb-0">Build a NFTYTUNE from scratch</h2>
-                            <small class="mb-5 fw-bold text-primary">in 3 easy steps</small>
+                            <small className="mb-5 fw-bold text-primary">in 3 easy steps</small>
                                       <Form onSubmit={handleMix} className='my-5'>
                                       <Stack gap={4}>
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
+                                                <i className="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>
-                                                 <h4 className="text-start fw-bold mb-0">Upload your trippiest <span class="text-primary">visual</span></h4>
+                                                 <h4 className="text-start fw-bold mb-0">Upload your trippiest <span className="text-primary">visual</span></h4>
                                                  <small className='text-muted'>Any video or image file works!</small>
                                                 </div>
                                             </Col>
@@ -220,11 +220,11 @@ function NFTForm (props) {
 
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
+                                                <i className="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>
-                                                    <h4 className="text-start fw-bold mb-0">Upload an absolute <span class="text-secondary">chune</span></h4>
+                                                    <h4 className="text-start fw-bold mb-0">Upload an absolute <span className="text-secondary">chune</span></h4>
                                                     <small className='text-muted'>We'll merge and loop this over your file.</small>
                                                 </div>
                                             </Col>
@@ -241,7 +241,7 @@ function NFTForm (props) {
 
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-stars" style={{fontSize: "2rem", color: "#39FFA0"}}></i>
+                                                <i className="bi bi-stars" style={{fontSize: "2rem", color: "#39FFA0"}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>

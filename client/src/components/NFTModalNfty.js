@@ -26,11 +26,9 @@ import { TypedDataUtils } from 'ethers-eip712'
 
 
 import { useNFTBalance } from "../hooks/useNFTBalance";
-import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider";
 import { getExplorer } from "../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
-import { Tooltip, Spin, Input } from "antd";
 
 function NFTModalNfty(props) {
      /* navigate hook */

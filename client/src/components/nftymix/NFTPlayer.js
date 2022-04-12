@@ -5,17 +5,20 @@ import Container from 'react-bootstrap/Container'
 
 function NFTPlayer({output}) {
   return (
-    <Container>
-        <video
-              className="rounded shadow mb-5"
+    <React.Fragment>
+        <video 
+              crossOrigin='true'
+              className="shadow"
+              style={{borderRadius:'1rem' }} 
               controls
-              width="400"
+              height="400"
               src={output}
               loop={true}
               autoPlay
+              className = "p-2"
               muted>
         </video>
-    </Container>
+    </React.Fragment>
   )
 }
 

@@ -3,15 +3,13 @@ import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
 
 //custom components
-import NFTForm from '../components/NFTForm'
-import MadeNFTForm from '../components/MadeNFTForm'
+import NFTForm from '../NFTForm'
+import MadeNFTForm from '../MadeNFTForm'
 
-import FileDropzone from '../components/nftmixform/FileDropzone'
-import NFTMixer from '../components/nftmixform/NFTMixer'
-import PresentNFT from '../components/nftmixform/NFTPlayer'
-import AddMetadata from '../components/nftmixform/AddMetadata'
+import FileDropzone from '../nftymix/FileDropzone'
+import NFTMixer from '../nftymix/NFTMixer'
+import NFTMinter from '../nftymix/NFTMinter'
 
-import Navigation from '../components/Navigation'
 
 //Bootstrap
 import Container from 'react-bootstrap/Container'
@@ -28,17 +26,6 @@ import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
 
 let ffmpeg = createFFmpeg({log: true});
 
-
-const Body = styled.div `
-    width:100%;
-    height: 100vh;
-    min-height:100vh;
-    max-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background-color:#17171b;
-    overflow:auto;
-`;
 
 const FormSection = styled.div `
     
@@ -78,7 +65,7 @@ function MultiStepForm() {
             return <NFTMixer formData = {formData} setFormData = {setFormData} ffmpeg = {ffmpeg} fetchFile = {fetchFile}/>;
         }
         else if(page === 2){
-            return <AddMetadata />;
+            return <NFTMinter formData = {formData} setFormData = {setFormData}/>;
         }
     }
 
@@ -102,15 +89,13 @@ function MultiStepForm() {
 
 
     return (
-        <Body>
-                <Navigation />
                 <Container>
                     <Row className='p-5 d-flex justify-content-center'>
                         {ready?(
                             
                             <Card bg="dark-2" 
                                   className="shadow animate__animated animate__fadeInUp align-items-center" 
-                                  style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
+                                  style={{ width: '50rem', height: '35rem', borderRadius:'1rem' }}>
 
                                     <Card.Body>
                                     {/* Card Header */}
@@ -119,7 +104,7 @@ function MultiStepForm() {
                                                      variant="secondary" 
                                         now={page === 0 ? 1 : page === 1 ? 25 : page === 2 ? 50 : page === 3 ? 75 : 100}/> */}
                                         
-                                        <Row className="justify-content-center">
+                                        <Row className="justify-content-center text-light-3">
                                             <h4>{FormTitles[page]}</h4>
                                         </Row>
                                     {/* Card Body */}
@@ -168,8 +153,6 @@ function MultiStepForm() {
                         )}
                     </Row>
                 </Container>
-        </Body>
-                   
     )
 }
 

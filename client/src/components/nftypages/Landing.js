@@ -1,32 +1,16 @@
 import React from 'react'
-import Navigation from '../components/Navigation'
 import Container from 'react-bootstrap/Container'
 import styled from 'styled-components'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import Form from 'react-bootstrap/Form'
-import FormControl from 'react-bootstrap/FormControl'
-import Button from 'react-bootstrap/Button'
-import FloatingLabel from 'react-bootstrap/FloatingLabel'
-import Bg_image from '../assets/images/background1.jpg'
-import LandingCards from '../components/Marketplace'
-import Video from "../assets/videos/landing_video.mp4";
+import Video from "../../assets/videos/landing_video.mp4";
 
-const Body = styled.div `
-    position:relative;
-    width:100%;
-    height:100%;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-    background-color:#17171b;
-    overflow:hidden;
-`;
 
 const HeaderSection = styled.div`
     display:flex;
     flex:1;
     overflow:hidden;
+    padding-top:100px;
 `;
 
 
@@ -68,8 +52,6 @@ function Landing() {
     /* document.body.style.overflow = "hidden";*/
     return (
     <React.Fragment>
-        <Body>
-                <Navigation />
             <HeaderSection>
                 <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
                     <Row className='mt-auto'>
@@ -152,14 +134,8 @@ function Landing() {
 
                 </Container>
             </HeaderSection>
-
-        </Body>
-        
-    
-
     </React.Fragment>
         
-
     )
 }
 

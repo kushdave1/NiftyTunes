@@ -97,7 +97,7 @@ function NFTMixer({formData, setFormData, ffmpeg, fetchFile}) {
         await ffmpeg.run('-i', 'output.mp4', '-i', 'audio1.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
 
         const data = ffmpeg.FS('readFile', 'out.mp4')
-
+        console.log(data);
     
 
         const rf = new Blob([data.buffer], {type: 'video/mp4'});
@@ -116,16 +116,22 @@ function NFTMixer({formData, setFormData, ffmpeg, fetchFile}) {
 }
 
   useEffect(() => {
+      console.log(formData.visualFile);
+      console.log(formData.audioFile);
+      const renderLoop = async() => {
+          if(formData.outputFile == null){
+            await convertToGif();
+          }
+        
+      }
 
-    if(formData.outputFile == null){
-        convertToGif(); 
-        console.log(formData.outputFile);
-    }
-
+      renderLoop().catch(console.error);
+     
   }, []);
 
 
   return (
+      
       <div>
        {isMixing?
           (<h1>mixing</h1>):

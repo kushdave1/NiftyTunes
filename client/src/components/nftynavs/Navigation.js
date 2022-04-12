@@ -9,7 +9,6 @@ import styled from 'styled-components'
 import {useMoralis} from 'react-moralis'
 
 import ConnectButton from './ConnectButton'
-import Logo from '../assets/images/NT_White_Isotype.png'
 
 const NavFormat = styled.div `
     font-weight : 200;
