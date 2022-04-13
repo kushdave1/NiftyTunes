@@ -23,30 +23,6 @@ async function deploy() {
 
 describe("NFTMarketplace", function() {
 
-  it("Should deploy", async function() {
-    const signers = await ethers.getSigners();
-    const minter = signers[0].address;
-
-    const LazyNFT = await ethers.getContractFactory("LazyNFT");
-    const lazynft = await LazyNFT.deploy(minter);
-    await lazynft.deployed();
-
-  });
-
-  it("Should redeem an NFT from a signed voucher", async function() {
-    const { contract, redeemerContract, redeemer, minter } = await deploy()
-
-    const lazyMinter = new LazyMinter({ contractAddress: contract.address, signer: minter })
-    const { voucher, signature } = await lazyMinter.createVoucher(1, "ipfs://bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi")
-
-    await expect(redeemerContract.redeem(redeemer.address, voucher, signature))
-      .to.emit(contract, 'Transfer')  // transfer from null address to minter
-      .withArgs('0x0000000000000000000000000000000000000000', minter.address, voucher.tokenId)
-      .and.to.emit(contract, 'Transfer') // transfer from minter to redeemer
-      .withArgs(minter.address, redeemer.address, voucher.tokenId);
-  });
-
-  
   it("Should create and execute market sales", async function() {
     /* deploy the marketplace */
     const NFTMarketplace = await ethers.getContractFactory("NFTMarketplace")

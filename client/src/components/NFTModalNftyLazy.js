@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import {useNavigate} from 'react-router'
 
 //Bootstrap
 import Container from 'react-bootstrap/Container'
@@ -24,15 +25,17 @@ import Moralis from 'moralis'
 import { ethers } from 'ethers'
 import { TypedDataUtils } from 'ethers-eip712'
 
-
 import { useNFTBalance } from "../hooks/useNFTBalance";
 import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider";
 import { getExplorer } from "../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
+import { signMyItem, deployMyGallery } from "../components/LazyFactoryAction";
 
 function NFTModalNftyLazy(props) {
+
+    let navigate = useNavigate()
 
      /* mint states */
      const [mintErrMessage, setMintErrMessage] = useState('');
@@ -40,6 +43,7 @@ function NFTModalNftyLazy(props) {
      const [formInput, updateFormInput] = useState({ price: '', name: '', description: '' })
      /* mint form states */
     const [name, setName] = useState('');
+    const [galleryName, setGalleryName] = useState('');
     const [description, setDescription] = useState('');
     const [royalties, setRoyalties] = useState('');
     const [supply, setSupply] = useState(1);
@@ -175,9 +179,7 @@ function NFTModalNftyLazy(props) {
 
     // Listing and minting your NFT //
 
-
-
-    async function listNFTForSale(url, listPrice, royalty) {
+    async function listNFTForLazy(url, listPrice, royalty, artName, desc, galleryName) {
         const web3Modal = new Web3Modal()
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
@@ -185,37 +187,14 @@ function NFTModalNftyLazy(props) {
 
         /* next, create the item */
         const price = ethers.utils.parseUnits(listPrice, 'ether')
-        const royaltyFee = (royalty).toString()
+        const royaltyFee = royalty
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
-        console.log("Price" + price, "royalty" + royaltyFeeFinal);
         let contract = new ethers.Contract(marketAddress, contractABIJson, signer)
         let listingPrice = await contract.getListingPrice()
         listingPrice = listingPrice.toString()
-        let transaction = await contract.createToken(url, price, royaltyFeeFinal, { value: listingPrice })
-        await transaction.wait()
-        console.log('success for sure')
-    }
-
-
-
-    async function listNFTForLazy(url, listPrice, royalty) {
-        const web3Modal = new Web3Modal()
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
-
-        /* next, create the item */
-        const price = ethers.utils.parseUnits(listPrice, 'ether')
-        const royaltyFee = (royalty).toString()
-        const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
-        console.log("Price" + price, "royalty" + royaltyFeeFinal);
-        let contract = new ethers.Contract(marketAddress, contractABIJson, signer)
-        let listingPrice = await contract.getListingPrice()
-        listingPrice = listingPrice.toString()
-        let tokenId = await contract.getTokenIdForVoucher()
-        let {voucher, signature} = await createVoucher(tokenId, url, listPrice)
-        console.log(tokenId)
-        console.log(voucher)
+        const galleryAddress = await deployMyGallery(marketAddress, galleryName, 1)
+        console.log(galleryAddress);
+        await signMyItem(galleryAddress, artName, listPrice, url, royaltyFee)
     }
 
 
@@ -236,7 +215,7 @@ function NFTModalNftyLazy(props) {
 
         props.setMintProgress(10)
         props.setMintProgressLabel('Saving Content to IPFS')
-        const arr = new Moralis.File(file.nam, file)
+        const arr = new Moralis.File(file.name, file)
         const fileIPFS = await arr.saveIPFS();
 
         if(fileIPFS){
@@ -266,104 +245,17 @@ function NFTModalNftyLazy(props) {
                     props.setMintProgressLabel('Awaiting Signature')
                     await Moralis.enableWeb3();
                     const tokenURI = ('ipfs://' + metadataFile._hash);
-                    const success = await listNFTForLazy(tokenURI, listingPrice, royalties);
-                    // await listNFTForSale({
-                    //     params:{
-                    //         url: tokenURI,
-                    //         listPrice:
-                    //     },  
-                    //     onSuccess: (res) => { d
-                    //         console.log(res)
-                    //         props.setMintProgress(100)
-                    //         props.setMintProgressLabel('Done!')
-                    //         setMintSuccessMsg(`https://rarible.com/token/${res.data.result.tokenAddress}:${res.data.result.tokenId}`)
-                    //         props.setMintProgress(null)
-                    //         props.setMintProgressLabel(null)
-                    //     }
-                    // })
+                    const success = await listNFTForLazy(tokenURI, listingPrice, royalties, name, description, galleryName);
+                    props.setMintProgress(100)
+                    props.setMintProgressLabel('Done!')
+                    setMintSuccessMsg(`Congrats, you have minted and listed your NFT for sale! `)
+                    props.setMintProgress(null)
+                    props.setMintProgressLabel(null)
+                    
                 }
             }); 
         }
-  //console.log(gifIPFS)
     }
-    }
-
-
-    // Lazy mint testing //
-
-    const typedData = {
-      EIP712Domain: [
-        {name: "name", type: "string"},
-        {name: "version", type: "string"},
-        {name: "chainId", type: "uint256"},
-        {name: "verifyingContract", type: "address"},
-      ],
-      NFTVoucher: [
-        {name: "tokenId", type: "uint256"},
-        {name: "minPrice", type: "uint256"},
-        {name: "uri", type: "string"},  
-      ]
-    }
-
-    async function _signingDomain(chain, contractAddress) {
-
-        const _domain = {
-            name: SIGNING_DOMAIN_NAME,
-            version: SIGNING_DOMAIN_VERSION,
-            verifyingContract: contractAddress,
-            chain,
-        }
-        return _domain
-    }
-
-    
-    
-
-    async function formatVoucher(voucher) {
-
-        const web3Modal = new Web3Modal()
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
-        const chainId = await signer.getChainId()
-        const contract = new ethers.Contract(marketAddress, contractABIJson, signer)
-
-        const domain = await _signingDomain(chainId, contract)
-        return {
-        domain,
-        types: typedData,
-        primaryType: 'NFTVoucher',
-        message: voucher,
-        }
-    }
-
-    async function createVoucher(tokenId, uri, minPrice) {
-
-        const web3Modal = new Web3Modal()
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
-
-        const voucher = { tokenId, uri, minPrice }
-        const typedData = await formatVoucher(voucher)
-        const digest = TypedDataUtils.encodeDigest(typedData)
-        const userAddress = await signer.getAddress()
-
-        const signature = await signer.signMessage(digest)
-        const newVoucher = new VoucherStorage();
-
-        newVoucher.set("address", userAddress);
-        newVoucher.set("voucher", voucher);
-        newVoucher.set("signature", signature);
-        newVoucher.set("digest", digest);
-
-        newVoucher.save();
-
-        return {
-        voucher,
-        signature,
-        digest,
-        }
     }
 
 
@@ -372,6 +264,7 @@ function NFTModalNftyLazy(props) {
     // button interaction to handle mint //
 
     const handleMint = (e) => {
+        console.log(props.resultFile);
         e.preventDefault();
         handleSaveIPFS(props.resultFile);
     }
@@ -433,6 +326,18 @@ function NFTModalNftyLazy(props) {
                             <Col>
                              {/* NFT metadata */}
                            <Form>
+                            <Form.Group className="mb-3" controlId="nft.Name">
+                                <FloatingLabel
+                                    controlId="floatingInput"
+                                    label="Gallery Name"
+                                    className="mb-3"
+                                >
+                                <Form.Control 
+                                    type="input"
+                                    placeholder= 'Gallery Name'
+                                    onChange={e => setGalleryName(e.target.value)}/>
+                                </FloatingLabel>
+                            </Form.Group>
                                {/* Name */}
                             <Form.Group className="mb-3" controlId="nft.Name">
                                 <FloatingLabel
@@ -475,7 +380,7 @@ function NFTModalNftyLazy(props) {
                                              onChange={e => setRoyalties(e.target.value)}/>
                                     </FloatingLabel>
                                     
-                                    <Button variant="outline-secondary" disabled><i class="bi bi-percent"></i>
+                                    <Button variant="outline-secondary" disabled><i className="bi bi-percent"></i>
                                         </Button>
                                  </InputGroup>
             
@@ -498,8 +403,8 @@ function NFTModalNftyLazy(props) {
                             {mintSuccessMsg &&
                                 <Alert variant='success'>
                                 <i class="bi bi-check-circle-fill"></i>
-                               {' '} Congrats! Your NFT has been minted. View and Sell in 
-                                <Alert.Link href={mintSuccessMsg}> Rarible</Alert.Link>
+                               {' '} {mintSuccessMsg}
+                                <Alert.Link onClick={() => navigate('/profile/onsale')}>View in your profile</Alert.Link>
                                 </Alert>
                             }
                             {props.mintProgress && props.mintProgressLabel &&

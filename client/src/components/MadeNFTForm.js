@@ -24,6 +24,7 @@ import Moralis from 'moralis'
 
 //Components
 import NFTModalNfty from './NFTModalNfty'
+import NFTModalNftyLazy from './NFTModalNftyLazy'
 
 function MadeNFTForm(props) {
     document.body.style.overflow = "hidden";
@@ -112,16 +113,16 @@ function MadeNFTForm(props) {
                     <Card className="shadow-lg animate__animated animate__fadeInUp" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
                         <Card.Body className ="p-5">
                             <h2 className="fw-bold mb-0">Create an original NFTYTUNE</h2>
-                            <small class="mb-5 fw-bold text-primary">in 2 easy steps</small>
+                            <small className="mb-5 fw-bold text-primary">in 2 easy steps</small>
                                       <Form onSubmit={handleRender} className='my-5'>
                                       <Stack gap={4}>
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
+                                                <i className="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>
-                                                 <h4 className="text-start fw-bold mb-0">Upload your original <span class="text-primary">masterpiece</span></h4>
+                                                 <h4 className="text-start fw-bold mb-0">Upload your original <span className="text-primary">masterpiece</span></h4>
                                                  <small className='text-muted'>Any video or image file works! (audio file support coming soon)</small>
                                                 </div>
                                             </Col>
@@ -139,7 +140,7 @@ function MadeNFTForm(props) {
                                     
                                         <Row>
                                             <Col xs={1}>
-                                                <i class="bi bi-stars" style={{fontSize: "2rem", color: "#39FFA0"}}></i>
+                                                <i className="bi bi-stars" style={{fontSize: "2rem", color: "#39FFA0"}}></i>
                                             </Col>
                                             <Col className="align-self-center">
                                                 <div>
@@ -156,13 +157,13 @@ function MadeNFTForm(props) {
                                         <Row>
                                         {renderMessage &&
                                             <Alert variant='danger'>
-                                                <i class="bi bi-radioactive"></i>
+                                                <i className="bi bi-radioactive"></i>
                                                 {'  '}{renderMessage}    
                                              </Alert>
                                         }
                                          {isRender &&
                                              <Alert variant='dark'>
-                                                <i class="bi-check-circle-fill"></i>
+                                                <i className="bi-check-circle-fill"></i>
                                                 {'  '}<strong> Hang Tight</strong>, we're building the NFT as we speak 
                                                {'   '} <Spinner as='span' size='sm' animation="border" variant='dark'/>
                                             </Alert>
@@ -176,7 +177,7 @@ function MadeNFTForm(props) {
                     </Card> 
                 </div>
                 {output &&
-                    <NFTModalNfty 
+                    <NFTModalNftyLazy 
                         show = {show}
                         setShow = {setShow} 
                         toggleShow = {toggleShow}

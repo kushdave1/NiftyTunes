@@ -48,7 +48,7 @@ function ConnectButton() {
     return isAuthenticated?(
             <DropdownButton
                 id="user-profile-button"
-                variant="gray"
+                variant="secondary"
                 menuVariant="dark"
                 title= {address.slice(0,5) + '...' + address.slice(35,41)}
                 className="mt-2"
