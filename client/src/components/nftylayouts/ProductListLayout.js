@@ -9,8 +9,8 @@ import Col from 'react-bootstrap/Col'
 function ProductListLayout({children}) {
   return (
     <Container>
-        <Row xs={1} md={2} className='g-4'>
-            {children}
+        <Row xs={1} md={3} className='g-4 justify-content-center'>
+              {children}
         </Row>
     </Container>
   )

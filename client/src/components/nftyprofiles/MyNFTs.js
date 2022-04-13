@@ -1,15 +1,29 @@
 import React, {useState, useEffect} from 'react';
+import CardGroup from 'react-bootstrap/CardGroup'
 import Card from 'react-bootstrap/Card'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import { useMoralis, useNFTBalances, useERC20Balances } from "react-moralis"
 import Container from 'react-bootstrap/Container'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
+import Nav from 'react-bootstrap/Nav'
 import Modal from 'react-bootstrap/Modal'
+import FloatingLabel from 'react-bootstrap/FloatingLabel'
+import FormGroup from 'react-bootstrap/FormGroup'
+import Spinner from 'react-bootstrap/Spinner'
+import Alert from 'react-bootstrap/Alert'
+import ProgressBar from 'react-bootstrap/ProgressBar'
+import Badge from 'react-bootstrap/Badge'
+import Stack from 'react-bootstrap/Stack'
 import Moralis from 'moralis'
 import $ from "jquery"
-import { useNFTBalance } from "../hooks/useNFTBalance";
-import { useMoralisDapp } from "../providers/MoralisDappProvider/MoralisDappProvider";
+import { useNFTBalance } from "../../hooks/useNFTBalance";
+import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider";
+import { getExplorer } from "../../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
+import { Tooltip, Spin, Input } from "antd";
 
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
@@ -30,7 +44,7 @@ const styles = {
 };
 
 
-function MyListedNFTs() {
+function MyNFTs() {
   const {isAuthenticated, user} = useMoralis();
   const { getNFTBalances, data, error, isLoading, isFetching } = useNFTBalances();
   const [address, setAddress] = useState();
@@ -140,7 +154,7 @@ function MyListedNFTs() {
   };
 
 
-  const NFTBalancesListed = async() => {
+  const NFTBalances = async() => {
     const web3Modal = new Web3Modal({})
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
@@ -148,7 +162,7 @@ function MyListedNFTs() {
 
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
 
-    const data = await marketplaceContract.fetchItemsListed()
+    const data = await marketplaceContract.fetchMyNFTs()
 
     const items = await Promise.all(data.map(async i => {
       const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
@@ -172,52 +186,19 @@ function MyListedNFTs() {
     console.log(items);
     setLoading(true) 
   }
-  
-  const LazyBalancesListed = async() => {
+
+
+  const ListNFT = async(nft, listPrice) => {
     const web3Modal = new Web3Modal({})
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
-
-    const signerAddress = await signer.getAddress();
-    console.log(signerAddress)
-    const ItemImage = await Moralis.Object.extend("ItemImages");
-
-    const query = new Moralis.Query(ItemImage);
-
-    query.equalTo("signerAddress", signerAddress);
-    const data = await query.find();
-    const items = []
-    for (let i = 0; i < data.length; i++) {
-      const object = data[i];
-      const meta = await axios.get(fixURL(object.get('tokenURI')))
-      console.log(meta);
-      let item = {
-        price: object.get("price"), 
-        tokenId: object.get("tokenId"),
-        owner: object.get("signerAddress"),
-        image: fixImageURL(meta.data.image),
-        name: meta.data.name,
-        description: meta.data.description,
-        tokenURI: object.get("tokenUri")
-      }
-      items.push(item);
-    }
-    setNFTs(items);
-    setLoading(true) 
-  }
-
-
-  const deListNFT = async(nft) => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    const price = ethers.utils.parseUnits(listPrice, 'ether')
     
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
     let listingPrice = await marketplaceContract.getListingPrice()
     console.log(nft)
-    let transaction = await marketplaceContract.delistToken(nft.tokenId)
+    let transaction = await marketplaceContract.resellToken(nft.tokenId, price, {value: listingPrice})
     await transaction.wait()
     console.log('success for sure')
 
@@ -292,7 +273,7 @@ function MyListedNFTs() {
     <Container>
       <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
         <div>
-          <button onClick={() => LazyBalancesListed()}>Fetch NFTs you own that are listed</button>
+          <Button onClick={() => NFTBalances()}>Fetch NFTs you own</Button>
         </div>
       </Row>
       <Row>
@@ -308,19 +289,25 @@ function MyListedNFTs() {
               <div key="{nft.description}">{nft.description}</div>
 
               <div>
-                <button onClick={() => {handleShow(); handleSellClick(nft)}}>Delist this NFT</button>
+                <button onClick={() => {handleShow(); handleSellClick(nft)}}>List this NFT</button>
               </div>
             </Card.Body>
           </Card>
           <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-            <div>
-              {/* <button onClick={() => approveAll(nftToSend)}>Approve</button> */}
-              <button onClick={() => deListNFT(nftToSend)}>DeList</button>
-            </div>
+            <Input
+              autoFocus
+              placeholder="Listing Price in ETH"
+              onChange={(e) => setPrice(e.target.value)}
+            />
+            
+              <Button variant = 'primary' onClick={() => ListNFT(nftToSend, price)}>List</Button>
+            
           </Modal>
+        
         </Col>
         )
         )} 
+        
       </Row>
       
       
@@ -329,4 +316,5 @@ function MyListedNFTs() {
   );
 }
 
-export default MyListedNFTs;
+export default MyNFTs;
+

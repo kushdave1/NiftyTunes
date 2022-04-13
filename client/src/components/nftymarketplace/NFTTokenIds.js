@@ -5,11 +5,8 @@ import Moralis from 'moralis'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
-import NFTPlayer from "components/nftymix/NFTPlayer"
-import Col from 'react-bootstrap/Col'
-import Card from 'react-bootstrap/Card'
 import ProductCardsLayout from "components/nftylayouts/ProductCardsLayout";
-
+import ProductSkeleton from "components/nftyloader/ProductSkeleton";
 
 function NFTTokenIds() {
   const {isAuthenticated, user} = useMoralis();
@@ -19,13 +16,15 @@ function NFTTokenIds() {
   const contractABIJson = JSON.parse(marketContractABI);
   const [nftToSend, setNftToSend] = useState(null);
   const [price, setPrice] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   
 
   useEffect(() => {
-    if(!user) return null
-    fetchTokenIds();
+    fetchTokenIds()
+    setTimeout(() => {
+      setLoading(false)
+    }, 4000);
 }, []);
 
   
@@ -53,16 +52,14 @@ function NFTTokenIds() {
     const signer = provider.getSigner()
 
     const signerAddress = await signer.getAddress();
-    console.log(signerAddress)
     const ItemImage = await Moralis.Object.extend("ItemImages");
 
     const query = new Moralis.Query(ItemImage);
     const data = await query.find();
     const items = []
-    for (let i = 0; i < data.length; i++) {
+    for (const i in data) {
       const object = data[i];
       const meta = await axios.get(fixURL(object.get('tokenURI')))
-      console.log(meta);
       let item = {
         price: object.get("price"), 
         tokenId: object.get("tokenId"),
@@ -75,22 +72,28 @@ function NFTTokenIds() {
       items.push(item);
   }
     setNFTs(items);
-    setLoading(true) 
 }
 
-  console.log()
-
   return (
-      <div>
-          {nfts &&
-            nfts.map((nft, index) => {
-              return (
-                <Col>
-                  <ProductCardsLayout image={nft?.image} name={nft.name} description={nft.description}/>
-                </Col>
-              );
-            })}
-      </div>
+    <React.Fragment>
+          {loading?
+              //render skeleton when loading
+            (Array(6)
+            .fill()
+            .map((item, index) => {
+                return(
+                    <ProductSkeleton key={index} />
+                )
+              })):
+              //render nfts when finished loading
+            (nfts &&
+              nfts.map((nft, index) => {
+                return (
+                    <ProductCardsLayout key={index} image={nft?.image} name={nft.name} description={nft.description}/>
+                );
+              }))
+          }
+    </React.Fragment>
   );
 }
 

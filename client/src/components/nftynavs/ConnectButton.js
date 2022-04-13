@@ -9,6 +9,8 @@ import Badge from 'react-bootstrap/Badge'
 import Spinner from 'react-bootstrap/Spinner'
 import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
+import Nav from 'react-bootstrap/Nav'
+
 
 function ConnectButton() {
 
@@ -25,43 +27,23 @@ function ConnectButton() {
 
     async function handleConnect(){
         await authenticate({
-            onSuccess: () => navigate('/createnft'),
+            onSuccess: () => navigate('/marketplace'),
             onError: () => console.log(authError)
         })
 
     }
 
-    async function handleDisconnect(){
-        await logout({
-            onSuccess: () => navigate('/')
-        })
-    }
-
     if(isAuthenticating){
-        return <Button variant="primary" disabled>
-                <Spinner animation="grow" size="sm"/>
-                    Connecting
-                </Button>
+        return <Spinner variant="light" animation="grow" size="sm" />
+                
     }
 
 
     return isAuthenticated?(
-            <DropdownButton
-                id="user-profile-button"
-                variant="secondary"
-                menuVariant="dark"
-                title= {address.slice(0,5) + '...' + address.slice(35,41)}
-                className="mt-2"
-            >
-                <Dropdown.Item href="#/action-2"><i class="bi bi-eye-fill"></i> View NFTs</Dropdown.Item>
-                <Dropdown.Item href="#/action-3"><i class="bi bi-gear-fill"></i> Settings</Dropdown.Item>
-                <Dropdown.Divider />
-                <Dropdown.Item onClick={handleDisconnect}><i class="bi bi-box-arrow-left"></i> Logout</Dropdown.Item>
-            </DropdownButton>
+            <></>
                 
     ) : (
-        <Button variant="outline-primary" onClick={handleConnect}>Authenticate via MetaMask</Button>
-    )
+        <Nav.Link className="text-light-2" style={{fontWeight:"500"}} onClick={handleConnect}>Sign Up</Nav.Link>    )
 }
 
 export default ConnectButton

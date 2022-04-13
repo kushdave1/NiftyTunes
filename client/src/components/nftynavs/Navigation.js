@@ -8,8 +8,8 @@ import {useNavigate} from 'react-router'
 import styled from 'styled-components'
 import {useMoralis} from 'react-moralis'
 
+import AccountButton from './AccountButton'
 import ConnectButton from './ConnectButton'
-
 const NavFormat = styled.div `
     font-weight : 200;
 `;
@@ -33,11 +33,12 @@ function Navigation() {
                         <Navbar.Collapse className='ms-5'>
                             <Nav.Link className="text-light-2" href="#action2" style={{fontWeight:"500"}}>Individuals</Nav.Link>
                             <Nav.Link className="text-light-2" href="#action3" style={{fontWeight:"500"}}>Creators</Nav.Link>
-                            <Nav.Link className="text-secondary" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
+                            <Nav.Link className="text-light-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
+                            <ConnectButton />
                             {user?
                                 (
                                 <>
-                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT builder</Nav.Link>
+                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT Looper</Nav.Link>
                                 <Nav.Link className="text-light-2" style={{fontWeight:"500"}} onClick={()=> navigate('/profile')}>My profile</Nav.Link>
                                 </>
                                 ):
@@ -47,8 +48,7 @@ function Navigation() {
                             </NavFormat>
                                 
                                 <Navbar.Collapse className='justify-content-end'>
-                                        <ConnectButton />
-                                
+                                        <AccountButton />
                                 </Navbar.Collapse>
                     </Container>
             </Navbar>

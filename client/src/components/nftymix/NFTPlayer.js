@@ -9,13 +9,12 @@ function NFTPlayer({output}) {
         <video 
               crossOrigin='true'
               className="shadow"
-              style={{borderRadius:'1rem' }} 
+              style={{borderRadius:'.25rem'}} 
               controls
-              height="400"
+              height="300"
               src={output}
               loop={true}
               autoPlay
-              className = "p-2"
               muted>
         </video>
     </React.Fragment>
