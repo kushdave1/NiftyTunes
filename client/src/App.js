@@ -9,8 +9,8 @@ import Landing from './components/nftypages/Landing'
 import CreateNFT from './components/nftypages/CreateNFT'
 import Explore from './components/nftypages/Explore'
 import MyProfile from './components/nftypages/MyProfile'
-import MyListedNFTs from './components/MyListedNFTs'
-import MyNFTs from './components/MyNFTs'
+import MyListedNFTs from './components/nftyprofiles/MyListedNFTs'
+import MyNFTs from './components/nftyprofiles/MyNFTs'
 import MultiStepForm from './components/nftypages/MultiStepForm'
 
 //Layout

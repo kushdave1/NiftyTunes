@@ -17,11 +17,11 @@ import Col from 'react-bootstrap/Col'
 import Button from 'react-bootstrap/Button'
 
 //components
-import MyNFTs from '../MyNFTs'
+import MyNFTs from '../nftyprofiles/MyNFTs'
 
 //moralis
 import { useMoralis } from 'react-moralis'
-import MyListedNFTs from 'components/MyListedNFTs'
+import MyListedNFTs from 'components/nftyprofiles/MyListedNFTs'
 
 
 const HeaderSection = styled.div `

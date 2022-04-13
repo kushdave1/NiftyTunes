@@ -4,8 +4,8 @@ import styled from 'styled-components'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Video from "../../assets/videos/landing_video.mp4";
-
-
+import ConnectButton from '../nftynavs/ConnectButton'
+import ExploreButton from '../nftynavs/ExploreButton'
 const HeaderSection = styled.div`
     display:flex;
     flex:1;
@@ -78,16 +78,18 @@ function Landing() {
                             </Row>
                        </Col>
                        
-                        <Col xs={12} md={6} lg={8}>
+                        <Col xs={12} md={8} lg={8}>
                             <Row className='mt-auto'>
                             <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small>
-                            <h1 className="text-light display-3"> 
-                                <span className = "animate__animated animate__fadeIn animate__delay-1s">Build Value Through Experiences,</span> 
-                                <span className = "animate__animated animate__fadeIn animate__delay-2s">{' '}Not Hype.</span></h1>
-                            <Col xs={12} md={8}>
-                                <p className="lead text-light animate__animated animate__fadeInLeft animate__delay-4s">Powered by a community of professional artists you know and love, 
-                                the NftyTunes platform allows you to build, sell, and buy NFTs that provide something truly tangible.</p>
+                            <h1 className="text-light display-3">Collect Digital Vibes</h1>
+                            <Col xs={12} md={6}>
+                                <p className="lead text-light">Purchase, build, and sell musical GIFs from the world's top artists.</p>
                             </Col>
+                            </Row>
+                            <Row>
+                                <Col md={4}>
+                                   <ExploreButton />
+                                </Col>
                             </Row>
                         </Col>
 
@@ -125,10 +127,6 @@ function Landing() {
                             </Col>
                         </Row>
                         </Col>
-                        
-                        <Col className='border border-right-0 border-white rounded p-3 d-none d-lg-block' md={4}>
-                                <h4 className='text-light text-center align-middle'>Authenticate with MetaMask to get started!</h4>
-                            </Col>
                       
                     </Row>
 

@@ -17,7 +17,6 @@ import Col from 'react-bootstrap/Col'
 import {useMoralis} from 'react-moralis'
 
 const MarketPlaceSection = styled.div `
-  
 `;
 
 const SearchAndFilterSection = styled.div``;
