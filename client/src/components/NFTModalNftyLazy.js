@@ -214,6 +214,7 @@ function NFTModalNftyLazy(props) {
         listingPrice = listingPrice.toString()
         const galleryAddress = await deployMyGallery(marketAddress, galleryName, 1);
         console.log(galleryAddress);
+        
         await signMyItem(galleryAddress, artName, listPrice, url, royaltyFee)
     }
 

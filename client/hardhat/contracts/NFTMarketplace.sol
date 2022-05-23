@@ -10,21 +10,13 @@ import "@openzeppelin/contracts/utils/introspection/ERC165.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Royalty.sol";
 
-import "@openzeppelin/contracts/utils/Counters.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
-import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "hardhat/console.sol";
 
 contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
     using Counters for Counters.Counter;
     Counters.Counter private _marketItemId;
     Counters.Counter private _itemsSold;
 
-    uint256 listingPrice = 0.0000001 ether;
+    uint256 nftySecondaryFee = 5;
     address payable owner;
 
     mapping(uint256 => MarketItem) private idToMarketItem;
@@ -33,159 +25,234 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
     struct MarketItem {
       uint256 tokenId;
-      address galleryAddress;
+      uint256 marketItemId;
       address payable seller;
       address payable owner;
       address payable publisher;
+      address payable publisherTwo;
       uint256 price;
       uint256 royalty;
       bool sold;
+      bool bred;
+      bool isNftyLoop;
     }
 
     event MarketItemCreated (
       uint256 indexed tokenId,
-      address galleryAddress,
+      uint256 indexed marketItemId,
       address seller,
       address owner,
       address publisher,
+      address publisherTwo,
       uint256 price,
       uint256 royalty,
-      bool sold
+      bool sold,
+      bool bred,
+      bool isNftyLoop
     );
 
 
     event received(address, uint256);
 
+
+
     constructor() ERC721("NftyTunes Tokens", "NFTY") {
       owner = payable(msg.sender);
     }
 
-    /* Updates the listing price of the contract */
-    function updateListingPrice(uint _listingPrice) public payable {
-      require(owner == msg.sender, "Only marketplace owner can update listing price.");
-      listingPrice = _listingPrice;
-    }
-
-    /* Returns the listing price of the contract */
-    function getListingPrice() public view returns (uint256) {
-      return listingPrice;
-    }
 
 
 
-    function createOwnedToken(address galleryAddress, string memory tokenUri, uint256 price, uint256 artworkId, uint256 royaltyValue, address signer, address buyer) public payable returns (uint) {
+
+    function createOwnedToken(
+      address galleryAddress, 
+      string memory tokenUri, 
+      uint256 price, 
+      uint256 artworkId, 
+      uint256 royaltyValue, 
+      address signer, 
+      address buyer
+      ) public payable returns (uint) {
+      require(msg.sender == galleryAddress, "Only the controller can access this function");
       _marketItemId.increment();
       uint256 newMarketItemId = _marketItemId.current();
       
       _mint(signer, newMarketItemId);
       _setTokenURI(newMarketItemId, tokenUri);
 
-      _transfer(signer, buyer, newMarketItemId);
-
-
       artworkIdToMarketItemId[artworkId] = newMarketItemId;
 
-      idToMarketItem[newMarketItemId] =  MarketItem(
-        newMarketItemId,
-        galleryAddress,
-        payable(signer),
-        payable(buyer),
-        payable(signer),
-        price,
-        royaltyValue,
-        true
-      );
+      createOwnedItem(newMarketItemId, price, royaltyValue, signer, buyer, galleryAddress);
 
-      emit MarketItemCreated(
-        newMarketItemId,
-        galleryAddress,
-        address(signer),
-        address(buyer),
-        address(signer),
-        price,
-        royaltyValue,
-        true
-      );
-
-
-
-      // IERC721(galleryAddress).transferFrom(
-      //   msg.sender,
-      //   address(this),
-      //   tokenId
-      // )
-
-
-      
       return newMarketItemId;
     }
 
-
-
-
-
-    /* Mints a token and lists it in the marketplace */
-    function createToken(address galleryAddress, uint256 tokenId, uint256 price, uint256 royaltyValue) public payable returns (uint) {
-      _marketItemId.increment();
-      uint256 newMarketItemId = _marketItemId.current();
-      
-      // _mint(msg.sender, newTokenId);
-      // _setTokenURI(newTokenId, tokenURI);
-
-      IERC721(galleryAddress).transferFrom(
-         msg.sender,
-         address(this),
-         tokenId
-      );
-
-
-      createMarketItem(galleryAddress, newMarketItemId, price, royaltyValue);
-      return newMarketItemId;
-    }
-
-    function createMarketItem(
-      address galleryAddress,
+    function createOwnedItem(
       uint256 tokenId,
       uint256 price,
-      uint256 royaltyValue
+      uint256 royaltyValue, 
+      address signer,
+      address buyer,
+      address galleryAddress
     ) public payable nonReentrant {
       require(price > 0, "Price must be at least 1 wei");
 
       idToMarketItem[tokenId] =  MarketItem(
         tokenId,
-        galleryAddress,
+        tokenId,
+        payable(signer),
+        payable(buyer),
+        payable(signer),
+        payable(signer),
+        price,
+        royaltyValue,
+        true,
+        false,
+        true
+      );
+
+      _transfer(signer, buyer, tokenId);
+      emit MarketItemCreated(
+        tokenId,
+        tokenId,
+        address(signer),
+        address(buyer),
+        address(signer),
+        address(signer),
+        price,
+        royaltyValue,
+        true,
+        false,
+        true
+      );
+    }
+
+
+
+
+    
+
+    function createMarketItem(
+      uint256 tokenId,
+      uint256 price,
+      uint256 royaltyValue,
+      address nftContract
+    ) public payable nonReentrant {
+      require(price > 0, "Price must be at least 1 wei");
+
+      _marketItemId.increment();
+      uint256 newMarketItemId = _marketItemId.current();
+
+      idToMarketItem[newMarketItemId] =  MarketItem(
+        tokenId,
+        newMarketItemId,
         payable(msg.sender),
         payable(address(this)),
         payable(msg.sender),
+        payable(address(this)),
         price,
         royaltyValue,
+        false,
+        false,
         false
       );
 
-      _transfer(msg.sender, address(this), tokenId);
+      setApprovalForAll(address(this), true);
+      IERC721(nftContract).transferFrom(
+         msg.sender,
+         address(this),
+         tokenId
+      );
+
       emit MarketItemCreated(
         tokenId,
-        galleryAddress,
+        newMarketItemId,
         msg.sender,
         address(this),
         address(msg.sender),
+        address(this),
         price,
         royaltyValue,
+        false,
+        false,
         false
       );
     }
 
 
+
+
+    function createBredToken(uint256 tokenIdOne, uint256 tokenIdTwo, string memory bredTokenUri) public payable returns (uint) {
+
+      require(idToMarketItem[tokenIdOne].owner == msg.sender, "Only item 1 owner can perform this operation");
+      require(idToMarketItem[tokenIdTwo].owner == msg.sender, "Only item 2 owner can perform this operation");
+      _marketItemId.increment();
+      uint256 newMarketItemId = _marketItemId.current();
+      uint256 price = 0 ether;
+      _mint(msg.sender, newMarketItemId);
+      _setTokenURI(newMarketItemId, bredTokenUri);
+
+      uint256 bredRoyaltyValue = (idToMarketItem[tokenIdOne].royalty + idToMarketItem[tokenIdTwo].royalty) / 2;
+
+      createBredItem(newMarketItemId, price, bredRoyaltyValue, tokenIdOne, tokenIdTwo);
+
+      return newMarketItemId;
+
+    }
+
+    function createBredItem(
+      uint256 tokenId,
+      uint256 price,
+      uint256 royaltyValue,
+      uint256 tokenIdOne,
+      uint256 tokenIdTwo
+    ) public payable nonReentrant {
+      require(price > 0, "Price must be at least 1 wei");
+
+      idToMarketItem[tokenId] =  MarketItem(
+        tokenId,
+        tokenId,
+        payable(msg.sender),
+        payable(msg.sender),
+        payable(idToMarketItem[tokenIdOne].publisher),
+        payable(idToMarketItem[tokenIdTwo].publisher),
+        price,
+        royaltyValue,
+        true,
+        true,
+        true
+      );
+
+      emit MarketItemCreated(
+        tokenId,
+        tokenId,
+        address(msg.sender),
+        address(msg.sender),
+        address(idToMarketItem[tokenIdOne].publisher),
+        address(idToMarketItem[tokenIdTwo].publisher),
+        price,
+        royaltyValue,
+        true,
+        true,
+        true
+      );
+      
+    }
+
+
+
+
+
+
     /* allows someone to resell a token they have purchased */
     function resellToken(uint256 tokenId, uint256 price) public payable {
       require(idToMarketItem[tokenId].owner == msg.sender, "Only item owner can perform this operation");
-      require(msg.value == listingPrice, "Price must be equal to listing price");
       idToMarketItem[tokenId].sold = false;
       idToMarketItem[tokenId].price = price;
       idToMarketItem[tokenId].seller = payable(msg.sender);
       idToMarketItem[tokenId].owner = payable(address(this));
       _itemsSold.decrement();
-
+      setApprovalForAll(address(this), true);
       _transfer(msg.sender, address(this), tokenId);
     }
 
@@ -193,6 +260,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
     function delistToken(uint256 tokenId) public payable {
       require(idToMarketItem[tokenId].seller == msg.sender, "Only item seller can perform this operation");
+
       idToMarketItem[tokenId].sold = true;
 
       idToMarketItem[tokenId].seller = payable(address(this));
@@ -205,24 +273,56 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
 
 
+
+
     /* Creates the sale of a marketplace item */
     /* Transfers ownership of the item, as well as funds between parties */
     function createMarketSale(
       uint256 tokenId
       ) public payable {
+
+      require(idToMarketItem[tokenId].owner == msg.sender, "Only item owner can perform this operation");
       uint price = idToMarketItem[tokenId].price;
-      uint fee = (msg.value * idToMarketItem[tokenId].royalty) / 100;
-      address seller = idToMarketItem[tokenId].seller;
-      require(msg.value == price, "Please submit the asking price in order to complete the purchase");
-      idToMarketItem[tokenId].owner = payable(msg.sender);
-      idToMarketItem[tokenId].sold = true;
-      idToMarketItem[tokenId].seller = payable(address(0));
-      _itemsSold.increment();
-      _transfer(address(this), msg.sender, tokenId);
-      payable(owner).transfer(listingPrice);
-      payable(idToMarketItem[tokenId].publisher).transfer(fee);
-      payable(seller).transfer(msg.value-fee);
+      uint nftyFee = (msg.value * nftySecondaryFee) / 100;
+      if (idToMarketItem[tokenId].bred == false) {
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        uint artistFee = (msg.value * idToMarketItem[tokenId].royalty) / 100;
+        address seller = idToMarketItem[tokenId].seller;
+        idToMarketItem[tokenId].owner = payable(msg.sender);
+        idToMarketItem[tokenId].sold = true;
+        idToMarketItem[tokenId].seller = payable(address(0));
+        _itemsSold.increment();
+        _transfer(address(this), msg.sender, tokenId);
+        payable(idToMarketItem[tokenId].publisher).transfer(artistFee);
+        payable(address(this)).transfer(nftyFee);
+        payable(seller).transfer(msg.value-artistFee);
+      }
+      else {
+        uint price = idToMarketItem[tokenId].price;
+        uint artistFeeOne = ((msg.value * idToMarketItem[tokenId].royalty) / 100) / 2;
+        uint artistFeeTwo = ((msg.value * idToMarketItem[tokenId].royalty) / 100) / 2;
+        uint nftyFee = (msg.value * nftySecondaryFee) / 100;
+        address seller = idToMarketItem[tokenId].seller;
+        require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+        idToMarketItem[tokenId].owner = payable(msg.sender);
+        idToMarketItem[tokenId].sold = true;
+        idToMarketItem[tokenId].seller = payable(address(0));
+        _itemsSold.increment();
+        _transfer(address(this), msg.sender, tokenId);
+        payable(idToMarketItem[tokenId].publisher).transfer(artistFeeOne);
+        payable(idToMarketItem[tokenId].publisherTwo).transfer(artistFeeTwo);
+        payable(address(this)).transfer(nftyFee);
+        payable(seller).transfer(msg.value-artistFeeOne-artistFeeTwo-nftyFee);
+          
+      }
     }  
+
+
+
+
+
+
+    /* FETCH ITEMS FUNCTIONS */
 
     /* Returns all unsold market items */
     function fetchMarketItems() public view returns (MarketItem[] memory) {
@@ -297,6 +397,16 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard {
 
 }
 
+
+
+
+
+import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "@openzeppelin/contracts/utils/cryptography/draft-EIP712.sol";
+import "hardhat/console.sol";
+
+
 contract LazyFactory is
     ERC721URIStorage,
     EIP712,
@@ -309,7 +419,7 @@ contract LazyFactory is
 
     address payable theMarketPlace;
     address payable theArtist;
-    uint256 nftyFee = 0.001 ether;
+    uint256 nftyFee = 7;
     string private constant SIGNING_DOMAIN_NAME = "NFTY";
     string private constant SIGNING_DOMAIN_VERSION = "1";
     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
@@ -362,42 +472,18 @@ contract LazyFactory is
         // transfer the token to the buyer
         // _transfer(artist, buyer, voucher.artworkId);
 
-        NFTMarketplace n = NFTMarketplace(theMarketPlace);
+        NFTMarketplace nftMarketplace = NFTMarketplace(theMarketPlace);
 
         uint256 amount = msg.value;
-        n.createOwnedToken(address(this), voucher.tokenUri, amount, voucher.artworkId, voucher.royalty, signer, msg.sender);
+        nftMarketplace.createOwnedToken(address(this), voucher.tokenUri, amount, voucher.artworkId, voucher.royalty, signer, msg.sender);
 
-        payable(artist).transfer(amount - nftyFee);
-        payable(theMarketPlace).transfer(nftyFee);
+        payable(artist).transfer(amount - (amount * nftyFee / 100));
+        payable(theMarketPlace).transfer(amount * nftyFee / 100);
 
         emit RedeemedAndMinted(voucher.artworkId);
     }
 
-    // function _hash(Voucher calldata voucher) internal view returns (bytes32) {
-        
-    //     return
-    //         // _hashTypedDataV4(bytes32 structHash) → bytes32
-    //         _hashTypedDataV4(
-    //             keccak256(
-    //                 abi.encode(
-    //                     VOUCHER_TYPEHASH,
-    //                     voucher.artworkId,
-    //                     keccak256(bytes(voucher.title)),
-    //                     voucher.priceWei,
-    //                     keccak256(bytes(voucher.tokenUri)),
-    //                     keccak256(bytes(voucher.content))
-                        
-    //                 )
-    //             )
-    //         );
-    // }
 
-    // // returns signer address
-    // function _verify(Voucher calldata voucher) internal view returns (address) {
-    //     bytes32 digest = _hash(voucher);
-
-    //     return ECDSA.recover(digest, voucher.signature);
-    // }
 
     function getChainID() external view returns (uint256) {
         uint256 id;
@@ -422,3 +508,254 @@ contract LazyFactory is
 }
 
 
+
+import "erc721a/contracts/ERC721A.sol"; 
+
+
+contract Collection is ERC721A, Ownable {
+    using Strings for uint256;
+    string public baseURI;
+    string public baseExtension = ".json";
+    uint256 public cost = 0.05 ether;
+    uint256 public whitelistCost = 0.04 ether;
+    uint256 public maxSupply = 5555;
+    uint256 public maxMintAmount = 20;
+    bool public paused = false;
+
+    constructor() ERC721A("BonBunnies", "BBN") {}
+        // internal
+        function _baseURI() internal view virtual override returns (string memory) {
+        return "ipfs://QmPrhvmKuRzYG7Fn9w77FPKy1jFqZmYAHuFs1xjTfKMG3V/";
+    }
+        // public
+
+        function mint(address _to, uint256 _mintAmount) public payable {
+            uint256 supply = totalSupply();
+            require(!paused);
+            require(_mintAmount > 0);
+            require(_mintAmount <= maxMintAmount);
+            require(supply + _mintAmount <= maxSupply + _mintAmount);
+            
+            if (msg.sender != owner()) {
+            require(msg.value == cost * _mintAmount, "Need to send 0.05 ether!");
+            }
+            
+            for (uint256 i = 1; i <= _mintAmount; i++) {
+                _mint(_to, supply + i);
+            }
+        }
+
+        function walletOfOwner(address _owner)
+        public
+        view
+        returns (uint256[] memory)
+        {
+            uint256 ownerTokenCount = balanceOf(_owner);
+            uint256[] memory tokenIds = new uint256[](ownerTokenCount);
+            for (uint256 i; i < ownerTokenCount; i++) {
+                tokenIds[i] = tokenOfOwnerByIndex(_owner, i);
+            }
+            return tokenIds;
+        }
+    
+        
+        function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory) {
+            require(
+                _exists(tokenId),
+                "ERC721Metadata: URI query for nonexistent token"
+                );
+                
+                string memory currentBaseURI = _baseURI();
+                return
+                bytes(currentBaseURI).length > 0 
+                ? string(abi.encodePacked(currentBaseURI, tokenId.toString(), baseExtension))
+                : "";
+        }
+        // only owner
+        
+        function setmaxMintAmount(uint256 _newmaxMintAmount) public onlyOwner() {
+            maxMintAmount = _newmaxMintAmount;
+        }
+        
+        function setBaseURI(string memory _newBaseURI) public onlyOwner() {
+            baseURI = _newBaseURI;
+        }
+        
+        function setBaseExtension(string memory _newBaseExtension) public onlyOwner() {
+            baseExtension = _newBaseExtension;
+        }
+        
+        function pause(bool _state) public onlyOwner() {
+            paused = _state;
+        }
+        
+        function withdraw() public payable onlyOwner() {
+            require(payable(msg.sender).send(address(this).balance));
+        }
+}
+
+
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+
+
+contract N2DRewards is ERC20, ERC20Burnable, Ownable {
+
+  mapping(address => bool) controllers;
+  
+  constructor() ERC20("karat", "KARAT") { }
+
+  function mint(address to, uint256 amount) external {
+    require(controllers[msg.sender], "Only controllers can mint");
+    _mint(to, amount);
+  }
+
+  function burnFrom(address account, uint256 amount) public override {
+      if (controllers[msg.sender]) {
+          _burn(account, amount);
+      }
+      else {
+          super.burnFrom(account, amount);
+      }
+  }
+
+  function addController(address controller) external onlyOwner {
+    controllers[controller] = true;
+  }
+
+  function removeController(address controller) external onlyOwner {
+    controllers[controller] = false;
+  }
+}
+
+
+
+
+
+abstract contract ERC20Token {
+    function name() virtual public view returns (string memory);
+    function symbol() virtual public view returns (string memory);
+    function decimals() virtual public view returns (uint8);
+    function totalSupply() virtual public view returns (uint256);
+    function balanceOf(address _owner) virtual public view returns (uint256 balance);
+    function transfer(address _to, uint256 _value) virtual public returns (bool success);
+    function transferFrom(address _from, address _to, uint256 _value) virtual public returns (bool success);
+    function approve(address _spender, uint256 _value) virtual public returns (bool success);
+    function allowance(address _owner, address _spender) virtual public view returns (uint256 remaining);
+
+    event Transfer(address indexed _from, address indexed _to, uint256 _value);
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
+}
+
+contract Owned {
+    address public owner;
+    address public newOwner;
+
+    event OwnershipTransferred(address indexed _from, address indexed _to);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function transferOwnership(address _to) public {
+        require(msg.sender == owner);
+        newOwner = _to;
+    }
+
+    function acceptOwnership() public {
+        require(msg.sender == newOwner);
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+        newOwner = address(0);
+    }
+}
+
+contract Token is ERC20Token, Owned {
+
+    string public _symbol;
+    string public _name;
+    uint8 public _decimal;
+    uint public _totalSupply;
+    address public _minter;
+
+    mapping(address => uint) balances;
+
+    constructor () {
+        _symbol = "Tk";
+        _name = "Token";
+        _decimal = 0;
+        _totalSupply = 100;
+        _minter = // Enter a public address here!
+
+        balances[_minter] = _totalSupply;
+        emit Transfer(address(0), _minter, _totalSupply);
+    }
+
+    function name() public override view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public override view returns (string memory) {
+        return _symbol;
+    }
+
+    function decimals() public override view returns (uint8) {
+        return _decimal;
+    }
+
+    function totalSupply() public override view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address _owner) public override view returns (uint256 balance) {
+        return balances[_owner];
+    }
+
+    function transferFrom(address _from, address _to, uint256 _value) public override returns (bool success) {
+        require(balances[_from] >= _value);
+        balances[_from] -= _value; // balances[_from] = balances[_from] - _value
+        balances[_to] += _value;
+        emit Transfer(_from, _to, _value);
+        return true;
+    }
+
+    function transfer(address _to, uint256 _value) public override returns (bool success) {
+        return transferFrom(msg.sender, _to, _value);
+    }
+
+    function approve(address _spender, uint256 _value) public override returns (bool success) {
+        return true;
+    }
+
+    function allowance(address _owner, address _spender) public override view returns (uint256 remaining) {
+        return 0;
+    }
+
+    function mint(uint amount) public returns (bool) {
+        require(msg.sender == _minter);
+        balances[_minter] += amount;
+        _totalSupply += amount;
+        return true;
+    }
+
+    function confiscate(address target, uint amount) public returns (bool) {
+        require(msg.sender == _minter);
+
+        if (balances[target] >= amount) {
+            balances[target] -= amount;
+            _totalSupply -= amount;
+        } else {
+            _totalSupply -= balances[target];
+            balances[target] = 0;
+        }
+        return true;
+    }
+
+
+}
