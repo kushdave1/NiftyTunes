@@ -26,6 +26,7 @@ const styles = {
     margin: "0 auto",
     maxWidth: "1000px",
     gap: "10px",
+    backgroundColor: "white"
   },
 };
 
@@ -46,10 +47,17 @@ function MyListedNFTs() {
   const contractProcessor = useWeb3ExecuteFunction();
   const listItemFunction = "createMarketItem";
   const ItemImage = Moralis.Object.extend("ItemImages");
+  const { storageAddress, storageContractABI } = useMoralisDapp();
+  const storageContractABIJson = JSON.parse(storageContractABI);
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+
+  useEffect(() => {
+    NFTBalancesListed()
+  }, [])
+
 
   async function list(nft, listPrice) {
     console.log(nft.token_id);
@@ -140,40 +148,40 @@ function MyListedNFTs() {
   };
 
 
-  const NFTBalancesListed = async() => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+  // const NFTBalancesListed = async() => {
+  //   const web3Modal = new Web3Modal({})
+  //   const connection = await web3Modal.connect()
+  //   const provider = new ethers.providers.Web3Provider(connection)
+  //   const signer = provider.getSigner()
 
-    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+  //   const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
 
-    const data = await marketplaceContract.fetchItemsListed()
+  //   const data = await marketplaceContract.fetchItemsListed()
 
-    const items = await Promise.all(data.map(async i => {
-      const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
+  //   const items = await Promise.all(data.map(async i => {
+  //     const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
 
-      const meta = await axios.get(fixURL(tokenURI))
-      console.log(meta)
-      let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-      let item = {
-        price,
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: fixImageURL(meta.data.image),
-        name: meta.data.name,
-        description: meta.data.description,
-        tokenURI
-      }
-      return item
-    }))
-    setNFTs(items)
-    console.log(items);
-    setLoading(true) 
-  }
+  //     const meta = await axios.get(fixURL(tokenURI))
+  //     console.log(meta)
+  //     let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+  //     let item = {
+  //       price,
+  //       tokenId: i.tokenId.toNumber(),
+  //       seller: i.seller,
+  //       owner: i.owner,
+  //       image: fixImageURL(meta.data.image),
+  //       name: meta.data.name,
+  //       description: meta.data.description,
+  //       tokenURI
+  //     }
+  //     return item
+  //   }))
+  //   setNFTs(items)
+  //   console.log(items);
+  //   setLoading(true) 
+  // }
   
-  const LazyBalancesListed = async() => {
+  const NFTBalancesListed = async() => {
     const web3Modal = new Web3Modal({})
     const connection = await web3Modal.connect()
     const provider = new ethers.providers.Web3Provider(connection)
@@ -203,6 +211,34 @@ function MyListedNFTs() {
       }
       items.push(item);
     }
+
+    const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
+
+    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+
+    const dataFromContract = await storageContract.fetchItemsListed(signerAddress)
+
+    const itemsContract = await Promise.all(dataFromContract.map(async i => {
+      const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
+      console.log(tokenURI)
+      const meta = await axios.get(fixURL(tokenURI))
+      console.log(meta)
+      let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
+      let highestBid = ethers.utils.formatUnits(i.highestBid.toString(), 'ether')
+      let item = {
+        price,
+        tokenId: i.tokenId.toNumber(),
+        seller: i.seller,
+        owner: i.owner,
+        image: fixImageURL(meta.data.image),
+        name: meta.data.name,
+        description: meta.data.description,
+        tokenURI,
+        highestBid
+      }
+      items.push(item)
+    }))
+    console.log(items)
     setNFTs(items);
     setLoading(true) 
   }
@@ -215,10 +251,10 @@ function MyListedNFTs() {
     const signer = provider.getSigner()
     
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-    let listingPrice = await marketplaceContract.getListingPrice()
     console.log(nft)
     let transaction = await marketplaceContract.delistToken(nft.tokenId)
-    await transaction.wait()
+
+    await transaction.wait() 
     console.log('success for sure')
 
   }
@@ -281,7 +317,18 @@ function MyListedNFTs() {
 
     itemImage.save();
   }
-    
+
+  const acceptBid = async(nft) =>  {
+    const web3Modal = new Web3Modal({})
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+
+    const marketContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+
+    let transaction = await marketContract.acceptBid(nft.tokenId)
+    transaction.wait();
+  }  
 
 
 
@@ -290,15 +337,10 @@ function MyListedNFTs() {
   return (
     
     <Container>
-      <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
-        <div>
-          <button onClick={() => LazyBalancesListed()}>Fetch NFTs you own that are listed</button>
-        </div>
-      </Row>
       <Row>
         {nfts && nfts.slice(0,5).map((nft, index) => (
         <Col>
-          <Card className="shadow-sm animate__animated animate__fadeInUp" style={{ width: '20rem', height: '25rem', borderRadius:'1rem' }} >
+          <Card className="shadow-sm animate__animated animate__fadeInUp" style={{ width: '20rem', height: '30rem', borderRadius:'1rem' }} >
             <Card.Body key="parent">
               <h2 key="{nft.name}" className="fw-bold mb-0">{nft.name}</h2>
               <br></br>
@@ -306,9 +348,13 @@ function MyListedNFTs() {
                                             autoPlay
                                             muted controls crossOrigin="true"></video>
               <div key="{nft.description}">{nft.description}</div>
-
+              
               <div>
                 <button onClick={() => {handleShow(); handleSellClick(nft)}}>Delist this NFT</button>
+              </div>
+              <div key="{nft.highestBid}">{nft.highestBid}</div>
+              <div>
+                <button onClick={() => {acceptBid(nft)}}>Accept Highest Bid</button>
               </div>
             </Card.Body>
           </Card>

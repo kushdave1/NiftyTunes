@@ -1,5 +1,7 @@
 require("@nomiclabs/hardhat-waffle");
 require("@nomiclabs/hardhat-etherscan");
+require("dotenv").config();
+let secret = require("./secret");
 // This is a sample Hardhat task. To learn how to create your own go to
 // https://hardhat.org/guides/create-task.html
 task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
@@ -10,6 +12,11 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
   }
 });
 
+const API_URL = process.env.API_URL;
+const PRIVATE_KEY = process.env.PRIVATE_KEY.toString();
+
+console.log(API_URL, PRIVATE_KEY);
+
 // You need to export an object to set up your config
 // Go to https://hardhat.org/config/ to learn more
 
@@ -17,6 +24,8 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  //defaultNetwork: "rinkeby",
+  solidity: "0.8.4",
   networks: {
     hardhat: {
       chainId: 1337
@@ -26,12 +35,9 @@ module.exports = {
       chainId: 1337
     },
     rinkeby: {
-      "url": "https://speedy-nodes-nyc.moralis.io/74878254dc8b75a1334e9afe/eth/rinkeby",
-      "accounts": ["4d555c67610b10d52454f369638ac2846fb2343d8d81a607661fc40784ec9d69"]
+      url: API_URL,
+      chainId: 4,
+      accounts: [`0x${PRIVATE_KEY}`],
     }
-  },
-  solidity: "0.8.4",
-  etherscan: {
-    apiKey: "PU6T9A9XD1S8JHWG1UCZG5I8JNZRKT64HV"
   }
 };

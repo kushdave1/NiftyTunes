@@ -1,0 +1,106 @@
+strict digraph {
+subgraph cluster_1283_IERC20Metadata {
+label = "IERC20Metadata"
+"1283_symbol" [label="symbol"]
+"1283_name" [label="name"]
+"1283_decimals" [label="decimals"]
+}subgraph cluster_486_Ownable {
+label = "Ownable"
+"486_constructor" [label="constructor"]
+"486_owner" [label="owner"]
+"486__transferOwnership" [label="_transferOwnership"]
+"486_transferOwnership" [label="transferOwnership"]
+"486_renounceOwnership" [label="renounceOwnership"]
+"486_transferOwnership" -> "486_onlyOwner"
+"486_constructor" -> "486__msgSender"
+"486_renounceOwnership" -> "486_onlyOwner"
+"486_transferOwnership" -> "486__transferOwnership"
+"486_constructor" -> "486__transferOwnership"
+"486_renounceOwnership" -> "486__transferOwnership"
+}subgraph cluster_1258_ERC20Burnable {
+label = "ERC20Burnable"
+"1258_burn" [label="burn"]
+"1258_burnFrom" [label="burnFrom"]
+"1258_burnFrom" -> "1258__msgSender"
+"1258_burn" -> "1258__burn"
+"1258_burnFrom" -> "1258__spendAllowance"
+"1258_burn" -> "1258__msgSender"
+"1258_burnFrom" -> "1258__burn"
+}subgraph cluster_8172_TUNES {
+label = "TUNES"
+"8172_burnFrom" [label="burnFrom"]
+"8172_removeController" [label="removeController"]
+"8172_mint" [label="mint"]
+"8172_addController" [label="addController"]
+"8172_constructor" [label="constructor"]
+"8172_constructor" -> "8172_constructor"
+"8172_burnFrom" -> "8172_burnFrom"
+"8172_removeController" -> "8172_onlyOwner"
+"8172_burnFrom" -> "8172__burn"
+"8172_mint" -> "8172__mint"
+"8172_addController" -> "8172_onlyOwner"
+}subgraph cluster_1136_ERC20 {
+label = "ERC20"
+"1136_constructor" [label="constructor"]
+"1136_transfer" [label="transfer"]
+"1136_decimals" [label="decimals"]
+"1136__afterTokenTransfer" [label="_afterTokenTransfer"]
+"1136__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"1136_totalSupply" [label="totalSupply"]
+"1136__spendAllowance" [label="_spendAllowance"]
+"1136_name" [label="name"]
+"1136_balanceOf" [label="balanceOf"]
+"1136__burn" [label="_burn"]
+"1136_increaseAllowance" [label="increaseAllowance"]
+"1136_allowance" [label="allowance"]
+"1136_transferFrom" [label="transferFrom"]
+"1136_decreaseAllowance" [label="decreaseAllowance"]
+"1136__approve" [label="_approve"]
+"1136__transfer" [label="_transfer"]
+"1136_approve" [label="approve"]
+"1136_symbol" [label="symbol"]
+"1136__mint" [label="_mint"]
+"1136__spendAllowance" -> "1136_allowance"
+"1136_transferFrom" -> "1136__transfer"
+"1136__burn" -> "1136__beforeTokenTransfer"
+"1136_increaseAllowance" -> "1136__msgSender"
+"1136__transfer" -> "1136__afterTokenTransfer"
+"1136_transfer" -> "1136__msgSender"
+"1136__burn" -> "1136__afterTokenTransfer"
+"1136_decreaseAllowance" -> "1136__approve"
+"1136_approve" -> "1136__msgSender"
+"1136_increaseAllowance" -> "1136__approve"
+"1136_transfer" -> "1136__transfer"
+"1136__spendAllowance" -> "1136__approve"
+"1136__transfer" -> "1136__beforeTokenTransfer"
+"1136__mint" -> "1136__afterTokenTransfer"
+"1136_transferFrom" -> "1136__msgSender"
+"1136_decreaseAllowance" -> "1136__msgSender"
+"1136_approve" -> "1136__approve"
+"1136_transferFrom" -> "1136__spendAllowance"
+"1136__mint" -> "1136__beforeTokenTransfer"
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_1214_IERC20 {
+label = "IERC20"
+"1214_balanceOf" [label="balanceOf"]
+"1214_approve" [label="approve"]
+"1214_transferFrom" [label="transferFrom"]
+"1214_allowance" [label="allowance"]
+"1214_transfer" [label="transfer"]
+"1214_totalSupply" [label="totalSupply"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool,string)" 
+"1136__spendAllowance" -> "require(bool,string)"
+"8172_mint" -> "require(bool,string)"
+"1136__mint" -> "require(bool,string)"
+"1136__burn" -> "require(bool,string)"
+"486_transferOwnership" -> "require(bool,string)"
+"1136__transfer" -> "require(bool,string)"
+"1136_decreaseAllowance" -> "require(bool,string)"
+"1136__approve" -> "require(bool,string)"
+}
+}

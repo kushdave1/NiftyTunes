@@ -1,0 +1,215 @@
+strict digraph {
+subgraph cluster_2265_IERC721 {
+label = "IERC721"
+"2265_getApproved" [label="getApproved"]
+"2265_safeTransferFrom" [label="safeTransferFrom"]
+"2265_transferFrom" [label="transferFrom"]
+"2265_setApprovalForAll" [label="setApprovalForAll"]
+"2265_ownerOf" [label="ownerOf"]
+"2265_approve" [label="approve"]
+"2265_isApprovedForAll" [label="isApprovedForAll"]
+"2265_balanceOf" [label="balanceOf"]
+}subgraph cluster_2149_ERC721 {
+label = "ERC721"
+"2149__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"2149__baseURI" [label="_baseURI"]
+"2149_safeTransferFrom" [label="safeTransferFrom"]
+"2149_getApproved" [label="getApproved"]
+"2149__burn" [label="_burn"]
+"2149_symbol" [label="symbol"]
+"2149__afterTokenTransfer" [label="_afterTokenTransfer"]
+"2149__exists" [label="_exists"]
+"2149__safeTransfer" [label="_safeTransfer"]
+"2149__mint" [label="_mint"]
+"2149_approve" [label="approve"]
+"2149__setApprovalForAll" [label="_setApprovalForAll"]
+"2149__isApprovedOrOwner" [label="_isApprovedOrOwner"]
+"2149_supportsInterface" [label="supportsInterface"]
+"2149_balanceOf" [label="balanceOf"]
+"2149_name" [label="name"]
+"2149_tokenURI" [label="tokenURI"]
+"2149_isApprovedForAll" [label="isApprovedForAll"]
+"2149__transfer" [label="_transfer"]
+"2149__approve" [label="_approve"]
+"2149_transferFrom" [label="transferFrom"]
+"2149_ownerOf" [label="ownerOf"]
+"2149__safeMint" [label="_safeMint"]
+"2149_constructor" [label="constructor"]
+"2149__checkOnERC721Received" [label="_checkOnERC721Received"]
+"2149_setApprovalForAll" [label="setApprovalForAll"]
+"2149__isApprovedOrOwner" -> "2149_isApprovedForAll"
+"2149_transferFrom" -> "2149__msgSender"
+"2149_approve" -> "2149__approve"
+"2149_setApprovalForAll" -> "2149__setApprovalForAll"
+"2149_approve" -> "2149__msgSender"
+"2149__burn" -> "2149__approve"
+"2149_safeTransferFrom" -> "2149__msgSender"
+"2149_getApproved" -> "2149__exists"
+"2149__transfer" -> "2149_ownerOf"
+"2149__mint" -> "2149__afterTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149__exists"
+"2149_tokenURI" -> "2149__exists"
+"2149__isApprovedOrOwner" -> "2149_getApproved"
+"2149_transferFrom" -> "2149__transfer"
+"2149__safeMint" -> "2149__checkOnERC721Received"
+"2149__safeMint" -> "2149__safeMint"
+"2149_safeTransferFrom" -> "2149__isApprovedOrOwner"
+"2149_supportsInterface" -> "2149_supportsInterface"
+"2149_approve" -> "2149_isApprovedForAll"
+"2149__safeTransfer" -> "2149__transfer"
+"2149__burn" -> "2149__afterTokenTransfer"
+"2149_safeTransferFrom" -> "2149_safeTransferFrom"
+"2149__burn" -> "2149__beforeTokenTransfer"
+"2149__mint" -> "2149__exists"
+"2149__transfer" -> "2149__afterTokenTransfer"
+"2149__transfer" -> "2149__approve"
+"2149__transfer" -> "2149__beforeTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149_ownerOf"
+"2149_setApprovalForAll" -> "2149__msgSender"
+"2149__checkOnERC721Received" -> "2149__msgSender"
+"2149__safeTransfer" -> "2149__checkOnERC721Received"
+"2149_tokenURI" -> "2149__baseURI"
+"2149__burn" -> "2149_ownerOf"
+"2149__safeMint" -> "2149__mint"
+"2149__approve" -> "2149_ownerOf"
+"2149_safeTransferFrom" -> "2149__safeTransfer"
+"2149_approve" -> "2149_ownerOf"
+"2149__mint" -> "2149__beforeTokenTransfer"
+"2149_transferFrom" -> "2149__isApprovedOrOwner"
+}subgraph cluster_3954_ERC165 {
+label = "ERC165"
+"3954_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_4531_LazyNFT {
+label = "LazyNFT"
+"4531_constructor" [label="constructor"]
+"4531__hash" [label="_hash"]
+"4531_availableToWithdraw" [label="availableToWithdraw"]
+"4531_supportsInterface" [label="supportsInterface"]
+"4531_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"4531_redeem" [label="redeem"]
+"4531__verify" [label="_verify"]
+"4531_withdraw" [label="withdraw"]
+"4531__verify" -> "4531__hash"
+"4531_redeem" -> "4531_hasRole"
+"4531_redeem" -> "4531__transfer"
+"4531_redeem" -> "4531__verify"
+"4531_withdraw" -> "4531_hasRole"
+"4531_constructor" -> "4531__setupRole"
+"4531_redeem" -> "4531__mint"
+"4531_constructor" -> "4531_constructor"
+"4531_supportsInterface" -> "4531_supportsInterface"
+"4531__hash" -> "4531__hashTypedDataV4"
+"4531_redeem" -> "4531__setTokenURI"
+}subgraph cluster_308_AccessControl {
+label = "AccessControl"
+"308_renounceRole" [label="renounceRole"]
+"308_hasRole" [label="hasRole"]
+"308__setRoleAdmin" [label="_setRoleAdmin"]
+"308_getRoleAdmin" [label="getRoleAdmin"]
+"308_grantRole" [label="grantRole"]
+"308_revokeRole" [label="revokeRole"]
+"308__revokeRole" [label="_revokeRole"]
+"308_supportsInterface" [label="supportsInterface"]
+"308__grantRole" [label="_grantRole"]
+"308__setupRole" [label="_setupRole"]
+"308__checkRole" [label="_checkRole"]
+"308__setupRole" -> "308__grantRole"
+"308_revokeRole" -> "308_getRoleAdmin"
+"308_renounceRole" -> "308__revokeRole"
+"308_revokeRole" -> "308_onlyRole"
+"308__checkRole" -> "308_hasRole"
+"308__grantRole" -> "308_hasRole"
+"308__grantRole" -> "308__msgSender"
+"308__revokeRole" -> "308__msgSender"
+"308__revokeRole" -> "308_hasRole"
+"308_grantRole" -> "308__grantRole"
+"308_renounceRole" -> "308__msgSender"
+"308_revokeRole" -> "308__revokeRole"
+"308_supportsInterface" -> "308_supportsInterface"
+"308_grantRole" -> "308_onlyRole"
+"308_grantRole" -> "308_getRoleAdmin"
+"308__setRoleAdmin" -> "308_getRoleAdmin"
+}subgraph cluster_2484_IERC721Metadata {
+label = "IERC721Metadata"
+"2484_name" [label="name"]
+"2484_tokenURI" [label="tokenURI"]
+"2484_symbol" [label="symbol"]
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_2457_ERC721URIStorage {
+label = "ERC721URIStorage"
+"2457__burn" [label="_burn"]
+"2457__setTokenURI" [label="_setTokenURI"]
+"2457_tokenURI" [label="tokenURI"]
+"2457_tokenURI" -> "2457__baseURI"
+"2457_tokenURI" -> "2457_tokenURI"
+"2457_tokenURI" -> "2457__exists"
+"2457__setTokenURI" -> "2457__exists"
+"2457__burn" -> "2457__burn"
+}subgraph cluster_3930_EIP712 {
+label = "EIP712"
+"3930_constructor" [label="constructor"]
+"3930__buildDomainSeparator" [label="_buildDomainSeparator"]
+"3930__domainSeparatorV4" [label="_domainSeparatorV4"]
+"3930__hashTypedDataV4" [label="_hashTypedDataV4"]
+"3930__domainSeparatorV4" -> "3930__buildDomainSeparator"
+"3930__hashTypedDataV4" -> "3930__domainSeparatorV4"
+"3930_constructor" -> "3930__buildDomainSeparator"
+}subgraph cluster_381_IAccessControl {
+label = "IAccessControl"
+"381_getRoleAdmin" [label="getRoleAdmin"]
+"381_grantRole" [label="grantRole"]
+"381_revokeRole" [label="revokeRole"]
+"381_hasRole" [label="hasRole"]
+"381_renounceRole" [label="renounceRole"]
+}subgraph cluster_3966_IERC165 {
+label = "IERC165"
+"3966_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"keccak256(bytes)" 
+"mload(uint256)" 
+"type()" 
+"revert(uint256,uint256)" 
+"require(bool,string)" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"revert(string)" 
+"4531_withdraw" -> "require(bool,string)"
+"2149__mint" -> "require(bool,string)"
+"4531_redeem" -> "require(bool,string)"
+"4531__hash" -> "abi.encode()"
+"2149__transfer" -> "require(bool,string)"
+"2149__setApprovalForAll" -> "require(bool,string)"
+"2149_getApproved" -> "require(bool,string)"
+"2149__safeMint" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "mload(uint256)"
+"4531__hash" -> "keccak256(bytes)"
+"4531_slitherConstructorConstantVariables" -> "keccak256(bytes)"
+"308__checkRole" -> "revert(string)"
+"3930__buildDomainSeparator" -> "abi.encode()"
+"308_renounceRole" -> "require(bool,string)"
+"2149_ownerOf" -> "require(bool,string)"
+"2149_transferFrom" -> "require(bool,string)"
+"3954_supportsInterface" -> "type()"
+"2149__safeTransfer" -> "require(bool,string)"
+"2149_approve" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "revert(string)"
+"2457_tokenURI" -> "require(bool,string)"
+"3930__buildDomainSeparator" -> "keccak256(bytes)"
+"2149_safeTransferFrom" -> "require(bool,string)"
+"2149_tokenURI" -> "require(bool,string)"
+"2457_tokenURI" -> "abi.encodePacked()"
+"308__checkRole" -> "abi.encodePacked()"
+"2457__setTokenURI" -> "require(bool,string)"
+"2149_tokenURI" -> "abi.encodePacked()"
+"308_supportsInterface" -> "type()"
+"2149__checkOnERC721Received" -> "revert(uint256,uint256)"
+"2149_supportsInterface" -> "type()"
+"2149_balanceOf" -> "require(bool,string)"
+"3930_constructor" -> "keccak256(bytes)"
+"2149__isApprovedOrOwner" -> "require(bool,string)"
+}
+}

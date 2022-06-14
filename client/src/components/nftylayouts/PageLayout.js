@@ -17,6 +17,7 @@ const PageLayout = ({ children }) => {
         <Body>
             <Navigation />
             <main>{children}</main>
+            
         </Body>
     </React.Fragment>
     );

@@ -1,0 +1,48 @@
+strict digraph {
+subgraph cluster_2283_IERC721Receiver {
+label = "IERC721Receiver"
+"2283_onERC721Received" [label="onERC721Received"]
+}subgraph cluster_8076_NFTStaking {
+label = "NFTStaking"
+"8076__unstakeMany" [label="_unstakeMany"]
+"8076_balanceOf" [label="balanceOf"]
+"8076_unstake" [label="unstake"]
+"8076_claimForAddress" [label="claimForAddress"]
+"8076_stake" [label="stake"]
+"8076__claim" [label="_claim"]
+"8076_onERC721Received" [label="onERC721Received"]
+"8076_constructor" [label="constructor"]
+"8076_claim" [label="claim"]
+"8076_earningInfo" [label="earningInfo"]
+"8076_tokensOfOwner" [label="tokensOfOwner"]
+"8076_claimForAddress" -> "8076__claim"
+"8076_claim" -> "8076__claim"
+"8076_unstake" -> "8076__claim"
+"8076__claim" -> "8076__unstakeMany"
+}subgraph cluster_486_Ownable {
+label = "Ownable"
+"486_constructor" [label="constructor"]
+"486_owner" [label="owner"]
+"486__transferOwnership" [label="_transferOwnership"]
+"486_transferOwnership" [label="transferOwnership"]
+"486_renounceOwnership" [label="renounceOwnership"]
+"486_transferOwnership" -> "486_onlyOwner"
+"486_constructor" -> "486__msgSender"
+"486_renounceOwnership" -> "486_onlyOwner"
+"486_transferOwnership" -> "486__transferOwnership"
+"486_constructor" -> "486__transferOwnership"
+"486_renounceOwnership" -> "486__transferOwnership"
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool,string)" 
+"8076_onERC721Received" -> "require(bool,string)"
+"8076__unstakeMany" -> "require(bool,string)"
+"486_transferOwnership" -> "require(bool,string)"
+"8076__claim" -> "require(bool,string)"
+"8076_stake" -> "require(bool,string)"
+}
+}

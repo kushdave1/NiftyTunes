@@ -17,6 +17,11 @@ import Col from 'react-bootstrap/Col'
 import {useMoralis} from 'react-moralis'
 
 const MarketPlaceSection = styled.div `
+    padding-top: 20px;
+    flex:1;
+    overflow:hidden;
+    background-color: white;
+    min-height: 100vh;
 `;
 
 const SearchAndFilterSection = styled.div``;

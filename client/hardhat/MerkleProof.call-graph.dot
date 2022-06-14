@@ -1,0 +1,16 @@
+strict digraph {
+subgraph cluster_3776_MerkleProof {
+label = "MerkleProof"
+"3776_verify" [label="verify"]
+"3776_processProof" [label="processProof"]
+"3776__efficientHash" [label="_efficientHash"]
+"3776_verify" -> "3776_processProof"
+"3776_processProof" -> "3776__efficientHash"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"keccak256(uint256,uint256)" 
+"mstore(uint256,uint256)" 
+"3776__efficientHash" -> "keccak256(uint256,uint256)"
+"3776__efficientHash" -> "mstore(uint256,uint256)"
+}
+}

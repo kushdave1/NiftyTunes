@@ -31,15 +31,18 @@ const HeaderSection = styled.div `
     left:10%;
     -ms-transform: translate-Y(-40%);
     transform: translateY(-40%);
+    min-height: 100vh;
 `;
 
 const ProfileNavSection = styled.div `
-
+    background-color: white;
 `;
 
 const NFTSection = styled.div `
     flex:1;
     overflow:hidden;
+    background-color: white;
+    min-height: 100vh;
 `;
 
 function MyProfile() {
@@ -50,19 +53,19 @@ function MyProfile() {
                         <ProfileNavSection>
                            <Nav className="justify-content-center">
                             <Nav.Item>
-                                <Nav.Link as={Link} className = "text-light-3" to="onsale">On Sale</Nav.Link>
+                                <Nav.Link as={Link} className = "text-dark-3" to="onsale">On Sale</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link as={Link} className = "text-light-3" to="sold">Sold</Nav.Link>
+                                <Nav.Link as={Link} className = "text-dark-3" to="sold">Sold</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link as={Link} className = "text-light-3" to="owned">Owned</Nav.Link>
+                                <Nav.Link as={Link} className = "text-dark-3" to="owned">Owned</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link as={Link} className = "text-light-3" to="created">Created</Nav.Link>
+                                <Nav.Link as={Link} className = "text-dark-3" to="created">Created</Nav.Link>
                             </Nav.Item>
                             <Nav.Item>
-                                <Nav.Link as={Link} className = "text-light-3" to="activity">Activity</Nav.Link>
+                                <Nav.Link as={Link} className = "text-dark-3" to="activity">Activity</Nav.Link>
                             </Nav.Item>
                         </Nav>
                         </ProfileNavSection>

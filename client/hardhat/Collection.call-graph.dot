@@ -1,0 +1,206 @@
+strict digraph {
+subgraph cluster_486_Ownable {
+label = "Ownable"
+"486_constructor" [label="constructor"]
+"486_owner" [label="owner"]
+"486__transferOwnership" [label="_transferOwnership"]
+"486_transferOwnership" [label="transferOwnership"]
+"486_renounceOwnership" [label="renounceOwnership"]
+"486_transferOwnership" -> "486_onlyOwner"
+"486_constructor" -> "486__msgSender"
+"486_renounceOwnership" -> "486_onlyOwner"
+"486_transferOwnership" -> "486__transferOwnership"
+"486_constructor" -> "486__transferOwnership"
+"486_renounceOwnership" -> "486__transferOwnership"
+}subgraph cluster_9640_ERC721A {
+label = "ERC721A"
+"9640__mint" [label="_mint"]
+"9640_getApproved" [label="getApproved"]
+"9640_setApprovalForAll" [label="setApprovalForAll"]
+"9640_transferFrom" [label="transferFrom"]
+"9640__safeMint" [label="_safeMint"]
+"9640__burn" [label="_burn"]
+"9640_totalSupply" [label="totalSupply"]
+"9640_constructor" [label="constructor"]
+"9640_ownerOf" [label="ownerOf"]
+"9640__numberMinted" [label="_numberMinted"]
+"9640__transfer" [label="_transfer"]
+"9640__setAux" [label="_setAux"]
+"9640__startTokenId" [label="_startTokenId"]
+"9640__numberBurned" [label="_numberBurned"]
+"9640__ownershipOf" [label="_ownershipOf"]
+"9640_safeTransferFrom" [label="safeTransferFrom"]
+"9640_symbol" [label="symbol"]
+"9640__totalMinted" [label="_totalMinted"]
+"9640_supportsInterface" [label="supportsInterface"]
+"9640__checkContractOnERC721Received" [label="_checkContractOnERC721Received"]
+"9640_tokenURI" [label="tokenURI"]
+"9640__baseURI" [label="_baseURI"]
+"9640_name" [label="name"]
+"9640_approve" [label="approve"]
+"9640__getAux" [label="_getAux"]
+"9640__afterTokenTransfers" [label="_afterTokenTransfers"]
+"9640__approve" [label="_approve"]
+"9640_isApprovedForAll" [label="isApprovedForAll"]
+"9640__beforeTokenTransfers" [label="_beforeTokenTransfers"]
+"9640__exists" [label="_exists"]
+"9640_balanceOf" [label="balanceOf"]
+"9640__transfer" -> "9640__msgSender"
+"9640__exists" -> "9640__startTokenId"
+"9640_safeTransferFrom" -> "9640_safeTransferFrom"
+"9640__burn" -> "9640__burn"
+"9640__burn" -> "9640__msgSender"
+"9640__burn" -> "9640_getApproved"
+"9640__burn" -> "9640__ownershipOf"
+"9640__safeMint" -> "9640__mint"
+"9640_constructor" -> "9640__startTokenId"
+"9640__safeMint" -> "9640__safeMint"
+"9640_safeTransferFrom" -> "9640__checkContractOnERC721Received"
+"9640__transfer" -> "9640__approve"
+"9640__transfer" -> "9640__ownershipOf"
+"9640_supportsInterface" -> "9640_supportsInterface"
+"9640_ownerOf" -> "9640__ownershipOf"
+"9640_approve" -> "9640_isApprovedForAll"
+"9640__transfer" -> "9640__afterTokenTransfers"
+"9640_transferFrom" -> "9640__transfer"
+"9640__burn" -> "9640__approve"
+"9640__ownershipOf" -> "9640__startTokenId"
+"9640_getApproved" -> "9640__exists"
+"9640__transfer" -> "9640_getApproved"
+"9640__mint" -> "9640__beforeTokenTransfers"
+"9640__burn" -> "9640__beforeTokenTransfers"
+"9640_safeTransferFrom" -> "9640__transfer"
+"9640_approve" -> "9640_ownerOf"
+"9640__mint" -> "9640__checkContractOnERC721Received"
+"9640__checkContractOnERC721Received" -> "9640__msgSender"
+"9640__transfer" -> "9640__beforeTokenTransfers"
+"9640__transfer" -> "9640_isApprovedForAll"
+"9640_tokenURI" -> "9640__baseURI"
+"9640__burn" -> "9640__afterTokenTransfers"
+"9640_tokenURI" -> "9640__exists"
+"9640_setApprovalForAll" -> "9640__msgSender"
+"9640__totalMinted" -> "9640__startTokenId"
+"9640__mint" -> "9640__afterTokenTransfers"
+"9640_totalSupply" -> "9640__startTokenId"
+"9640_approve" -> "9640__msgSender"
+"9640__burn" -> "9640_isApprovedForAll"
+"9640_approve" -> "9640__approve"
+}subgraph cluster_3954_ERC165 {
+label = "ERC165"
+"3954_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_2484_IERC721Metadata {
+label = "IERC721Metadata"
+"2484_name" [label="name"]
+"2484_tokenURI" [label="tokenURI"]
+"2484_symbol" [label="symbol"]
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_2265_IERC721 {
+label = "IERC721"
+"2265_getApproved" [label="getApproved"]
+"2265_safeTransferFrom" [label="safeTransferFrom"]
+"2265_transferFrom" [label="transferFrom"]
+"2265_setApprovalForAll" [label="setApprovalForAll"]
+"2265_ownerOf" [label="ownerOf"]
+"2265_approve" [label="approve"]
+"2265_isApprovedForAll" [label="isApprovedForAll"]
+"2265_balanceOf" [label="balanceOf"]
+}subgraph cluster_7450_Collection {
+label = "Collection"
+"7450_setmaxMintAmount" [label="setmaxMintAmount"]
+"7450_setIsMintActive" [label="setIsMintActive"]
+"7450_walletOfOwner" [label="walletOfOwner"]
+"7450_pause" [label="pause"]
+"7450_slitherConstructorVariables" [label="slitherConstructorVariables"]
+"7450_setIsAllowListActive" [label="setIsAllowListActive"]
+"7450_setBaseURI" [label="setBaseURI"]
+"7450_constructor" [label="constructor"]
+"7450_setBaseExtension" [label="setBaseExtension"]
+"7450_mint" [label="mint"]
+"7450__baseURI" [label="_baseURI"]
+"7450_getRoot" [label="getRoot"]
+"7450_tokenURI" [label="tokenURI"]
+"7450_whitelistMint" [label="whitelistMint"]
+"7450_withdraw" [label="withdraw"]
+"7450_mint" -> "7450_totalSupply"
+"7450_mint" -> "7450__safeMint"
+"7450_walletOfOwner" -> "7450_ownerOf"
+"7450_setmaxMintAmount" -> "7450_onlyOwner"
+"7450_whitelistMint" -> "7450__safeMint"
+"7450_setBaseExtension" -> "7450_onlyOwner"
+"7450_withdraw" -> "7450_onlyOwner"
+"7450_mint" -> "7450_owner"
+"7450_whitelistMint" -> "7450_totalSupply"
+"7450_setIsAllowListActive" -> "7450_onlyOwner"
+"7450_whitelistMint" -> "7450_owner"
+"7450_getRoot" -> "7450_onlyOwner"
+"7450_constructor" -> "7450_constructor"
+"7450_tokenURI" -> "7450__exists"
+"7450_walletOfOwner" -> "7450_balanceOf"
+"7450_setIsMintActive" -> "7450_onlyOwner"
+"7450_tokenURI" -> "7450__baseURI"
+"7450_pause" -> "7450_onlyOwner"
+"7450_setBaseURI" -> "7450_onlyOwner"
+}subgraph cluster_3966_IERC165 {
+label = "IERC165"
+"3966_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert ApprovalQueryForNonexistentToken()" 
+"balance(address)" 
+"revert(uint256,uint256)" 
+"require(bool)" 
+"keccak256(bytes)" 
+"revert TransferCallerNotOwnerNorApproved()" 
+"abi.encodePacked()" 
+"require(bool,string)" 
+"revert MintZeroQuantity()" 
+"revert OwnerQueryForNonexistentToken()" 
+"mload(uint256)" 
+"revert ApprovalCallerNotOwnerNorApproved()" 
+"revert TransferToZeroAddress()" 
+"revert ApproveToCaller()" 
+"revert ApprovalToCurrentOwner()" 
+"revert TransferToNonERC721ReceiverImplementer()" 
+"revert URIQueryForNonexistentToken()" 
+"type()" 
+"revert BalanceQueryForZeroAddress()" 
+"revert()" 
+"revert TransferFromIncorrectOwner()" 
+"revert MintToZeroAddress()" 
+"9640__transfer" -> "revert TransferCallerNotOwnerNorApproved()"
+"9640_supportsInterface" -> "type()"
+"9640__checkContractOnERC721Received" -> "revert(uint256,uint256)"
+"9640_tokenURI" -> "abi.encodePacked()"
+"9640_getApproved" -> "revert ApprovalQueryForNonexistentToken()"
+"9640__checkContractOnERC721Received" -> "revert TransferToNonERC721ReceiverImplementer()"
+"9640__mint" -> "revert MintToZeroAddress()"
+"3954_supportsInterface" -> "type()"
+"9640__burn" -> "revert TransferCallerNotOwnerNorApproved()"
+"7450_withdraw" -> "balance(address)"
+"7450_withdraw" -> "require(bool)"
+"7450_mint" -> "require(bool,string)"
+"9640__transfer" -> "revert TransferFromIncorrectOwner()"
+"9640__mint" -> "revert TransferToNonERC721ReceiverImplementer()"
+"7450_tokenURI" -> "abi.encodePacked()"
+"7450_whitelistMint" -> "keccak256(bytes)"
+"7450_tokenURI" -> "require(bool,string)"
+"9640__transfer" -> "revert TransferToZeroAddress()"
+"7450_mint" -> "require(bool)"
+"9640_tokenURI" -> "revert URIQueryForNonexistentToken()"
+"9640__checkContractOnERC721Received" -> "mload(uint256)"
+"9640_safeTransferFrom" -> "revert TransferToNonERC721ReceiverImplementer()"
+"7450_whitelistMint" -> "require(bool,string)"
+"9640__ownershipOf" -> "revert OwnerQueryForNonexistentToken()"
+"9640_approve" -> "revert ApprovalToCurrentOwner()"
+"9640__mint" -> "revert MintZeroQuantity()"
+"9640_approve" -> "revert ApprovalCallerNotOwnerNorApproved()"
+"486_transferOwnership" -> "require(bool,string)"
+"9640__mint" -> "revert()"
+"7450_whitelistMint" -> "abi.encodePacked()"
+"9640_setApprovalForAll" -> "revert ApproveToCaller()"
+"9640_balanceOf" -> "revert BalanceQueryForZeroAddress()"
+}
+}

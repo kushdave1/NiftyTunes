@@ -3,14 +3,21 @@ import Container from 'react-bootstrap/Container'
 import styled from 'styled-components'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import Card from 'react-bootstrap/Card'
 import Video from "../../assets/videos/landing_video.mp4";
+
+import img from "../../assets/images/firelips.png";
 import ConnectButton from '../nftynavs/ConnectButton'
 import ExploreButton from '../nftynavs/ExploreButton'
-const HeaderSection = styled.div`
+import { MDBCard, MDBCardBody, MDBCardTitle, MDBCardText, MDBCardImage, MDBCardVideo, MDBBtn, MDBRipple } from 'mdb-react-ui-kit';
+
+
+const HeaderSection = styled.div `
     display:flex;
     flex:1;
     overflow:hidden;
-    padding-top:100px;
+    background-color: white;
+    min-height: 100vh;
 `;
 
 
@@ -19,13 +26,13 @@ const Ellipse1 = styled.div `
 
 
     position: absolute;
-    width: 425px;
-    height: 425px;
+    width: 250px;
+    height: 250px;
 
     /* Pink */
 
-    background: #FF3998;
-    filter: blur(100.736px);
+    background-image: url(${img});
+    filter: blur(20.736px);
 `;
 
 const Ellipse2 = styled.div `
@@ -37,10 +44,38 @@ const Ellipse2 = styled.div `
     height: 450px;
     /* Orange */
 
-    background: #FCA17D;
+    // background: #FCA17D;
+    background-image: url(${img});
     filter: blur(100.736px);
 `;
 
+const Ellipse3 = styled.div `
+    /* Ellipse 1 */
+
+
+    position: absolute;
+    width: 250px;
+    height: 250px;
+
+    /* Pink */
+
+    background-image: url(${img});
+    filter: blur(100.736px);
+`;
+
+const Ellipse4 = styled.div `
+    /* Ellipse 2 */
+
+
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    /* Orange */
+
+    // background: #FCA17D;
+    //background-image: url(${img});
+    filter: blur(100.736px);
+    `;
 const VideoContainer = styled.div `
     /* Example Video */
     
@@ -57,33 +92,51 @@ function Landing() {
                     <Row className='mt-auto'>
                         <Col lg={4} md={6} xs={{ order: 'last' }}> 
                             <Row className='mt-auto'>
-                                    <Col>
+                                    <Col> 
                                         <Ellipse1 />
                                     </Col>
                                     <Col>
                                         <Ellipse2 />
                                     </Col>
                         
-
-                                    <VideoContainer >
+                                <Card className="bg-light shadow-sm p-0" style={{borderRadius:'2.00rem', cursor: "pointer", overflow: "hidden"}}>
+                                    <div style={{borderRadius:'2.00rem', overflow: "hidden"}}>
                                         <video
-                                            className="rounded animate__animated animate__fadeIn animate__delay-4s landing-video"
+                                            className="rounded animate__animated animate__fadeIn animate__delay-1s"
                                             controls
                                             src={Video}
                                             loop={true}
                                             autoPlay
-                                            muted>
+                                            muted
+                                            style={{width: "100%"}}
+                                            >
                                         </video>
-                                    </VideoContainer>
+                                    </div>
+                                    <Card.Footer>
+                                        <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
+                                            {/* <Col>
+                                            <></>
+                                            </Col> */}
+                                            <Col>
+                                                <Card.Title className="text-dark" style={{fontSize: 12}}>FireLips</Card.Title>
+                                                <Card.Title className="text-dark" style={{fontSize: 12}}>Molly Diario</Card.Title>
+                                                {/* <Card.Text className="text-dark">{description}</Card.Text> */}
+                                            </Col>
+                                            <Col>
+                                                <Card.Title className="text-dark" style={{fontSize: 12, justifyContent: 'right', display: "flex"}}>Release Date: May 22, 2022</Card.Title>
+                                            </Col>
+                                        </Row>
+                                    </Card.Footer>
+                                </Card>
                             </Row>
                        </Col>
                        
                         <Col xs={12} md={8} lg={8}>
                             <Row className='mt-auto'>
-                            <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small>
-                            <h1 className="text-light display-3">Collect Digital Vibes</h1>
+                            {/* <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small> */}
+                            <h1 className="text-dark display-3" style={{fontWeight: "1000"}}>Collect Digital Vibes</h1>
                             <Col xs={12} md={6}>
-                                <p className="lead text-light">Purchase, build, and sell musical GIFs from the world's top artists.</p>
+                                <p className="lead text-dark">Purchase, build, and sell musical GIFs from the world's top artists.</p>
                             </Col>
                             </Row>
                             <Row>
@@ -91,12 +144,20 @@ function Landing() {
                                    <ExploreButton />
                                 </Col>
                             </Row>
+                            <Row className='mt-auto' >
+                            <Col> 
+                                        <Ellipse3 />
+                                    </Col>
+                                    <Col>
+                                        <Ellipse4 />
+                                    </Col>
+                            </Row>
                         </Col>
 
                     </Row>
                     
                     
-                    <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-4s'>
+                    <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-1s'>
                         <Col xs={12} lg={3}>
                             <Row>
                             <Col>
@@ -119,12 +180,12 @@ function Landing() {
                                         <i class="bi bi-instagram" style={{fontSize: "2rem", color: "#8a3ab9"}}></i>
                                     </a>
                                 </Col>
-                            
+                   
                             </Row>
                             <Row>
-                            <Col xs={12}>
+                            {/* <Col xs={12}>
                                 <small className="text-light"> Don't miss out on our hard launch! Follow us on social media.</small>
-                            </Col>
+                            </Col> */}
                         </Row>
                         </Col>
                       

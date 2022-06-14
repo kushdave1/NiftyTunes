@@ -3,8 +3,8 @@ import React, {useState, useEffect} from 'react'
 import styled from 'styled-components'
 
 //custom components
-import NFTForm from '../NFTForm'
-import MadeNFTForm from '../MadeNFTForm'
+import NFTForm from '../nftyForms/NFTForm'
+import MadeNFTForm from '../nftyForms/MadeNFTForm'
 
 import FileDropzone from '../nftymix/FileDropzone'
 import NFTMixer from '../nftymix/NFTMixer'
@@ -76,7 +76,7 @@ function MultiStepForm() {
 
     useEffect(() => {
         if(!user) return null;
-
+        console.log(user.get('ethAddress'))
         setAddress(user.get('ethAddress'));
 
         if(!ffmpeg.isLoaded()){

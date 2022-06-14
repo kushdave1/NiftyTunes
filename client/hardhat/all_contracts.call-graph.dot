@@ -1,0 +1,914 @@
+strict digraph {
+subgraph cluster_3073_Counters {
+label = "Counters"
+"3073_increment" [label="increment"]
+"3073_current" [label="current"]
+"3073_reset" [label="reset"]
+"3073_decrement" [label="decrement"]
+}subgraph cluster_1283_IERC20Metadata {
+label = "IERC20Metadata"
+"1283_symbol" [label="symbol"]
+"1283_name" [label="name"]
+"1283_decimals" [label="decimals"]
+}subgraph cluster_8076_NFTStaking {
+label = "NFTStaking"
+"8076__unstakeMany" [label="_unstakeMany"]
+"8076_balanceOf" [label="balanceOf"]
+"8076_unstake" [label="unstake"]
+"8076_claimForAddress" [label="claimForAddress"]
+"8076_stake" [label="stake"]
+"8076__claim" [label="_claim"]
+"8076_onERC721Received" [label="onERC721Received"]
+"8076_constructor" [label="constructor"]
+"8076_claim" [label="claim"]
+"8076_earningInfo" [label="earningInfo"]
+"8076_tokensOfOwner" [label="tokensOfOwner"]
+"8076_claimForAddress" -> "8076__claim"
+"8076_claim" -> "8076__claim"
+"8076_unstake" -> "8076__claim"
+"8076__claim" -> "8076__unstakeMany"
+}subgraph cluster_2457_ERC721URIStorage {
+label = "ERC721URIStorage"
+"2457__burn" [label="_burn"]
+"2457__setTokenURI" [label="_setTokenURI"]
+"2457_tokenURI" [label="tokenURI"]
+"2457_tokenURI" -> "2457__baseURI"
+"2457_tokenURI" -> "2457_tokenURI"
+"2457_tokenURI" -> "2457__exists"
+"2457__setTokenURI" -> "2457__exists"
+"2457__burn" -> "2457__burn"
+}subgraph cluster_7450_Collection {
+label = "Collection"
+"7450_setmaxMintAmount" [label="setmaxMintAmount"]
+"7450_setIsMintActive" [label="setIsMintActive"]
+"7450_walletOfOwner" [label="walletOfOwner"]
+"7450_pause" [label="pause"]
+"7450_setIsAllowListActive" [label="setIsAllowListActive"]
+"7450_setBaseURI" [label="setBaseURI"]
+"7450_setBaseExtension" [label="setBaseExtension"]
+"7450_constructor" [label="constructor"]
+"7450_mint" [label="mint"]
+"7450__baseURI" [label="_baseURI"]
+"7450_getRoot" [label="getRoot"]
+"7450_tokenURI" [label="tokenURI"]
+"7450_whitelistMint" [label="whitelistMint"]
+"7450_withdraw" [label="withdraw"]
+"7450_mint" -> "7450_totalSupply"
+"7450_mint" -> "7450__safeMint"
+"7450_walletOfOwner" -> "7450_ownerOf"
+"7450_setmaxMintAmount" -> "7450_onlyOwner"
+"7450_whitelistMint" -> "7450__safeMint"
+"7450_setBaseExtension" -> "7450_onlyOwner"
+"7450_withdraw" -> "7450_onlyOwner"
+"7450_mint" -> "7450_owner"
+"7450_whitelistMint" -> "7450_totalSupply"
+"7450_setIsAllowListActive" -> "7450_onlyOwner"
+"7450_whitelistMint" -> "7450_owner"
+"7450_getRoot" -> "7450_onlyOwner"
+"7450_constructor" -> "7450_constructor"
+"7450_tokenURI" -> "7450__exists"
+"7450_walletOfOwner" -> "7450_balanceOf"
+"7450_setIsMintActive" -> "7450_onlyOwner"
+"7450_tokenURI" -> "7450__baseURI"
+"7450_pause" -> "7450_onlyOwner"
+"7450_setBaseURI" -> "7450_onlyOwner"
+}subgraph cluster_2329_ERC721Royalty {
+label = "ERC721Royalty"
+"2329_supportsInterface" [label="supportsInterface"]
+"2329__burn" [label="_burn"]
+"2329__burn" -> "2329__burn"
+"2329_supportsInterface" -> "2329_supportsInterface"
+"2329__burn" -> "2329__resetTokenRoyalty"
+}subgraph cluster_2977_Address {
+label = "Address"
+"2977_isContract" [label="isContract"]
+"2977_functionCall" [label="functionCall"]
+"2977_verifyCallResult" [label="verifyCallResult"]
+"2977_functionStaticCall" [label="functionStaticCall"]
+"2977_functionCallWithValue" [label="functionCallWithValue"]
+"2977_sendValue" [label="sendValue"]
+"2977_functionDelegateCall" [label="functionDelegateCall"]
+"2977_functionCallWithValue" -> "2977_verifyCallResult"
+"2977_functionCall" -> "2977_functionCallWithValue"
+"2977_functionCallWithValue" -> "2977_isContract"
+"2977_functionDelegateCall" -> "2977_functionDelegateCall"
+"2977_functionDelegateCall" -> "2977_verifyCallResult"
+"2977_functionDelegateCall" -> "2977_isContract"
+"2977_functionStaticCall" -> "2977_verifyCallResult"
+"2977_functionStaticCall" -> "2977_functionStaticCall"
+"2977_functionCallWithValue" -> "2977_functionCallWithValue"
+"2977_functionStaticCall" -> "2977_isContract"
+"2977_functionCall" -> "2977_functionCall"
+}subgraph cluster_548_ReentrancyGuard {
+label = "ReentrancyGuard"
+"548_constructor" [label="constructor"]
+}subgraph cluster_17704_console {
+label = "console"
+"17704_logBytes17" [label="logBytes17"]
+"17704_logBytes5" [label="logBytes5"]
+"17704_logBytes21" [label="logBytes21"]
+"17704_logBytes3" [label="logBytes3"]
+"17704_logUint" [label="logUint"]
+"17704_logBytes31" [label="logBytes31"]
+"17704_logBytes2" [label="logBytes2"]
+"17704_logBytes30" [label="logBytes30"]
+"17704_logBytes8" [label="logBytes8"]
+"17704_logBytes26" [label="logBytes26"]
+"17704_logBytes20" [label="logBytes20"]
+"17704_logBytes15" [label="logBytes15"]
+"17704_logBytes32" [label="logBytes32"]
+"17704_logBytes13" [label="logBytes13"]
+"17704_logBytes18" [label="logBytes18"]
+"17704_log" [label="log"]
+"17704_logBytes28" [label="logBytes28"]
+"17704_logBytes4" [label="logBytes4"]
+"17704_logBytes29" [label="logBytes29"]
+"17704__sendLogPayload" [label="_sendLogPayload"]
+"17704_logBytes" [label="logBytes"]
+"17704_logBytes11" [label="logBytes11"]
+"17704_logBool" [label="logBool"]
+"17704_logBytes27" [label="logBytes27"]
+"17704_logBytes12" [label="logBytes12"]
+"17704_logBytes19" [label="logBytes19"]
+"17704_logBytes24" [label="logBytes24"]
+"17704_logInt" [label="logInt"]
+"17704_logAddress" [label="logAddress"]
+"17704_logBytes10" [label="logBytes10"]
+"17704_logString" [label="logString"]
+"17704_logBytes22" [label="logBytes22"]
+"17704_logBytes7" [label="logBytes7"]
+"17704_logBytes1" [label="logBytes1"]
+"17704_logBytes16" [label="logBytes16"]
+"17704_logBytes9" [label="logBytes9"]
+"17704_logBytes23" [label="logBytes23"]
+"17704_logBytes25" [label="logBytes25"]
+"17704_logBytes6" [label="logBytes6"]
+"17704_logBytes14" [label="logBytes14"]
+"17704_log" -> "17704__sendLogPayload"
+"17704_logBytes10" -> "17704__sendLogPayload"
+"17704_logBytes13" -> "17704__sendLogPayload"
+"17704_logBytes" -> "17704__sendLogPayload"
+"17704_logBool" -> "17704__sendLogPayload"
+"17704_logBytes4" -> "17704__sendLogPayload"
+"17704_logBytes30" -> "17704__sendLogPayload"
+"17704_logBytes16" -> "17704__sendLogPayload"
+"17704_logBytes12" -> "17704__sendLogPayload"
+"17704_logBytes6" -> "17704__sendLogPayload"
+"17704_logBytes3" -> "17704__sendLogPayload"
+"17704_logBytes7" -> "17704__sendLogPayload"
+"17704_logBytes31" -> "17704__sendLogPayload"
+"17704_logBytes21" -> "17704__sendLogPayload"
+"17704_logInt" -> "17704__sendLogPayload"
+"17704_logBytes32" -> "17704__sendLogPayload"
+"17704_logAddress" -> "17704__sendLogPayload"
+"17704_logBytes5" -> "17704__sendLogPayload"
+"17704_logBytes20" -> "17704__sendLogPayload"
+"17704_logBytes27" -> "17704__sendLogPayload"
+"17704_logBytes14" -> "17704__sendLogPayload"
+"17704_logBytes26" -> "17704__sendLogPayload"
+"17704_logUint" -> "17704__sendLogPayload"
+"17704_logBytes15" -> "17704__sendLogPayload"
+"17704_logBytes24" -> "17704__sendLogPayload"
+"17704_logBytes28" -> "17704__sendLogPayload"
+"17704_logBytes1" -> "17704__sendLogPayload"
+"17704_logBytes25" -> "17704__sendLogPayload"
+"17704_logBytes18" -> "17704__sendLogPayload"
+"17704_logBytes8" -> "17704__sendLogPayload"
+"17704_logBytes11" -> "17704__sendLogPayload"
+"17704_logBytes17" -> "17704__sendLogPayload"
+"17704_logBytes23" -> "17704__sendLogPayload"
+"17704_logBytes19" -> "17704__sendLogPayload"
+"17704_logString" -> "17704__sendLogPayload"
+"17704_logBytes22" -> "17704__sendLogPayload"
+"17704_logBytes2" -> "17704__sendLogPayload"
+"17704_logBytes9" -> "17704__sendLogPayload"
+"17704_logBytes29" -> "17704__sendLogPayload"
+}subgraph cluster_9640_ERC721A {
+label = "ERC721A"
+"9640__mint" [label="_mint"]
+"9640_getApproved" [label="getApproved"]
+"9640_setApprovalForAll" [label="setApprovalForAll"]
+"9640_transferFrom" [label="transferFrom"]
+"9640__safeMint" [label="_safeMint"]
+"9640__burn" [label="_burn"]
+"9640_totalSupply" [label="totalSupply"]
+"9640_constructor" [label="constructor"]
+"9640_ownerOf" [label="ownerOf"]
+"9640__numberMinted" [label="_numberMinted"]
+"9640__transfer" [label="_transfer"]
+"9640__setAux" [label="_setAux"]
+"9640__startTokenId" [label="_startTokenId"]
+"9640__numberBurned" [label="_numberBurned"]
+"9640__ownershipOf" [label="_ownershipOf"]
+"9640_safeTransferFrom" [label="safeTransferFrom"]
+"9640_symbol" [label="symbol"]
+"9640__totalMinted" [label="_totalMinted"]
+"9640_supportsInterface" [label="supportsInterface"]
+"9640__checkContractOnERC721Received" [label="_checkContractOnERC721Received"]
+"9640_tokenURI" [label="tokenURI"]
+"9640__baseURI" [label="_baseURI"]
+"9640_name" [label="name"]
+"9640_approve" [label="approve"]
+"9640__getAux" [label="_getAux"]
+"9640__afterTokenTransfers" [label="_afterTokenTransfers"]
+"9640__approve" [label="_approve"]
+"9640_isApprovedForAll" [label="isApprovedForAll"]
+"9640__beforeTokenTransfers" [label="_beforeTokenTransfers"]
+"9640__exists" [label="_exists"]
+"9640_balanceOf" [label="balanceOf"]
+"9640__transfer" -> "9640__msgSender"
+"9640__exists" -> "9640__startTokenId"
+"9640_safeTransferFrom" -> "9640_safeTransferFrom"
+"9640__burn" -> "9640__burn"
+"9640__burn" -> "9640__msgSender"
+"9640__burn" -> "9640_getApproved"
+"9640__burn" -> "9640__ownershipOf"
+"9640__safeMint" -> "9640__mint"
+"9640_constructor" -> "9640__startTokenId"
+"9640__safeMint" -> "9640__safeMint"
+"9640_safeTransferFrom" -> "9640__checkContractOnERC721Received"
+"9640__transfer" -> "9640__approve"
+"9640__transfer" -> "9640__ownershipOf"
+"9640_supportsInterface" -> "9640_supportsInterface"
+"9640_ownerOf" -> "9640__ownershipOf"
+"9640_approve" -> "9640_isApprovedForAll"
+"9640__transfer" -> "9640__afterTokenTransfers"
+"9640_transferFrom" -> "9640__transfer"
+"9640__burn" -> "9640__approve"
+"9640__ownershipOf" -> "9640__startTokenId"
+"9640__transfer" -> "9640_getApproved"
+"9640_getApproved" -> "9640__exists"
+"9640__mint" -> "9640__beforeTokenTransfers"
+"9640__burn" -> "9640__beforeTokenTransfers"
+"9640_safeTransferFrom" -> "9640__transfer"
+"9640__mint" -> "9640__checkContractOnERC721Received"
+"9640_approve" -> "9640_ownerOf"
+"9640__checkContractOnERC721Received" -> "9640__msgSender"
+"9640__transfer" -> "9640__beforeTokenTransfers"
+"9640__transfer" -> "9640_isApprovedForAll"
+"9640_tokenURI" -> "9640__baseURI"
+"9640__burn" -> "9640__afterTokenTransfers"
+"9640_tokenURI" -> "9640__exists"
+"9640_setApprovalForAll" -> "9640__msgSender"
+"9640__totalMinted" -> "9640__startTokenId"
+"9640__mint" -> "9640__afterTokenTransfers"
+"9640_totalSupply" -> "9640__startTokenId"
+"9640_approve" -> "9640__msgSender"
+"9640__burn" -> "9640_isApprovedForAll"
+"9640_approve" -> "9640__approve"
+}subgraph cluster_4531_LazyNFT {
+label = "LazyNFT"
+"4531_constructor" [label="constructor"]
+"4531__hash" [label="_hash"]
+"4531_supportsInterface" [label="supportsInterface"]
+"4531_availableToWithdraw" [label="availableToWithdraw"]
+"4531_redeem" [label="redeem"]
+"4531__verify" [label="_verify"]
+"4531_withdraw" [label="withdraw"]
+"4531__verify" -> "4531__hash"
+"4531_redeem" -> "4531_hasRole"
+"4531_redeem" -> "4531__transfer"
+"4531_redeem" -> "4531__verify"
+"4531_withdraw" -> "4531_hasRole"
+"4531_constructor" -> "4531__setupRole"
+"4531_redeem" -> "4531__mint"
+"4531_constructor" -> "4531_constructor"
+"4531_supportsInterface" -> "4531_supportsInterface"
+"4531__hash" -> "4531__hashTypedDataV4"
+"4531_redeem" -> "4531__setTokenURI"
+}subgraph cluster_2484_IERC721Metadata {
+label = "IERC721Metadata"
+"2484_name" [label="name"]
+"2484_tokenURI" [label="tokenURI"]
+"2484_symbol" [label="symbol"]
+}subgraph cluster_308_AccessControl {
+label = "AccessControl"
+"308_renounceRole" [label="renounceRole"]
+"308_hasRole" [label="hasRole"]
+"308__setRoleAdmin" [label="_setRoleAdmin"]
+"308_getRoleAdmin" [label="getRoleAdmin"]
+"308_grantRole" [label="grantRole"]
+"308_revokeRole" [label="revokeRole"]
+"308__revokeRole" [label="_revokeRole"]
+"308_supportsInterface" [label="supportsInterface"]
+"308__grantRole" [label="_grantRole"]
+"308__setupRole" [label="_setupRole"]
+"308__checkRole" [label="_checkRole"]
+"308__setupRole" -> "308__grantRole"
+"308_revokeRole" -> "308_getRoleAdmin"
+"308_renounceRole" -> "308__revokeRole"
+"308__grantRole" -> "308__msgSender"
+"308__checkRole" -> "308_hasRole"
+"308__grantRole" -> "308_hasRole"
+"308_revokeRole" -> "308_onlyRole"
+"308__revokeRole" -> "308__msgSender"
+"308__revokeRole" -> "308_hasRole"
+"308_grantRole" -> "308__grantRole"
+"308_renounceRole" -> "308__msgSender"
+"308_revokeRole" -> "308__revokeRole"
+"308_supportsInterface" -> "308_supportsInterface"
+"308_grantRole" -> "308_onlyRole"
+"308_grantRole" -> "308_getRoleAdmin"
+"308__setRoleAdmin" -> "308_getRoleAdmin"
+}subgraph cluster_4278_SafeMath {
+label = "SafeMath"
+"4278_tryMod" [label="tryMod"]
+"4278_div" [label="div"]
+"4278_sub" [label="sub"]
+"4278_tryDiv" [label="tryDiv"]
+"4278_tryAdd" [label="tryAdd"]
+"4278_mul" [label="mul"]
+"4278_tryMul" [label="tryMul"]
+"4278_add" [label="add"]
+"4278_trySub" [label="trySub"]
+"4278_mod" [label="mod"]
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_8254_ERC20Token {
+label = "ERC20Token"
+"8254_totalSupply" [label="totalSupply"]
+"8254_balanceOf" [label="balanceOf"]
+"8254_decimals" [label="decimals"]
+"8254_approve" [label="approve"]
+"8254_allowance" [label="allowance"]
+"8254_transfer" [label="transfer"]
+"8254_transferFrom" [label="transferFrom"]
+"8254_name" [label="name"]
+"8254_symbol" [label="symbol"]
+}subgraph cluster_1214_IERC20 {
+label = "IERC20"
+"1214_balanceOf" [label="balanceOf"]
+"1214_approve" [label="approve"]
+"1214_transferFrom" [label="transferFrom"]
+"1214_allowance" [label="allowance"]
+"1214_transfer" [label="transfer"]
+"1214_totalSupply" [label="totalSupply"]
+}subgraph cluster_3776_MerkleProof {
+label = "MerkleProof"
+"3776_verify" [label="verify"]
+"3776_processProof" [label="processProof"]
+"3776__efficientHash" [label="_efficientHash"]
+"3776_verify" -> "3776_processProof"
+"3776_processProof" -> "3776__efficientHash"
+}subgraph cluster_4678_WETH10 {
+label = "WETH10"
+"4678_approveSpender" [label="approveSpender"]
+"4678_burn" [label="burn"]
+"4678_mint" [label="mint"]
+"4678_constructor" [label="constructor"]
+"4678_approveSpender" -> "4678_approve"
+"4678_burn" -> "4678__burn"
+"4678_mint" -> "4678__mint"
+"4678_constructor" -> "4678_constructor"
+}subgraph cluster_3276_Strings {
+label = "Strings"
+"3276_toHexString" [label="toHexString"]
+"3276_toString" [label="toString"]
+"3276_toHexString" -> "3276_toHexString"
+}subgraph cluster_2265_IERC721 {
+label = "IERC721"
+"2265_getApproved" [label="getApproved"]
+"2265_safeTransferFrom" [label="safeTransferFrom"]
+"2265_transferFrom" [label="transferFrom"]
+"2265_setApprovalForAll" [label="setApprovalForAll"]
+"2265_ownerOf" [label="ownerOf"]
+"2265_approve" [label="approve"]
+"2265_isApprovedForAll" [label="isApprovedForAll"]
+"2265_balanceOf" [label="balanceOf"]
+}subgraph cluster_3930_EIP712 {
+label = "EIP712"
+"3930_constructor" [label="constructor"]
+"3930__buildDomainSeparator" [label="_buildDomainSeparator"]
+"3930__domainSeparatorV4" [label="_domainSeparatorV4"]
+"3930__hashTypedDataV4" [label="_hashTypedDataV4"]
+"3930__domainSeparatorV4" -> "3930__buildDomainSeparator"
+"3930__hashTypedDataV4" -> "3930__domainSeparatorV4"
+"3930_constructor" -> "3930__buildDomainSeparator"
+}subgraph cluster_3683_ECDSA {
+label = "ECDSA"
+"3683__throwError" [label="_throwError"]
+"3683_recover" [label="recover"]
+"3683_tryRecover" [label="tryRecover"]
+"3683_toTypedDataHash" [label="toTypedDataHash"]
+"3683_toEthSignedMessageHash" [label="toEthSignedMessageHash"]
+"3683_recover" -> "3683__throwError"
+"3683_recover" -> "3683_tryRecover"
+"3683_tryRecover" -> "3683_tryRecover"
+}subgraph cluster_2149_ERC721 {
+label = "ERC721"
+"2149__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"2149__baseURI" [label="_baseURI"]
+"2149_safeTransferFrom" [label="safeTransferFrom"]
+"2149_getApproved" [label="getApproved"]
+"2149__burn" [label="_burn"]
+"2149_symbol" [label="symbol"]
+"2149__afterTokenTransfer" [label="_afterTokenTransfer"]
+"2149__exists" [label="_exists"]
+"2149__safeTransfer" [label="_safeTransfer"]
+"2149__mint" [label="_mint"]
+"2149_approve" [label="approve"]
+"2149__setApprovalForAll" [label="_setApprovalForAll"]
+"2149__isApprovedOrOwner" [label="_isApprovedOrOwner"]
+"2149_supportsInterface" [label="supportsInterface"]
+"2149_balanceOf" [label="balanceOf"]
+"2149_name" [label="name"]
+"2149_tokenURI" [label="tokenURI"]
+"2149_isApprovedForAll" [label="isApprovedForAll"]
+"2149__transfer" [label="_transfer"]
+"2149__approve" [label="_approve"]
+"2149_transferFrom" [label="transferFrom"]
+"2149_ownerOf" [label="ownerOf"]
+"2149__safeMint" [label="_safeMint"]
+"2149_constructor" [label="constructor"]
+"2149__checkOnERC721Received" [label="_checkOnERC721Received"]
+"2149_setApprovalForAll" [label="setApprovalForAll"]
+"2149__isApprovedOrOwner" -> "2149_isApprovedForAll"
+"2149_transferFrom" -> "2149__isApprovedOrOwner"
+"2149_transferFrom" -> "2149__msgSender"
+"2149_approve" -> "2149__approve"
+"2149_setApprovalForAll" -> "2149__setApprovalForAll"
+"2149__burn" -> "2149__approve"
+"2149_safeTransferFrom" -> "2149__msgSender"
+"2149_getApproved" -> "2149__exists"
+"2149__transfer" -> "2149_ownerOf"
+"2149__mint" -> "2149__afterTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149__exists"
+"2149__isApprovedOrOwner" -> "2149_getApproved"
+"2149_tokenURI" -> "2149__exists"
+"2149_transferFrom" -> "2149__transfer"
+"2149__safeMint" -> "2149__checkOnERC721Received"
+"2149__safeMint" -> "2149__safeMint"
+"2149_safeTransferFrom" -> "2149__isApprovedOrOwner"
+"2149_supportsInterface" -> "2149_supportsInterface"
+"2149_approve" -> "2149_isApprovedForAll"
+"2149__burn" -> "2149__afterTokenTransfer"
+"2149__safeTransfer" -> "2149__transfer"
+"2149_safeTransferFrom" -> "2149_safeTransferFrom"
+"2149__burn" -> "2149__beforeTokenTransfer"
+"2149__mint" -> "2149__exists"
+"2149__transfer" -> "2149__afterTokenTransfer"
+"2149__transfer" -> "2149__approve"
+"2149__transfer" -> "2149__beforeTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149_ownerOf"
+"2149_setApprovalForAll" -> "2149__msgSender"
+"2149__checkOnERC721Received" -> "2149__msgSender"
+"2149__safeTransfer" -> "2149__checkOnERC721Received"
+"2149_tokenURI" -> "2149__baseURI"
+"2149__burn" -> "2149_ownerOf"
+"2149__safeMint" -> "2149__mint"
+"2149__approve" -> "2149_ownerOf"
+"2149_safeTransferFrom" -> "2149__safeTransfer"
+"2149_approve" -> "2149_ownerOf"
+"2149__mint" -> "2149__beforeTokenTransfer"
+"2149_approve" -> "2149__msgSender"
+}subgraph cluster_486_Ownable {
+label = "Ownable"
+"486_constructor" [label="constructor"]
+"486_owner" [label="owner"]
+"486__transferOwnership" [label="_transferOwnership"]
+"486_transferOwnership" [label="transferOwnership"]
+"486_renounceOwnership" [label="renounceOwnership"]
+"486_transferOwnership" -> "486_onlyOwner"
+"486_constructor" -> "486__msgSender"
+"486_renounceOwnership" -> "486_onlyOwner"
+"486_transferOwnership" -> "486__transferOwnership"
+"486_constructor" -> "486__transferOwnership"
+"486_renounceOwnership" -> "486__transferOwnership"
+}subgraph cluster_7016_LazyFactory {
+label = "LazyFactory"
+"7016_redeem" [label="redeem"]
+"7016_getChainID" [label="getChainID"]
+"7016_constructor" [label="constructor"]
+"7016_supportsInterface" [label="supportsInterface"]
+"7016_supportsInterface" -> "7016_supportsInterface"
+"7016_redeem" -> "7016_setApprovalForAll"
+"7016_constructor" -> "7016__setupRole"
+"7016_redeem" -> "7016_hasRole"
+"7016_redeem" -> "7016_nonReentrant"
+"7016_constructor" -> "7016_constructor"
+}subgraph cluster_1258_ERC20Burnable {
+label = "ERC20Burnable"
+"1258_burn" [label="burn"]
+"1258_burnFrom" [label="burnFrom"]
+"1258_burnFrom" -> "1258__msgSender"
+"1258_burn" -> "1258__burn"
+"1258_burnFrom" -> "1258__spendAllowance"
+"1258_burn" -> "1258__msgSender"
+"1258_burnFrom" -> "1258__burn"
+}subgraph cluster_2283_IERC721Receiver {
+label = "IERC721Receiver"
+"2283_onERC721Received" [label="onERC721Received"]
+}subgraph cluster_6764_NFTMarketplace {
+label = "NFTMarketplace"
+"6764_createBredToken" [label="createBredToken"]
+"6764_resellToken" [label="resellToken"]
+"6764_getAllowance" [label="getAllowance"]
+"6764_supportsInterface" [label="supportsInterface"]
+"6764_createMarketSale" [label="createMarketSale"]
+"6764_createOwnedTokenFromLazy" [label="createOwnedTokenFromLazy"]
+"6764_constructor" [label="constructor"]
+"6764_delistToken" [label="delistToken"]
+"6764_placeBid" [label="placeBid"]
+"6764_acceptBid" [label="acceptBid"]
+"6764_createMarketItem" [label="createMarketItem"]
+"6764_receive" [label="receive"]
+"6764_createOwnedTokenFromLazy" -> "6764__setTokenURI"
+"6764_delistToken" -> "6764__transfer"
+"6764_delistToken" -> "6764_nonReentrant"
+"6764_createMarketItem" -> "6764_setApprovalForAll"
+"6764_createOwnedTokenFromLazy" -> "6764_nonReentrant"
+"6764_acceptBid" -> "6764__transfer"
+"6764_createOwnedTokenFromLazy" -> "6764__setTokenRoyalty"
+"6764_createOwnedTokenFromLazy" -> "6764__transfer"
+"6764_resellToken" -> "6764_setApprovalForAll"
+"6764_constructor" -> "6764_constructor"
+"6764_createMarketSale" -> "6764__transfer"
+"6764_createBredToken" -> "6764__setTokenURI"
+"6764_createOwnedTokenFromLazy" -> "6764__mint"
+"6764_createBredToken" -> "6764__mint"
+"6764_supportsInterface" -> "6764_supportsInterface"
+"6764_createMarketItem" -> "6764_nonReentrant"
+}subgraph cluster_8172_TUNES {
+label = "TUNES"
+"8172_burnFrom" [label="burnFrom"]
+"8172_removeController" [label="removeController"]
+"8172_mint" [label="mint"]
+"8172_addController" [label="addController"]
+"8172_constructor" [label="constructor"]
+"8172_constructor" -> "8172_constructor"
+"8172_burnFrom" -> "8172_burnFrom"
+"8172_removeController" -> "8172_onlyOwner"
+"8172_burnFrom" -> "8172__burn"
+"8172_mint" -> "8172__mint"
+"8172_addController" -> "8172_onlyOwner"
+}subgraph cluster_8318_Owned {
+label = "Owned"
+"8318_transferOwnership" [label="transferOwnership"]
+"8318_acceptOwnership" [label="acceptOwnership"]
+"8318_constructor" [label="constructor"]
+}subgraph cluster_1136_ERC20 {
+label = "ERC20"
+"1136_constructor" [label="constructor"]
+"1136_transfer" [label="transfer"]
+"1136_decimals" [label="decimals"]
+"1136__afterTokenTransfer" [label="_afterTokenTransfer"]
+"1136__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"1136_totalSupply" [label="totalSupply"]
+"1136__spendAllowance" [label="_spendAllowance"]
+"1136_name" [label="name"]
+"1136_balanceOf" [label="balanceOf"]
+"1136__burn" [label="_burn"]
+"1136_increaseAllowance" [label="increaseAllowance"]
+"1136_allowance" [label="allowance"]
+"1136_transferFrom" [label="transferFrom"]
+"1136_decreaseAllowance" [label="decreaseAllowance"]
+"1136__approve" [label="_approve"]
+"1136__transfer" [label="_transfer"]
+"1136_approve" [label="approve"]
+"1136_symbol" [label="symbol"]
+"1136__mint" [label="_mint"]
+"1136__spendAllowance" -> "1136_allowance"
+"1136_transferFrom" -> "1136__transfer"
+"1136__burn" -> "1136__beforeTokenTransfer"
+"1136__mint" -> "1136__beforeTokenTransfer"
+"1136_increaseAllowance" -> "1136__msgSender"
+"1136__transfer" -> "1136__afterTokenTransfer"
+"1136_transfer" -> "1136__msgSender"
+"1136__burn" -> "1136__afterTokenTransfer"
+"1136_decreaseAllowance" -> "1136__approve"
+"1136_increaseAllowance" -> "1136__approve"
+"1136_transfer" -> "1136__transfer"
+"1136__spendAllowance" -> "1136__approve"
+"1136__transfer" -> "1136__beforeTokenTransfer"
+"1136_transferFrom" -> "1136__msgSender"
+"1136__mint" -> "1136__afterTokenTransfer"
+"1136_decreaseAllowance" -> "1136__msgSender"
+"1136_approve" -> "1136__approve"
+"1136_transferFrom" -> "1136__spendAllowance"
+"1136_approve" -> "1136__msgSender"
+}subgraph cluster_3954_ERC165 {
+label = "ERC165"
+"3954_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_5746_NFTMarketplaceStorage {
+label = "NFTMarketplaceStorage"
+"5746_storeLazyMintedItem" [label="storeLazyMintedItem"]
+"5746_storeMarketItem" [label="storeMarketItem"]
+"5746_fetchMyNFTs" [label="fetchMyNFTs"]
+"5746_deleteOwnedItem" [label="deleteOwnedItem"]
+"5746_getItemDetails" [label="getItemDetails"]
+"5746_storeBid" [label="storeBid"]
+"5746_storeBredItem" [label="storeBredItem"]
+"5746_storeResellData" [label="storeResellData"]
+"5746_fetchMarketItems" [label="fetchMarketItems"]
+"5746_getHighestBid" [label="getHighestBid"]
+"5746_setMarketSale" [label="setMarketSale"]
+"5746_getBidDetails" [label="getBidDetails"]
+"5746_fetchItemsListed" [label="fetchItemsListed"]
+"5746_deleteMarketItem" [label="deleteMarketItem"]
+"5746_fetchMarketItems" -> "5746_owner"
+"5746_storeBid" -> "5746_onlyOwner"
+"5746_storeMarketItem" -> "5746_onlyOwner"
+"5746_storeBredItem" -> "5746_onlyOwner"
+"5746_setMarketSale" -> "5746_onlyOwner"
+"5746_storeLazyMintedItem" -> "5746_onlyOwner"
+"5746_storeResellData" -> "5746_onlyOwner"
+"5746_deleteOwnedItem" -> "5746_onlyOwner"
+"5746_deleteMarketItem" -> "5746_onlyOwner"
+}subgraph cluster_4599_NFT {
+label = "NFT"
+"4599_constructor" [label="constructor"]
+"4599_createToken" [label="createToken"]
+"4599_createToken" -> "4599__setTokenURI"
+"4599_createToken" -> "4599__mint"
+"4599_createToken" -> "4599_setApprovalForAll"
+"4599_constructor" -> "4599_constructor"
+}subgraph cluster_2682_ERC2981 {
+label = "ERC2981"
+"2682__setTokenRoyalty" [label="_setTokenRoyalty"]
+"2682_supportsInterface" [label="supportsInterface"]
+"2682_royaltyInfo" [label="royaltyInfo"]
+"2682__setDefaultRoyalty" [label="_setDefaultRoyalty"]
+"2682__feeDenominator" [label="_feeDenominator"]
+"2682__deleteDefaultRoyalty" [label="_deleteDefaultRoyalty"]
+"2682__resetTokenRoyalty" [label="_resetTokenRoyalty"]
+"2682__setDefaultRoyalty" -> "2682__feeDenominator"
+"2682__setTokenRoyalty" -> "2682__feeDenominator"
+"2682_supportsInterface" -> "2682_supportsInterface"
+"2682_royaltyInfo" -> "2682__feeDenominator"
+}subgraph cluster_508_IERC2981 {
+label = "IERC2981"
+"508_royaltyInfo" [label="royaltyInfo"]
+}subgraph cluster_381_IAccessControl {
+label = "IAccessControl"
+"381_getRoleAdmin" [label="getRoleAdmin"]
+"381_grantRole" [label="grantRole"]
+"381_revokeRole" [label="revokeRole"]
+"381_hasRole" [label="hasRole"]
+"381_renounceRole" [label="renounceRole"]
+}subgraph cluster_3966_IERC165 {
+label = "IERC165"
+"3966_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"revert ApprovalQueryForNonexistentToken()" 
+"balance(address)" 
+"gas()" 
+"revert(uint256,uint256)" 
+"require(bool)" 
+"keccak256(bytes)" 
+"code(address)" 
+"revert TransferCallerNotOwnerNorApproved()" 
+"abi.encode()" 
+"abi.encodePacked()" 
+"keccak256(uint256,uint256)" 
+"require(bool,string)" 
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"revert MintZeroQuantity()" 
+"chainid()" 
+"revert OwnerQueryForNonexistentToken()" 
+"mload(uint256)" 
+"revert ApprovalCallerNotOwnerNorApproved()" 
+"revert TransferToZeroAddress()" 
+"staticcall(uint256,uint256,uint256,uint256,uint256,uint256)" 
+"revert ApproveToCaller()" 
+"revert ApprovalToCurrentOwner()" 
+"mstore(uint256,uint256)" 
+"revert TransferToNonERC721ReceiverImplementer()" 
+"abi.encodeWithSignature()" 
+"revert URIQueryForNonexistentToken()" 
+"type()" 
+"revert()" 
+"revert BalanceQueryForZeroAddress()" 
+"revert TransferFromIncorrectOwner()" 
+"byte(uint256,uint256)" 
+"revert(string)" 
+"revert MintToZeroAddress()" 
+"4531_withdraw" -> "require(bool,string)"
+"17704_logBytes3" -> "abi.encodeWithSignature()"
+"17704_logBytes7" -> "abi.encodeWithSignature()"
+"3683_tryRecover" -> "mload(uint256)"
+"9640__transfer" -> "revert TransferCallerNotOwnerNorApproved()"
+"2977_functionCallWithValue" -> "require(bool,string)"
+"4531__hash" -> "abi.encode()"
+"6764_resellToken" -> "revert()"
+"1136__burn" -> "require(bool,string)"
+"9640_supportsInterface" -> "type()"
+"17704_logInt" -> "abi.encodeWithSignature()"
+"2149__setApprovalForAll" -> "require(bool,string)"
+"2149__safeMint" -> "require(bool,string)"
+"5746_deleteMarketItem" -> "require(bool)"
+"9640_tokenURI" -> "abi.encodePacked()"
+"9640_getApproved" -> "revert ApprovalQueryForNonexistentToken()"
+"17704_logBytes17" -> "abi.encodeWithSignature()"
+"17704_logBytes23" -> "abi.encodeWithSignature()"
+"17704_logBytes9" -> "abi.encodeWithSignature()"
+"1136__mint" -> "require(bool,string)"
+"6764_createMarketItem" -> "require(bool,string)"
+"2977_functionCallWithValue" -> "balance(address)"
+"2682__setDefaultRoyalty" -> "require(bool,string)"
+"17704_logBytes15" -> "abi.encodeWithSignature()"
+"5746_deleteOwnedItem" -> "require(bool,string)"
+"6764_acceptBid" -> "require(bool,string)"
+"17704_logBytes10" -> "abi.encodeWithSignature()"
+"17704_logBytes8" -> "abi.encodeWithSignature()"
+"2682_supportsInterface" -> "type()"
+"2149_tokenURI" -> "require(bool,string)"
+"17704_logBytes18" -> "abi.encodeWithSignature()"
+"2457_tokenURI" -> "abi.encodePacked()"
+"7450_whitelistMint" -> "keccak256(bytes)"
+"3683_toEthSignedMessageHash" -> "keccak256(bytes)"
+"7016_getChainID" -> "chainid()"
+"9640_tokenURI" -> "revert URIQueryForNonexistentToken()"
+"17704_logBytes20" -> "abi.encodeWithSignature()"
+"9640_safeTransferFrom" -> "revert TransferToNonERC721ReceiverImplementer()"
+"17704_logBytes26" -> "abi.encodeWithSignature()"
+"2977_verifyCallResult" -> "mload(uint256)"
+"9640_approve" -> "revert ApprovalToCurrentOwner()"
+"8076__unstakeMany" -> "require(bool,string)"
+"2457__setTokenURI" -> "require(bool,string)"
+"6764_acceptBid" -> "require(bool)"
+"9640_approve" -> "revert ApprovalCallerNotOwnerNorApproved()"
+"3073_decrement" -> "require(bool,string)"
+"486_transferOwnership" -> "require(bool,string)"
+"17704_logBytes11" -> "abi.encodeWithSignature()"
+"17704_logBytes" -> "abi.encodeWithSignature()"
+"3930_constructor" -> "keccak256(bytes)"
+"9640_balanceOf" -> "revert BalanceQueryForZeroAddress()"
+"17704_logBytes27" -> "abi.encodeWithSignature()"
+"8076__claim" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "mload(uint256)"
+"1136__transfer" -> "require(bool,string)"
+"4531__hash" -> "keccak256(bytes)"
+"9640__checkContractOnERC721Received" -> "revert TransferToNonERC721ReceiverImplementer()"
+"2977_sendValue" -> "balance(address)"
+"308_renounceRole" -> "require(bool,string)"
+"2149_ownerOf" -> "require(bool,string)"
+"17704_logBytes31" -> "abi.encodeWithSignature()"
+"9640__burn" -> "revert TransferCallerNotOwnerNorApproved()"
+"2149__safeTransfer" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "revert(string)"
+"3683_toTypedDataHash" -> "abi.encodePacked()"
+"2977_isContract" -> "code(address)"
+"17704_logString" -> "abi.encodeWithSignature()"
+"7450_mint" -> "require(bool,string)"
+"8318_acceptOwnership" -> "require(bool)"
+"3930__buildDomainSeparator" -> "keccak256(bytes)"
+"5746_deleteMarketItem" -> "require(bool,string)"
+"3683__throwError" -> "revert(string)"
+"7016_redeem" -> "require(bool,string)"
+"7450_mint" -> "require(bool)"
+"7450_whitelistMint" -> "require(bool,string)"
+"9640__checkContractOnERC721Received" -> "mload(uint256)"
+"6764_createMarketSale" -> "require(bool,string)"
+"17704_logBytes24" -> "abi.encodeWithSignature()"
+"2977_functionStaticCall" -> "require(bool,string)"
+"2977_sendValue" -> "require(bool,string)"
+"8076_onERC721Received" -> "require(bool,string)"
+"308__checkRole" -> "abi.encodePacked()"
+"2149_tokenURI" -> "abi.encodePacked()"
+"2977_verifyCallResult" -> "revert(string)"
+"1136_decreaseAllowance" -> "require(bool,string)"
+"2149_balanceOf" -> "require(bool,string)"
+"5746_storeBid" -> "require(bool,string)"
+"2149__isApprovedOrOwner" -> "require(bool,string)"
+"4531_redeem" -> "require(bool,string)"
+"9640__checkContractOnERC721Received" -> "revert(uint256,uint256)"
+"17704_logBytes13" -> "abi.encodeWithSignature()"
+"2149_getApproved" -> "require(bool,string)"
+"17704_logBytes29" -> "abi.encodeWithSignature()"
+"17704_logBytes30" -> "abi.encodeWithSignature()"
+"8076_stake" -> "require(bool,string)"
+"17704_logBytes22" -> "abi.encodeWithSignature()"
+"2149_transferFrom" -> "require(bool,string)"
+"3954_supportsInterface" -> "type()"
+"9640__mint" -> "revert MintToZeroAddress()"
+"2977_verifyCallResult" -> "revert(uint256,uint256)"
+"2682__setTokenRoyalty" -> "require(bool,string)"
+"17704_logBytes5" -> "abi.encodeWithSignature()"
+"3776__efficientHash" -> "mstore(uint256,uint256)"
+"17704_logBytes25" -> "abi.encodeWithSignature()"
+"17704_logBytes1" -> "abi.encodeWithSignature()"
+"17704__sendLogPayload" -> "staticcall(uint256,uint256,uint256,uint256,uint256,uint256)"
+"3276_toHexString" -> "require(bool,string)"
+"7450_withdraw" -> "balance(address)"
+"4278_sub" -> "require(bool,string)"
+"9640__transfer" -> "revert TransferFromIncorrectOwner()"
+"4278_div" -> "require(bool,string)"
+"2149_safeTransferFrom" -> "require(bool,string)"
+"8318_transferOwnership" -> "require(bool)"
+"17704_logBytes12" -> "abi.encodeWithSignature()"
+"1136__approve" -> "require(bool,string)"
+"9640__transfer" -> "revert TransferToZeroAddress()"
+"17704_logBytes19" -> "abi.encodeWithSignature()"
+"17704_log" -> "abi.encodeWithSignature()"
+"4278_mod" -> "require(bool,string)"
+"17704_logBytes14" -> "abi.encodeWithSignature()"
+"17704_logBytes4" -> "abi.encodeWithSignature()"
+"17704_logBytes2" -> "abi.encodeWithSignature()"
+"17704_logBytes6" -> "abi.encodeWithSignature()"
+"308_supportsInterface" -> "type()"
+"2149__checkOnERC721Received" -> "revert(uint256,uint256)"
+"2149_supportsInterface" -> "type()"
+"17704_logBytes28" -> "abi.encodeWithSignature()"
+"17704_logBytes16" -> "abi.encodeWithSignature()"
+"17704_logUint" -> "abi.encodeWithSignature()"
+"2149__mint" -> "require(bool,string)"
+"17704_logBytes21" -> "abi.encodeWithSignature()"
+"2149__transfer" -> "require(bool,string)"
+"17704_logBool" -> "abi.encodeWithSignature()"
+"17704_logAddress" -> "abi.encodeWithSignature()"
+"308__checkRole" -> "revert(string)"
+"3683_toEthSignedMessageHash" -> "abi.encodePacked()"
+"3930__buildDomainSeparator" -> "abi.encode()"
+"3683_tryRecover" -> "byte(uint256,uint256)"
+"2149_approve" -> "require(bool,string)"
+"2457_tokenURI" -> "require(bool,string)"
+"6764_placeBid" -> "require(bool,string)"
+"17704__sendLogPayload" -> "gas()"
+"7450_withdraw" -> "require(bool)"
+"6764_createBredToken" -> "require(bool,string)"
+"9640__mint" -> "revert TransferToNonERC721ReceiverImplementer()"
+"7450_tokenURI" -> "abi.encodePacked()"
+"2977_functionDelegateCall" -> "require(bool,string)"
+"6764_createOwnedTokenFromLazy" -> "require(bool,string)"
+"9640__ownershipOf" -> "revert OwnerQueryForNonexistentToken()"
+"17704_logBytes32" -> "abi.encodeWithSignature()"
+"9640__mint" -> "revert MintZeroQuantity()"
+"3776__efficientHash" -> "keccak256(uint256,uint256)"
+"1136__spendAllowance" -> "require(bool,string)"
+"8172_mint" -> "require(bool,string)"
+"3683_tryRecover" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"3683_toTypedDataHash" -> "keccak256(bytes)"
+"7450_whitelistMint" -> "abi.encodePacked()"
+"9640__mint" -> "revert()"
+"9640_setApprovalForAll" -> "revert ApproveToCaller()"
+"7450_tokenURI" -> "require(bool,string)"
+}"6764_createMarketItem" -> "2265_ownerOf"
+"8076_stake" -> "7450_ownerOf"
+"6764_resellToken" -> "5746_storeResellData"
+"6764_resellToken" -> "17704_log"
+"3930__hashTypedDataV4" -> "3683_toTypedDataHash"
+"3683_toEthSignedMessageHash" -> "3276_toString"
+"5746_storeLazyMintedItem" -> "3073_current"
+"5746_deleteMarketItem" -> "3073_increment"
+"5746_storeBredItem" -> "3073_increment"
+"8076_stake" -> "7450_transferFrom"
+"4599_createToken" -> "3073_current"
+"5746_storeMarketItem" -> "3073_increment"
+"5746_storeMarketItem" -> "3073_current"
+"6764_createMarketItem" -> "508_royaltyInfo"
+"6764_resellToken" -> "2265_transferFrom"
+"6764_getAllowance" -> "1214_allowance"
+"6764_placeBid" -> "1214_balanceOf"
+"6764_createMarketItem" -> "2265_transferFrom"
+"2149_tokenURI" -> "3276_toString"
+"6764_placeBid" -> "5746_storeBid"
+"4599_createToken" -> "3073_increment"
+"8076_tokensOfOwner" -> "7450_totalSupply"
+"2149__checkOnERC721Received" -> "2283_onERC721Received"
+"6764_createBredToken" -> "2265_ownerOf"
+"9640__checkContractOnERC721Received" -> "2283_onERC721Received"
+"8076__unstakeMany" -> "7450_transferFrom"
+"7016_redeem" -> "6764_createOwnedTokenFromLazy"
+"6764_resellToken" -> "2265_ownerOf"
+"6764_createMarketSale" -> "5746_getItemDetails"
+"2149__checkOnERC721Received" -> "2977_isContract"
+"7450_whitelistMint" -> "17704_log"
+"6764_createMarketSale" -> "5746_setMarketSale"
+"5746_fetchMyNFTs" -> "3073_current"
+"6764_createMarketSale" -> "17704_log"
+"5746_storeLazyMintedItem" -> "3073_increment"
+"8076_balanceOf" -> "7450_totalSupply"
+"6764_createBredToken" -> "5746_storeBredItem"
+"6764_delistToken" -> "5746_deleteMarketItem"
+"6764_createBredToken" -> "508_royaltyInfo"
+"7450_whitelistMint" -> "3776_verify"
+"6764_acceptBid" -> "17704_log"
+"6764_acceptBid" -> "5746_getBidDetails"
+"5746_fetchMarketItems" -> "3073_current"
+"308__checkRole" -> "3276_toHexString"
+"6764_createOwnedTokenFromLazy" -> "5746_storeLazyMintedItem"
+"6764_createMarketItem" -> "5746_storeMarketItem"
+"6764_acceptBid" -> "5746_getHighestBid"
+"4531__verify" -> "3683_recover"
+"6764_placeBid" -> "17704_log"
+"6764_acceptBid" -> "5746_setMarketSale"
+"5746_setMarketSale" -> "3073_increment"
+"5746_storeBredItem" -> "3073_current"
+"5746_storeResellData" -> "3073_decrement"
+"4531__verify" -> "3683_toEthSignedMessageHash"
+"9640__mint" -> "2977_isContract"
+"9640_safeTransferFrom" -> "2977_isContract"
+"6764_resellToken" -> "5746_deleteOwnedItem"
+"9640_tokenURI" -> "3276_toString"
+"6764_acceptBid" -> "1214_balanceOf"
+"7016_redeem" -> "17704_log"
+"6764_acceptBid" -> "1214_transferFrom"
+"5746_fetchItemsListed" -> "3073_current"
+"8076__claim" -> "8172_mint"
+"7450_tokenURI" -> "3276_toString"
+"5746_fetchMarketItems" -> "17704_log"
+"7450_tokenURI" -> "17704_log"
+}

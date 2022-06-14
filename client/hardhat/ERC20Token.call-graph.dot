@@ -1,0 +1,16 @@
+strict digraph {
+subgraph cluster_8254_ERC20Token {
+label = "ERC20Token"
+"8254_totalSupply" [label="totalSupply"]
+"8254_balanceOf" [label="balanceOf"]
+"8254_decimals" [label="decimals"]
+"8254_approve" [label="approve"]
+"8254_allowance" [label="allowance"]
+"8254_transfer" [label="transfer"]
+"8254_transferFrom" [label="transferFrom"]
+"8254_name" [label="name"]
+"8254_symbol" [label="symbol"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+}
+}

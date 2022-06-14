@@ -2,7 +2,7 @@
 import { ethers, utils } from 'ethers';
 import Web3Modal from 'web3modal';
 import Moralis from 'moralis';
-import LazyFactory from '../contracts/NFTMarketplace.sol/LazyFactory.json';
+import LazyFactory from '../../contracts/NFTMarketplace.sol/LazyFactory.json';
 
 const decimalPlaces = 2;
 
@@ -91,7 +91,7 @@ export const connectWallet = async() => {
   }
 };
 
-export const deployMyGallery = async(marketPlaceAddress, galleryName, artistId) => {
+export const deployMyGallery = async(marketPlaceAddress, galleryName) => {
       const web3Modal = new Web3Modal()
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
@@ -104,8 +104,8 @@ export const deployMyGallery = async(marketPlaceAddress, galleryName, artistId) 
       const artistWalletAddress = await signer.getAddress();
       const signerContract = await signerFactory.deploy(
         marketPlaceAddress,
-        'NFTY',
         galleryName,
+        'NFTY',
         artistWalletAddress
       );
       await signerContract.deployTransaction.wait(); // loading before confirmed transaction
@@ -167,11 +167,15 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     itemImage.set("price", artworkPriceEth);
     itemImage.set("tokenURI", tokenURI);
     itemImage.set("royalty", royalty);
+    itemImage.set("isSold", false);
+    itemImage.set("ownerName", `${signerAddress}${artwork}`)
+    itemImage.set("buyerAddress", []);
+    itemImage.set("pricePurchased", []);
 
     const query = new Moralis.Query(ItemImage);
     const results = await query.find();
 
-    itemImage.set("tokenId", results.length);
+    itemImage.set("artworkId", results.length);
 
     voucher = await theSignature.signTransaction(
         results.length,
@@ -262,6 +266,16 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
       const eventTokenId = parseInt(transactionData.events[2]);
       console.log(eventTokenId);
       const { transactionHash } = transactionData;
+
+      const query = new Moralis.Query('ItemImages')
+      console.log(voucher.tokenUri)
+      query.equalTo('tokenURI', voucher.tokenUri)
+      const object = await query.first() // just get 1 item, not array of items
+      if (object) {
+        object.set("isSold", true)
+        object.addUnique("buyerAddress", redeemerAddress)
+        object.addUnique("pricePurchased", voucher.priceWei)
+      }
 
           // look this up from artworkAction.js on how its structured, change for nfty
   };

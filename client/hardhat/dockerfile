@@ -1,0 +1,8 @@
+FROM node:14-alpine
+RUN apk add --no-cache python3 py3-pip
+COPY . /usr/src/app
+WORKDIR /usr/src/app
+COPY . .
+RUN apk add git;
+RUN apt-get install build-essential
+RUN yarn install --non-interactive --frozen-lockfile
