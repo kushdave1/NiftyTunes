@@ -18,6 +18,7 @@ function AccountButton() {
 
     const {isAuthenticated, user, logout, account} = useMoralis();
     const [address, setAddress] = useState('');
+    const [profilePhoto, setProfilePhoto] = useState('');
 
     let navigate = useNavigate();
     
@@ -25,6 +26,7 @@ function AccountButton() {
     useEffect(() => {
         if(!user) return null;
         setAddress(user.get('ethAddress'));
+        setProfilePhoto(user.get('profilePhotoURL'))
     }, [user]);
 
     async function handleDisconnect(){
@@ -39,9 +41,8 @@ function AccountButton() {
             <DropdownButton
                 id="user-profile-button"
                 variant="light"
-                title= {<img src={img} width="40" height="35"></img>}
+                title= {(profilePhoto) ?  (<img src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false' width="40" height="35" style={{borderRadius: "2rem"}}></img>) : (<img src={img} width="40" height="35"></img>)}
                 className="mt-2 fixed"
-                
             >
                 <Dropdown.Item href="/profile"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
                 <Dropdown.Item href="/wethbalance"><i class="bi bi-gear-fill"></i> WETH Balance</Dropdown.Item>

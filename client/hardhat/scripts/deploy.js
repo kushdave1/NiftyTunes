@@ -38,7 +38,7 @@ async function main() {
   
 
   const NFTMarketplaceStorage = await ethers.getContractFactory("NFTMarketplaceStorage");
-  const marketplaceStorage = await NFTMarketplaceStorage.deploy();
+  const marketplaceStorage = await NFTMarketplaceStorage.deploy(weth.address);
 
   await marketplaceStorage.deployed();
 

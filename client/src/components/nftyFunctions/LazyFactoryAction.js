@@ -159,26 +159,26 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     //     // look into how an 'artwork' struct is structured, make modifications for a nftytunes piece
     //     // signTransaction comes from voucher
     console.log(signerAddress)
-    const ItemImage = Moralis.Object.extend("ItemImages");
-    const itemImage = new ItemImage();
-    itemImage.set("galleryAddress", artistGalleryAddress);
-    itemImage.set("signerAddress", signerAddress);
-    itemImage.set("name", artwork);
-    itemImage.set("price", artworkPriceEth);
-    itemImage.set("tokenURI", tokenURI);
-    itemImage.set("royalty", royalty);
-    itemImage.set("isSold", false);
-    itemImage.set("ownerName", `${signerAddress}${artwork}`)
-    itemImage.set("buyerAddress", []);
-    itemImage.set("pricePurchased", []);
+    const ListedNFTs = Moralis.Object.extend("ListedNFTs");
+    const listedNFT = new ListedNFTs();
+    listedNFT.set("galleryAddress", artistGalleryAddress);
+    listedNFT.set("signerAddress", signerAddress);
+    listedNFT.set("name", artwork);
+    listedNFT.set("price", artworkPriceEth);
+    listedNFT.set("tokenURI", tokenURI);
+    listedNFT.set("royalty", royalty);
+    listedNFT.set("isSold", false);
+    listedNFT.set("ownerName", `${signerAddress}${artwork}`)
+    listedNFT.set("buyerAddress", []);
+    listedNFT.set("pricePurchased", []);
 
-    const query = new Moralis.Query(ItemImage);
+    const query = new Moralis.Query('ListedNFTs');
     const results = await query.find();
 
-    itemImage.set("artworkId", results.length);
+    listedNFT.set("artworkId", results.length+1);
 
     voucher = await theSignature.signTransaction(
-        results.length,
+        results.length+1,
         artwork,
         totalInWei,
         tokenURI,
@@ -186,9 +186,9 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
       );
 
     
-    itemImage.set("voucher", voucher);
+    listedNFT.set("voucher", voucher);
 
-    itemImage.save();
+    listedNFT.save();
   };
 
 
@@ -220,8 +220,6 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
       };
 
       const recoveredAddress = ethers.utils.verifyTypedData(domain, types, voucher, voucher.signature);
-      console.log(recoveredAddress);
-
 
       // Returns a new instance of the ContractFactory with the same interface and bytecode, but with a different signer.
       const redeemerFactory = new ethers.ContractFactory(
@@ -235,8 +233,6 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
       const redeemerContract = redeemerFactory.attach(artistGalleryAddress);
       const redeemerAddress = await redeemer.getAddress();
 
-      console.log(redeemerAddress);
-
       const theVoucher = {
         artworkId: parseInt(voucher.tokenId),
         title: voucher.title,
@@ -246,7 +242,7 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
         content: voucher.content,
         signature: voucher.signature
       };
-      console.log(theVoucher)
+
       const feeWei = ethers.utils.parseUnits(
         parseFloat(feeEth).toFixed(5).toString(),
         'ether'
@@ -261,21 +257,21 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
         }
       );
       const transactionData = await redeemTx.wait();
-      console.log(transactionData);
 
       const eventTokenId = parseInt(transactionData.events[2]);
-      console.log(eventTokenId);
       const { transactionHash } = transactionData;
 
-      const query = new Moralis.Query('ItemImages')
-      console.log(voucher.tokenUri)
+      const query = new Moralis.Query('ListedNFTs')
+
       query.equalTo('tokenURI', voucher.tokenUri)
       const object = await query.first() // just get 1 item, not array of items
-      if (object) {
-        object.set("isSold", true)
-        object.addUnique("buyerAddress", redeemerAddress)
-        object.addUnique("pricePurchased", voucher.priceWei)
-      }
+      console.log(object)
+
+      object.set("isSold", true)
+      object.addUnique("buyerAddress", redeemerAddress)
+      object.addUnique("pricePurchased", voucher.priceWei)
+
+      object.save()
 
           // look this up from artworkAction.js on how its structured, change for nfty
   };

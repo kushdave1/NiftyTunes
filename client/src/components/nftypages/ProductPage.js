@@ -89,7 +89,7 @@ function ProductPage() {
 
 
   const { fetch } = useMoralisQuery(
-    "ItemImages",
+    "ListedNFTs",
     (query) => query.equalTo("ownerName", ownerName),
     [],
     { autoFetch: false }
@@ -110,19 +110,19 @@ function ProductPage() {
     const results = await fetch();
     const object = results[0]
     const meta = await axios.get(fixURL(object.get('tokenURI')))
-    console.log(xtype(object.get("createdAt")))
     
     setNft((previousNft) =>[{
-    price: object.get("price"), 
-    tokenId: object.get("tokenId"),
-    owner: object.get("signerAddress"),
-    createdAt: object.get("createdAt").toUTCString(),
-    gallery: object.get("galleryAddress"),
-    image: fixImageURL(meta.data.image),
-    name: meta.data.name,
-    description: meta.data.description,
-    tokenURI: object.get("tokenURI"),
-    lazy: true
+      price: object.get("price"), 
+      tokenId: object.get("tokenId"),
+      owner: object.get("signerAddress"),
+      publisher: object.get("buyerAddress").slice(-1)[0],
+      createdAt: object.get("createdAt").toUTCString(),
+      gallery: object.get("galleryAddress"),
+      image: fixImageURL(meta.data.image),
+      name: meta.data.name,
+      description: meta.data.description,
+      tokenURI: object.get("tokenURI"),
+      lazy: true
     }]);
     console.log(nft)
   };
@@ -137,10 +137,15 @@ function ProductPage() {
       {!isLoading && (
         <HeaderSection>
             <Container fluid="sm">
+                
                 <center>
                     <NFTPlayerLarge output={nft[0].image}/>
                 </center>
                 <hr/>
+                <Row class="d-flex" style={{paddingTop: "5px"}}>
+                  <Col style={{fontWeight: "Bold"}}>Artist: ...{nft[0].owner.slice(30,43)}</Col>
+                  <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: ...{nft[0].owner.slice(30,43)}</Col>
+                </Row>
                 <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
                     <Col>
                         <div style={{fontWeight: "Bold", fontSize: 60, paddingTop: 40}}>{nft[0].name}</div>
@@ -155,9 +160,13 @@ function ProductPage() {
                     </Col>
                     
                     <Col style={{marginLeft: "300px", paddingTop: 50}}>
-                        <ListGroup>
-                            <ListGroup.Item style={{fontWeight: "Bold"}}>Artist: {nft[0].owner}</ListGroup.Item>
-                            <ListGroup.Item style={{fontWeight: "Bold"}}>Owner: {nft[0].owner}</ListGroup.Item>
+                        
+                        <ListGroup style={{paddingTop: "10px"}}>
+                            <ListGroup.Item style={{fontWeight: "Bold"}}>Offers
+                            <div>
+                              Bid 1
+                            </div>
+                            </ListGroup.Item>
                         </ListGroup>
                     </Col>
                     

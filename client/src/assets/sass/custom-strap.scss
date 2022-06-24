@@ -13,12 +13,17 @@ $theme-colors: (
   "gray": #777777
 );
 
-$font-family-base: 'Capriola', serif;
+$font-family-base: 'RocknRoll One', serif;
 $display-font-weight: 700;
 $headings-font-weight: 400;
 
 .navbar-brand {
   font-family: 'Pixeboy';
+}
+
+.card:hover{
+  transform: scale(1.02);
+  box-shadow: 5px 5px 5px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
 }
 
 
@@ -41,6 +46,7 @@ $headings-font-weight: 400;
 @import url('https://fonts.googleapis.com/css2?family=Balthazar&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Marko+One&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Sora&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=RocknRoll+One&display=swap');
 @font-face {
   font-family: 'Pixeboy';
   src: url("../fonts/Pixeboy.ttf") format("truetype");

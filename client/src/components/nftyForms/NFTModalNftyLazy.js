@@ -63,7 +63,7 @@ function NFTModalNftyLazy(props) {
     const [loading, setLoading] = useState(false);
     const contractProcessor = useWeb3ExecuteFunction();
     const listItemFunction = "createMarketItem";
-    const ItemImage = Moralis.Object.extend("ItemImages");
+    const ItemImage = Moralis.Object.extend("ListedNFTs");
     const VoucherStorage = Moralis.Object.extend("Vouchers");
 
     const SIGNING_DOMAIN_NAME = "LazyNFT-Voucher"

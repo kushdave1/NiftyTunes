@@ -19,10 +19,21 @@ export const BuyNFT = async(nft, marketAddress, marketContractABI) => {
   const price = ethers.utils.parseUnits(nft.price, 'ether')
 
   const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-  console.log(nft)
+  console.log(price)
   
-  let transaction = await marketplaceContract.createMarketSale(nft.tokenId)
+  let transaction = await marketplaceContract.createMarketSale(nft.tokenId, {value: price})
   console.log('success for sure')
+
+  const query = new Moralis.Query('ListedNFTs')
+
+  query.equalTo('tokenURI', nft.tokenURI)
+  const object = await query.first() // just get 1 item, not array of items
+
+
+  object.addUnique("buyerAddress", signer.getAddress())
+  object.addUnique("pricePurchased", nft.price)
+
+  object.save()
 
 }
 

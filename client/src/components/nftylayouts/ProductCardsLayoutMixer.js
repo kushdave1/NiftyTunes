@@ -57,18 +57,6 @@ function ProductCardsLayoutMixer({image, tokenAddress, tokenId, name, descriptio
                   </Col>
                   <Col>
                       <Card.Title className="text-dark" style={{fontSize: 14, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="25" width="25"></img></Card.Title>
-     
-                      
-                       
-                      {/* <Form.Group className="mb-3" controlId="nft.Desc">
-                          <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
-                                <Form.Control 
-                                  as="textarea" 
-                                  placeholder='Set your Offer Price'
-                                  rows={5}
-                                  onChange={e => setOfferPrice(e.target.value)}/>
-                          </FloatingLabel>
-                      </Form.Group> */}
                   </Col>
                 
               </Row>
@@ -84,40 +72,7 @@ function ProductCardsLayoutMixer({image, tokenAddress, tokenId, name, descriptio
           </Row>
           </Card.Footer>
       </Card>
-    // <Col xs={1} md={4}>
-    //   <Card className="bg-light shadow-sm p-2" 
-    //         style={{ width: '20rem', height: '30rem', borderRadius:'.25rem'}} >
-    //         <NFTPlayer output={image}/>
-          
-    //       <Card.Body>
-    //         <Row>
-    //               <Col>
-    //                 <></>
-    //               </Col>
-    //               <Col md={6}>
-    //                   <Card.Title className="text-dark" style={{fontSize: 24}}>{name}</Card.Title>
-    //                   {/* <Card.Text className="text-dark">{description}</Card.Text> */}
-    //                   <Card.Text className="text-dark"  style={{fontSize: 16}}>{price} Eth</Card.Text>
-    //                   <div>
-    //                     <button onClick={() => BuyNFT(nft)}>Buy</button>
-    //                   </div>
-    //                   <Form.Group className="mb-3" controlId="nft.Desc">
-    //                       <FloatingLabel controlId="floatingInput" label="Set your Offer Price">
-    //                             <Form.Control 
-    //                               as="textarea" 
-    //                               placeholder='Set your Offer Price'
-    //                               rows={5}
-    //                               onChange={e => setOfferPrice(e.target.value)}/>
-    //                       </FloatingLabel>
-    //                   </Form.Group>
-    //                   <div>
-    //                     <button onClick={() => BidNFT(nft, offerPrice)}>Place an Offer</button>
-    //                   </div>
-    //               </Col>
-    //           </Row>
-    //       </Card.Body>
-    //   </Card>
-    // </Col>
+
   )
 }
 

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 //Bootstrap
 import Card from 'react-bootstrap/Card'
@@ -70,6 +71,7 @@ function ProductCardsLayoutMyNFTs({image, name, description, price, nft, owner, 
 
   return (
     <Col xs={1} md={4}>
+    <Link to={`/${owner}/${name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
       <Card className="bg-light shadow-sm p-2" onClick={() => console.log('clicked')}
             style={{ width: '20rem', height: '27.5rem', borderRadius:'.50rem', cursor: "pointer"}} >
             { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImage output={image}/>) : (<NFTPlayer output={image}/>) }
@@ -85,7 +87,7 @@ function ProductCardsLayoutMyNFTs({image, name, description, price, nft, owner, 
           <Card.Footer className="bg-dark text-muted">
           <Row className="d-flex flex-row" style={{flexDirection:"column"}}> 
             <Col>
-              <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={() => {handleShow(); handleSellClick(nft)}}>List</Button>
+              <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={(e) => {handleShow(); handleSellClick(nft); e.preventDefault();}}>List</Button>
             </Col>
             <Col style={{justifyContent: 'right', display: "flex"}}>
               <img src={nftyimg} height="35" width="40"></img>
@@ -93,41 +95,8 @@ function ProductCardsLayoutMyNFTs({image, name, description, price, nft, owner, 
           </Row>
           </Card.Footer>
       </Card>
+    </Link>
     </Col>
-    // <Col xs={1} md={4}>
-    //   <Card className="bg-light shadow-sm p-2" 
-    //         style={{ width: '20rem', height: '30rem', borderRadius:'.25rem'}} >
-    //         <NFTPlayer output={image}/>
-          
-    //       <Card.Body>
-    //         <Row>
-    //               <Col>
-    //                 <></>
-    //               </Col>
-    //               <Col md={6}>
-    //                   <Card.Title className="text-dark" style={{fontSize: 24}}>{name}</Card.Title>
-    //                   {/* <Card.Text className="text-dark">{description}</Card.Text> */}
-    //                   <Card.Text className="text-dark"  style={{fontSize: 16}}>{price} Eth</Card.Text>
-    //                   <div>
-    //                     <button onClick={() => BuyNFT(nft)}>Buy</button>
-    //                   </div>
-    //                   <Form.Group className="mb-3" controlId="nft.Desc">
-    //                       <FloatingLabel controlId="floatingInput" label="Set your Offer Price">
-    //                             <Form.Control 
-    //                               as="textarea" 
-    //                               placeholder='Set your Offer Price'
-    //                               rows={5}
-    //                               onChange={e => setOfferPrice(e.target.value)}/>
-    //                       </FloatingLabel>
-    //                   </Form.Group>
-    //                   <div>
-    //                     <button onClick={() => BidNFT(nft, offerPrice)}>Place an Offer</button>
-    //                   </div>
-    //               </Col>
-    //           </Row>
-    //       </Card.Body>
-    //   </Card>
-    // </Col>
   )
 }
 

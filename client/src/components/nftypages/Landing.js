@@ -1,10 +1,17 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+
 import Container from 'react-bootstrap/Container'
 import styled from 'styled-components'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
 import Card from 'react-bootstrap/Card'
+import Modal from 'react-bootstrap/Modal'
+import Form from 'react-bootstrap/Form'
+import Button from 'react-bootstrap/Button'
 import Video from "../../assets/videos/landing_video.mp4";
+
+import Moralis from 'moralis';
+import { useMoralis } from 'react-moralis'
 
 import img from "../../assets/images/firelips.png";
 import ConnectButton from '../nftynavs/ConnectButton'
@@ -84,12 +91,27 @@ const VideoContainer = styled.div `
 
 
 function Landing() {
-    /* document.body.style.overflow = "hidden";*/
+
+    const [show, setShow] = useState(true);
+    const [emailEntered, setEmailEntered] = useState('');
+    const [nameEntered, setNameEntered] = useState('');
+    const handleClose = () => setShow(false);
+    const handleShow = () => setShow(true);
+
+
+    const saveUserInfo = () => {
+        const UserInfo = Moralis.Object.extend("UserInfo");
+        const userInfo = new UserInfo();
+        console.log('hi')
+        userInfo.set("FullName", nameEntered);
+        userInfo.set("email", emailEntered);
+    }
+
     return (
     <React.Fragment>
             <HeaderSection>
                 <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
-                    <Row className='mt-auto'>
+                    <Row className='mt-auto' >
                         <Col lg={4} md={6} xs={{ order: 'last' }}> 
                             <Row className='mt-auto'>
                                     <Col> 
@@ -120,7 +142,6 @@ function Landing() {
                                             <Col>
                                                 <Card.Title className="text-dark" style={{fontSize: 12}}>FireLips</Card.Title>
                                                 <Card.Title className="text-dark" style={{fontSize: 12}}>Molly Diario</Card.Title>
-                                                {/* <Card.Text className="text-dark">{description}</Card.Text> */}
                                             </Col>
                                             <Col>
                                                 <Card.Title className="text-dark" style={{fontSize: 12, justifyContent: 'right', display: "flex"}}>Release Date: May 22, 2022</Card.Title>
@@ -190,6 +211,7 @@ function Landing() {
                         </Col>
                       
                     </Row>
+                    
 
                 </Container>
             </HeaderSection>

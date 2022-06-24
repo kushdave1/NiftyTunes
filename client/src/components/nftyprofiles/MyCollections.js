@@ -67,7 +67,7 @@ function MyCollections() {
   const [loading, setLoading] = useState(false);
   const contractProcessor = useWeb3ExecuteFunction();
   const listItemFunction = "createMarketItem";
-  const ItemImage = Moralis.Object.extend("ItemImages");
+  const ItemImage = Moralis.Object.extend("ListedNFTs");
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);

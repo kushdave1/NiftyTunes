@@ -9,8 +9,11 @@ import ProductCardsLayout from "components/nftylayouts/ProductCardsLayout";
 import ProductCardsLayoutLazy from "components/nftylayouts/ProductCardsLayoutLazy";
 import ProductSkeleton from "components/nftyloader/ProductSkeleton";
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
+import { useIPFS } from "hooks/useIPFS";
 
 function NFTTokenIds() {
+
+  const { resolveLink } = useIPFS();
   const {isAuthenticated, user} = useMoralis();
   const [nfts, setNFTs] = useState([]);
   const { chainId, marketAddress, marketContractABI, storageAddress, storageContractABI } = useMoralisDapp();
@@ -38,27 +41,40 @@ function NFTTokenIds() {
     const signer = provider.getSigner()
 
     const signerAddress = await signer.getAddress();
-    const ItemImage = await Moralis.Object.extend("ItemImages");
+    const ItemImage = await Moralis.Object.extend("ListedNFTs");
 
     const query = new Moralis.Query(ItemImage);
     const data = await query.find();
     const items = []
+
+    let image = ''
+    let imageLink = ''
+
     for (const i in data) {
       const object = data[i];
-      const meta = await axios.get(fixURL(object.get('tokenURI')))
+      const meta = await axios.get(fixURL(object.get("tokenURI")))
+      for (const j in meta.data) {
+        if ((meta.data[j]).toString().includes('ipfs')) {
+            imageLink = meta.data[j]
+            image = resolveLink(meta.data[j])
+        }
+      }
       let item = {
         price: object.get("price"), 
         tokenId: object.get("tokenId"),
         owner: object.get("signerAddress"),
         gallery: object.get("galleryAddress"),
-        image: fixImageURL(meta.data.image),
+        image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
-        tokenURI: object.get("tokenUri"),
+        tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
-        lazy: true
+        lazy: true,
+        isSold: object.get("isSold")
       }
-      items.push(item);
+      if (item.isSold === false) {
+        items.push(item);
+      }
     }
 
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
@@ -69,17 +85,26 @@ function NFTTokenIds() {
 
     await Promise.all(dataStorage.map(async i => {
       console.log(i.tokenId.toString())
+      if (i.tokenId.toString() === '0') {
+        return;
+      }
       const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(fixURL(tokenURI))
-      console.log(meta)
+      for (const j in meta.data) {
+        if ((meta.data[j]).toString().includes('ipfs')) {
+            imageLink = meta.data[j]
+            image = resolveLink(meta.data[j])
+        }
+      }
+      
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
         tokenId: i.tokenId.toNumber(),
         owner: i.owner,
         seller: i.seller,
-        image: fixImageURL(meta.data.image),
+        image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
@@ -90,7 +115,7 @@ function NFTTokenIds() {
 
 
     setNFTs(items);
-}
+  }
 
   return (
     <React.Fragment>

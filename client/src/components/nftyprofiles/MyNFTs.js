@@ -91,18 +91,20 @@ function MyNFTs() {
   const [loading, setLoading] = useState(true);
   const contractProcessor = useWeb3ExecuteFunction();
   const listItemFunction = "createMarketItem";
-  const ItemImage = Moralis.Object.extend("ItemImages");
+  const ItemImage = Moralis.Object.extend("ListedNFTs");
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
   useEffect(() => {
-        console.log('hi')
         if(!user) return null
         setAddress(user.get('ethAddress'));
+        
         getNFT();
-
+ 
+        NFTBalances();
+      
         setTimeout(() => {
           setLoading(false)
         }, 1000);
@@ -114,12 +116,6 @@ function MyNFTs() {
     setNftToSend(nft);
     setVisibility(true);
   };
-
-
-  // const { fetchERC20Balances, data, error, isLoading, isFetching } = useERC20Balances();
-
-  
-  
 
 
   const NFTBalances = async() => {
@@ -134,7 +130,6 @@ function MyNFTs() {
 
     const data = await storageContract.fetchMyNFTs()
     let image = ''
-    let imageBon = ''
     let imageLink = ''
 
     const items = await Promise.all(data.map(async i => {
@@ -156,7 +151,8 @@ function MyNFTs() {
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
-        tokenURI
+        tokenURI,
+        tokenAddress: i.tokenAddress
       }
       return item
     }))
@@ -174,6 +170,12 @@ function MyNFTs() {
         const name = network.name;
         const signer = provider.getSigner()
         const signerAddress = await signer.getAddress();
+
+        try {
+          await getNFTBalances({ params: { chain: name } })
+        } catch {
+          return;
+        }
 
         const dataMarkets = await getNFTBalances({ params: { chain: name } })
         const results = dataMarkets.result
@@ -204,7 +206,6 @@ function MyNFTs() {
                   tokenAddress: object.token_address
               }
               if (nfts.includes(item) === false) {
-                console.log(item, 'in')
                 setNFTs((previousNft) => [...previousNft, {
                     name: meta.data['name'],
                     description: meta.data['description'],
@@ -212,9 +213,7 @@ function MyNFTs() {
                     owner: object.owner_of,
                     tokenId: object.token_id,
                     tokenAddress: object.token_address
-                }])} else {
-                  console.log(item, 'not in')
-                }
+                }])}
             }      
         }
       
@@ -232,7 +231,8 @@ function MyNFTs() {
     
     const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
     console.log(nft.tokenId, nft.tokenAddress)
-    let transaction = await marketplaceContract.createMarketItem(nft.tokenId, price, nft.tokenAddress)
+
+    let transaction = await marketplaceContract.resellToken(nft.tokenId, price, nft.tokenAddress)
     await transaction.wait()
     console.log('success for sure')
 
@@ -262,6 +262,7 @@ function MyNFTs() {
                     <Col>
                     <ProductCardsLayoutMyNFTs id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
                     </Col>
+
                   )}}
               ))
               }

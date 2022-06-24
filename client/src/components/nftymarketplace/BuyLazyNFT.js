@@ -7,7 +7,6 @@ import { mintAndRedeem } from "../nftyFunctions/LazyFactoryAction"
 
 
 export const BuyLazyNFT = async(nft) => {
-
     // const { chainId, marketAddress, marketContractABI } = useMoralisDapp();
     // const contractABIJson = JSON.parse(marketContractABI);
     const web3Modal = new Web3Modal({})
@@ -20,6 +19,6 @@ export const BuyLazyNFT = async(nft) => {
     console.log(nft)
     
     let transaction = await mintAndRedeem(nft.gallery, nft.voucher, nft.price)
-    console.log('success for sure')
+    console.log('success')
 
   }

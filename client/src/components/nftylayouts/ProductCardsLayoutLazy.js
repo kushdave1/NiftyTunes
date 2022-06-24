@@ -39,47 +39,32 @@ function ProductCardsLayoutLazy({image, name, description, price, nft, owner}) {
 
   return (
     <Col xs={1} md={4}>
-      <Link to={`/${owner}/${name}`} style={{ textDecoration: 'none' }}>
-        <Card className="bg-light shadow-sm p-2"
-              style={{ width: '20rem', height: '27.5rem', borderRadius:'.50rem', cursor: "pointer"}} >
+      <Link to={`/${owner}/${name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+        <Card className="bg-light shadow-sm"
+              style={{ width: '25rem', height: '32.5rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
               { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImage output={image}/>) : (<NFTPlayer output={image}/>) }
             
             <Card.Body>
               <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                    {/* <Col>
-                      <></>
-                    </Col> */}
                     <Col>
-                        <Card.Title className="text-dark" style={{fontSize: 20}}>{name}</Card.Title>
+                        <Card.Title className="text-dark" style={{fontSize: 16}}>{name}</Card.Title>
                         {/* <Card.Text className="text-dark">{description}</Card.Text> */}
                     </Col>
                     <Col>
-                        <Card.Title className="text-dark" style={{fontSize: 20, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="25" width="25"></img></Card.Title>
+                        <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="20" width="20"></img></Card.Title>
                     </Col>
-                        
-                        
-                        {/* <Form.Group className="mb-3" controlId="nft.Desc">
-                            <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
-                                  <Form.Control 
-                                    as="textarea" 
-                                    placeholder='Set your Offer Price'
-                                    rows={5}
-                                    onChange={e => setOfferPrice(e.target.value)}/>
-                            </FloatingLabel>
-                        </Form.Group> */}
-                    
                   
                 </Row>
             </Card.Body>
             <Card.Footer className="bg-dark text-muted">
-            <Row className="d-flex flex-row" style={{flexDirection:"column"}}> 
-              <Col>
-                <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={() => BuyLazyNFT(nft)}>Buy</Button>
-              </Col>
-              <Col style={{justifyContent: 'right', display: "flex"}}>
-                <img src={nftyimg} height="35" width="40"></img>
-              </Col>
-            </Row>
+              <Row className="d-flex flex-row" style={{flexDirection:"column"}}> 
+                <Col>
+                  <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black", pointerEvents: "auto" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={(e) => {BuyLazyNFT(nft); e.preventDefault();}}>Buy</Button>
+                </Col>
+                <Col style={{justifyContent: 'right', display: "flex"}}>
+                  <img src={nftyimg} height="35" width="40"></img>
+                </Col>
+              </Row>
             </Card.Footer>
         </Card>
       </Link>

@@ -38,7 +38,7 @@ const decimalPlaces = 5;
 
 
  
-function ProductCardsLayout({image, name, description, price, nft, owner}) {
+function ProductCardsLayoutMyListedNFTs({image, name, description, price, nft, owner, handleShow, handleSellClick}) {
 
   const [offerPrice, setOfferPrice] = useState(1);
 
@@ -58,10 +58,14 @@ function ProductCardsLayout({image, name, description, price, nft, owner}) {
 
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
     const wethContract = new ethers.Contract(wethAddress, wethContractABIJson, signer)
+    console.log(bidPrice)
     const biddingPrice = ethers.utils.parseUnits(bidPrice, 'ether')
+    console.log(nft.tokenId)
     let transaction = await wethContract.approveSpender(marketAddress, biddingPrice)
+    console.log(biddingPrice);
     transaction.wait()
     let success = await marketplaceContract.placeBid(nft.tokenId, biddingPrice)
+    console.log(success)
 
   }
 
@@ -74,24 +78,16 @@ function ProductCardsLayout({image, name, description, price, nft, owner}) {
           
           <Card.Body>
             <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                  {/* <Col>
-                    <></>
-                  </Col> */}
                   <Col>
                       <Card.Title className="text-dark" style={{fontSize: 20}}>{name}</Card.Title>
-                      {/* <Card.Text className="text-dark">{description}</Card.Text> */}
                   </Col>
-                  <Col>
-                      <Card.Title className="text-dark" style={{fontSize: 20, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="25" width="25"></img></Card.Title>
                   
-                  </Col>
-                
               </Row>
           </Card.Body>
           <Card.Footer className="bg-dark text-muted">
           <Row className="d-flex flex-row" style={{flexDirection:"column"}}> 
             <Col>
-              <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={(e) => {BuyNFT(nft, marketAddress, marketContractABI); e.preventDefault();}}>Buy</Button>
+              <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={(e) => {handleShow(); handleSellClick(nft); e.preventDefault();}}>DeList</Button>
             </Col>
             <Col style={{justifyContent: 'right', display: "flex"}}>
               <img src={nftyimg} height="35" width="40"></img>
@@ -101,8 +97,7 @@ function ProductCardsLayout({image, name, description, price, nft, owner}) {
       </Card>
     </Link>
     </Col>
-    
   )
 }
 
-export default ProductCardsLayout
+export default ProductCardsLayoutMyListedNFTs
