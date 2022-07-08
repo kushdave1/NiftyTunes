@@ -37,7 +37,7 @@ import NFTImage from '../nftymix/NFTImage'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 
 import ProductSkeleton from '../nftyloader/ProductSkeleton'
-import ProductCardsLayoutMyNFTs from '../nftylayouts/ProductCardsLayoutMyNFTs'
+import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
 import ProductListLayout from '../nftylayouts/ProductListLayout'
 import styled from 'styled-components'
 
@@ -260,7 +260,7 @@ function MyNFTs() {
                   if (nft.name !== "") { 
                     return(
                     <Col>
-                    <ProductCardsLayoutMyNFTs id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    <ProductCardsLayoutLazy pageFrom="MyNFTs" id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
                     </Col>
 
                   )}}

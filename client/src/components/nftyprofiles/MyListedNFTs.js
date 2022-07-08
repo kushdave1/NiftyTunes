@@ -37,7 +37,7 @@ import NFTImage from '../nftymix/NFTImage'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 
 import ProductSkeleton from '../nftyloader/ProductSkeleton'
-import ProductCardsLayoutMyListedNFTs from '../nftylayouts/ProductCardsLayoutMyListedNFTs'
+import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
 import ProductListLayout from '../nftylayouts/ProductListLayout'
 import styled from 'styled-components'
 
@@ -174,7 +174,6 @@ function MyListedNFTs() {
       }
       
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-      let highestBid = ethers.utils.formatUnits(i.highestBid.toString(), 'ether')
 
       let item = {
         price,
@@ -184,13 +183,14 @@ function MyListedNFTs() {
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
-        tokenURI,
-        highestBid,
+        tokenURI
       }
       
       items.push(item)
+      console.log(item)
     }))
     setNFTs(items);
+  
   }
 
 
@@ -225,7 +225,7 @@ function MyListedNFTs() {
   return (
     
     <MarketPlaceSection className="d-flex justify-content-center">
-    <ProductListLayout>
+    <Row>
       <React.Fragment>
               {loading?
                   //render skeleton when loading
@@ -240,14 +240,14 @@ function MyListedNFTs() {
                   if (nft.name !== "") { 
                     return(
                     <Col>
-                    <ProductCardsLayoutMyListedNFTs id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    <ProductCardsLayoutLazy id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
                     </Col>
 
                   )}}
               ))
               }
       </React.Fragment>
-    </ProductListLayout>
+    </Row>
     <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
             <Button variant = 'primary' onClick={() => deListNFT(nftToSend)}>DeList</Button>
             

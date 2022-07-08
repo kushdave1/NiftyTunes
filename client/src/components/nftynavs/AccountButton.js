@@ -41,7 +41,7 @@ function AccountButton() {
             <DropdownButton
                 id="user-profile-button"
                 variant="light"
-                title= {(profilePhoto) ?  (<img src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false' width="40" height="35" style={{borderRadius: "2rem"}}></img>) : (<img src={img} width="40" height="35"></img>)}
+                title= {(profilePhoto) ?  (<img src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false' width="37.5" height="37.5" style={{borderRadius: "2rem"}}></img>) : (<img src={img} width="40" height="35"></img>)}
                 className="mt-2 fixed"
             >
                 <Dropdown.Item href="/profile"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>

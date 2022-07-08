@@ -28,6 +28,7 @@
     "mdbreact": "^5.2.0",
     "merkletreejs": "^0.2.31",
     "moralis": "^1.5.5",
+    "moralis-admin-cli": "^2.1.16",
     "node-sass": "^7.0.1",
     "react": "^17.0.2",
     "react-awesome-button": "^6.5.1",

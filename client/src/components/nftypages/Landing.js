@@ -8,12 +8,20 @@ import Card from 'react-bootstrap/Card'
 import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
+import ListGroup from 'react-bootstrap/ListGroup'
+import Carousel from 'react-bootstrap/Carousel'
 import Video from "../../assets/videos/landing_video.mp4";
 
 import Moralis from 'moralis';
 import { useMoralis } from 'react-moralis'
 
 import img from "../../assets/images/firelips.png";
+import kush from "../../assets/images/kush2.jpg"
+import bassy from "../../assets/images/bassybob.png"
+import nftyimg from "../../assets/images/NT_Black_2.png";
+import nftyimgtwo from "../../assets/images/nt_blur.png";
+import livemint from "../../assets/images/livemint2.png";
+import downarrow from "../../assets/images/downarrow3.png"
 import ConnectButton from '../nftynavs/ConnectButton'
 import ExploreButton from '../nftynavs/ExploreButton'
 import { MDBCard, MDBCardBody, MDBCardTitle, MDBCardText, MDBCardImage, MDBCardVideo, MDBBtn, MDBRipple } from 'mdb-react-ui-kit';
@@ -70,6 +78,20 @@ const Ellipse3 = styled.div `
     filter: blur(100.736px);
 `;
 
+const nftyImage = styled.div `
+    /* Ellipse 1 */
+
+
+    position: absolute;
+    width: 250px;
+    height: 250px;
+
+    /* Pink */
+
+    background-image: url(${img});
+    filter: blur(100.736px);
+`;
+
 const Ellipse4 = styled.div `
     /* Ellipse 2 */
 
@@ -111,7 +133,7 @@ function Landing() {
     <React.Fragment>
             <HeaderSection>
                 <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
-                    <Row className='mt-auto' >
+                    <Row className='mt-auto' style={{paddingTop: "200px"}}>
                         <Col lg={4} md={6} xs={{ order: 'last' }}> 
                             <Row className='mt-auto'>
                                     <Col> 
@@ -175,6 +197,123 @@ function Landing() {
                             </Row>
                         </Col>
 
+                    </Row>
+                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
+                        <center className="bounce">
+                            <a href="#founders">
+                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
+                            </a>
+                        </center>
+                        
+                    </Row>
+                    
+                    
+                    <Row className = "content justify-content-center align-items-center" id="founders" style={{backgroundImage: `url(${nftyimgtwo})`, backgroundSize: "50%"}}>
+                        
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Made By Artists, For Artists</h1>
+                        <center style={{padding: "20px", fontSize: "30px"}}>
+                            Founders
+                        </center>
+                        <Col>
+                            
+                            <center>
+                            <Card style={{ width: '18rem', height: "30rem", border:"none", boxShadow: "5px 5px 5px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06)"}}>
+                                <Card.Header variant="light">
+                                    <img style={{width:"250px", height:"250px"}} src={bassy}></img>
+                                </Card.Header>
+                                <ListGroup variant="flush" >
+                                    <ListGroup.Item>"Bassy" Bob Brockmann</ListGroup.Item>
+                                    <ListGroup.Item>Grammy winning, and Oscar nominated, multi platinum record producer and
+                                        songwriter.
+                                        Has produced over 3000
+                                        records and is an avid Web3 and NFT advocate.
+                                    </ListGroup.Item>
+                                </ListGroup>
+                            </Card>
+                            </center>
+                        </Col>
+                        <Col>
+                         <center>
+                         <Card style={{ width: '18rem', height: "30rem", border:"none", boxShadow: "5px 5px 5px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06)"}}>
+                                <Card.Header variant="light">
+                                    <img style={{width:"250px", height:"250px", borderRadius: "8rem"}} src={kush}></img>
+                                </Card.Header>
+                                <ListGroup variant="flush" >
+                                    <ListGroup.Item>Kush.wav</ListGroup.Item>
+                                    <ListGroup.Item>Operations manager and smart-contract/front-end developer for NftyTunes. Hip-hop songwriter, rapper, and producer/beat-maker. 
+                                    
+                                    </ListGroup.Item>
+                                </ListGroup>
+                            </Card>
+                         </center>
+                        </Col>
+                    </Row>
+                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
+                        <center className="bounce">
+                            
+                            <a href="#livemint">
+                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
+                            </a>
+                        
+                        </center>
+                        
+                    </Row>
+                    <Row className = "justify-content-center align-items-center" id="livemint">
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Try our Free NftyLooper</h1>
+                        <Carousel variant="dark" fade="true">
+                            <Carousel.Item>
+                                
+                                    <center style={{padding: "5px"}} >
+                                        <img src={livemint} height="500px" width="900px"></img>
+                                    </center>
+                               
+                            </Carousel.Item>
+                            <Carousel.Item>
+              
+                                    <center style={{padding: "5px"}} >
+                                        <img src={livemint} height="500px" width="900px"></img>
+                                    </center>
+                
+                            </Carousel.Item>
+                        </Carousel>
+
+                    </Row>
+                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
+                        <center className="bounce">
+                            <a href="#nftylooper">
+                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
+                            </a>
+                        </center>
+                        
+                    </Row>
+                    
+                    <Row className = "justify-content-center align-items-center" id="livemint">
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Putting your Experiences On-Chain</h1>
+                        <Carousel variant="dark" fade="true">
+                            <Carousel.Item>
+                                
+                                    <center style={{padding: "5px"}} >
+                                        <img src={livemint} height="500px" width="900px"></img>
+                                    </center>
+                               
+                            </Carousel.Item>
+                            <Carousel.Item>
+              
+                                    <center style={{padding: "5px"}} >
+                                        <img src={livemint} height="500px" width="900px"></img>
+                                    </center>
+                
+                            </Carousel.Item>
+                        </Carousel>
+
+                    </Row>
+                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
+                        <center className="bounce">
+                            <a href="#nftylooper">
+                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
+                            </a>
+                        </center>
+                        
                     </Row>
                     
                     

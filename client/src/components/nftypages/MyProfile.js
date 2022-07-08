@@ -71,6 +71,7 @@ function MyProfile() {
     const [artistType, setArtistType] = useState('');
     const [profilePhoto, setProfilePhoto] = useState('');
     const [usernameEntered, setUsernameEntered] = useState('');
+    const [etherscan, setEtherscan] = useState('');
     const [description, setDescription] = useState('');
     const [descriptionEntered, setDescriptionEntered] = useState('');
     const [artistTypeEntered, setArtistTypeEntered] = useState('');
@@ -89,6 +90,7 @@ function MyProfile() {
         setDescription(user.get('description'))
         setArtistType(user.get('artistType'));
         setProfilePhoto(user.get('profilePhotoURL'))
+        setEtherscan(`https://etherscan.io/address/${address}`)
     }, [user]);
     
     let navigate = useNavigate();
@@ -119,16 +121,28 @@ function MyProfile() {
         setProfilePhoto(user.get('profilePhotoURL'));
         console.log(profilePhoto)
     }
+
+    const sendToEtherscan = async() => {
+        window.location.href = "http://www.etherscan.io/address/"+address;
+    }
+
     return (
         <React.Fragment>
+            <img crossOrigin='true' crossoriginresourcepolicy='false' src={DefaultProfilePicture} height="300px" width="100%" style={{backgroundSize: "100%"}}></img>
                         <ProfileNavSection>
+                            
                             <Container style={{paddingTop: "50px"}}>
-                                {(profilePhoto) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={profilePhoto} height="150px" width="150px" style={{boxShadow: "5px 5px 5px 5px #888888", borderRadius: "5.00rem"}}></img>) : (<img src={DefaultProfilePicture} height="150px" width="150px" style={{padding: "10px",border: "2px solid black", borderRadius: "5.00rem"}}></img>)}
+
+                                {(profilePhoto) ? 
+                                (<img crossOrigin='true' crossoriginresourcepolicy='false' src={profilePhoto} height="150px" width="150px" 
+                                style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-110px", borderRadius: "5.00rem"}}></img>) 
+                                : (<img src={DefaultProfilePicture} height="150px" width="150px" 
+                                style={{padding: "10px",border: "2px solid black", marginTop: "-110px",borderRadius: "5.00rem"}}></img>)}
+
                                 <div style={{paddingTop: "20px", paddingBottom: "20px"}}> 
-                                    <div style={{paddingBottom: "10px", fontSize: 30}}>{username}</div>
-                                    <div style={{paddingBottom: "5px"}}>{artistType}</div>
-                                    <div style={{paddingBottom: "20px"}}>{address}</div>
-                                    <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white" }} onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
+                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white",  boxShadow: "2px 2px 2px 2px #888888"}}>{address.slice(0,5)}...{address.slice(38,43)}</Button></div>
+                                    <div style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</div>
+                                    <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
                                 </div>
                                 <Nav className="justify-content-left nav-tabs">
                                     <Nav.Item>

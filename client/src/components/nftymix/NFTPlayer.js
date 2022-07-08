@@ -40,7 +40,7 @@ function NFTPlayer({output}) {
               crossOrigin='true'
               crossoriginresourcepolicy= 'false'
               controls
-              height="400"
+              height="367.5"
               width="100%"
               src={tokenVideo}
               onError={onError}

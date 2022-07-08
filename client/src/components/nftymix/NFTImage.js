@@ -1,6 +1,7 @@
 import React from 'react'
 import { useState, useEffect } from 'react'
 import { useIPFS } from "hooks/useIPFS";
+import {fixURL, fixImageURL} from "../nftyFunctions/fixURL"
 
 //bootstrap
 import Container from 'react-bootstrap/Container'
@@ -13,22 +14,6 @@ function NFTImage({output}) {
     setTokenImage(resolveLink(output))
   }, []);
 
-  const fixURL = (url) => {
-        if(url.startsWith("ipfs")){
-        return "https://ipfs.moralis.io:2053/ipfs/"+url.split("ipfs://").pop()
-        }
-        else {
-        return url+"?format=json"
-        }
-    };
-  const fixImageURL = (url) => {
-      if(url.startsWith("/ipfs")){
-      return "https://ipfs.moralis.io:2053"+url
-      }
-      else {
-      return url+"?format=json"
-      }
-  };
 
   const onError = () => {
     setTokenImage(fixURL(output))
