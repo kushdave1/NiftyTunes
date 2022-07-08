@@ -1,0 +1,29 @@
+strict digraph {
+subgraph cluster_3683_ECDSA {
+label = "ECDSA"
+"3683__throwError" [label="_throwError"]
+"3683_recover" [label="recover"]
+"3683_tryRecover" [label="tryRecover"]
+"3683_toTypedDataHash" [label="toTypedDataHash"]
+"3683_toEthSignedMessageHash" [label="toEthSignedMessageHash"]
+"3683_recover" -> "3683__throwError"
+"3683_recover" -> "3683_tryRecover"
+"3683_tryRecover" -> "3683_tryRecover"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"ecrecover(bytes32,uint8,bytes32,bytes32)" 
+"keccak256(bytes)" 
+"mload(uint256)" 
+"byte(uint256,uint256)" 
+"abi.encodePacked()" 
+"revert(string)" 
+"3683_tryRecover" -> "mload(uint256)"
+"3683_toEthSignedMessageHash" -> "abi.encodePacked()"
+"3683_tryRecover" -> "byte(uint256,uint256)"
+"3683_tryRecover" -> "ecrecover(bytes32,uint8,bytes32,bytes32)"
+"3683__throwError" -> "revert(string)"
+"3683_toTypedDataHash" -> "keccak256(bytes)"
+"3683_toEthSignedMessageHash" -> "keccak256(bytes)"
+"3683_toTypedDataHash" -> "abi.encodePacked()"
+}
+}

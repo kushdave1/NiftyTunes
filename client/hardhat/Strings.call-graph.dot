@@ -1,0 +1,13 @@
+strict digraph {
+subgraph cluster_3276_Strings {
+label = "Strings"
+"3276_toHexString" [label="toHexString"]
+"3276_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"3276_toString" [label="toString"]
+"3276_toHexString" -> "3276_toHexString"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool,string)" 
+"3276_toHexString" -> "require(bool,string)"
+}
+}

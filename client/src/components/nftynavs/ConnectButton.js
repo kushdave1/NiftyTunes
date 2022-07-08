@@ -27,7 +27,7 @@ function ConnectButton() {
 
     async function handleConnect(){
         await authenticate({
-            onSuccess: () => navigate('/marketplace'),
+            onSuccess: () => navigate('/profile'),
             onError: () => console.log(authError)
         })
 
@@ -43,7 +43,7 @@ function ConnectButton() {
             <></>
                 
     ) : (
-        <Nav.Link className="text-light-2" style={{fontWeight:"500"}} onClick={handleConnect}>Sign Up</Nav.Link>    )
+        <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={handleConnect}>Sign Up</Nav.Link>    )
 }
 
 export default ConnectButton

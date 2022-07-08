@@ -1,0 +1,13 @@
+strict digraph {
+subgraph cluster_8318_Owned {
+label = "Owned"
+"8318_transferOwnership" [label="transferOwnership"]
+"8318_acceptOwnership" [label="acceptOwnership"]
+"8318_constructor" [label="constructor"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool)" 
+"8318_transferOwnership" -> "require(bool)"
+"8318_acceptOwnership" -> "require(bool)"
+}
+}

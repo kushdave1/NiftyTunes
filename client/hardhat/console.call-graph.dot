@@ -1,0 +1,131 @@
+strict digraph {
+subgraph cluster_17704_console {
+label = "console"
+"17704_logBytes17" [label="logBytes17"]
+"17704_logBytes5" [label="logBytes5"]
+"17704_logBytes21" [label="logBytes21"]
+"17704_logBytes3" [label="logBytes3"]
+"17704_logUint" [label="logUint"]
+"17704_logBytes31" [label="logBytes31"]
+"17704_logBytes2" [label="logBytes2"]
+"17704_logBytes8" [label="logBytes8"]
+"17704_logBytes30" [label="logBytes30"]
+"17704_logBytes26" [label="logBytes26"]
+"17704_logBytes20" [label="logBytes20"]
+"17704_logBytes15" [label="logBytes15"]
+"17704_logBytes32" [label="logBytes32"]
+"17704_logBytes13" [label="logBytes13"]
+"17704_logBytes18" [label="logBytes18"]
+"17704_log" [label="log"]
+"17704_logBytes28" [label="logBytes28"]
+"17704_logBytes4" [label="logBytes4"]
+"17704_logBytes29" [label="logBytes29"]
+"17704__sendLogPayload" [label="_sendLogPayload"]
+"17704_logBytes" [label="logBytes"]
+"17704_logBytes11" [label="logBytes11"]
+"17704_logBool" [label="logBool"]
+"17704_logBytes27" [label="logBytes27"]
+"17704_logBytes12" [label="logBytes12"]
+"17704_logBytes19" [label="logBytes19"]
+"17704_logBytes24" [label="logBytes24"]
+"17704_logInt" [label="logInt"]
+"17704_logAddress" [label="logAddress"]
+"17704_logBytes10" [label="logBytes10"]
+"17704_logString" [label="logString"]
+"17704_logBytes22" [label="logBytes22"]
+"17704_logBytes7" [label="logBytes7"]
+"17704_logBytes1" [label="logBytes1"]
+"17704_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"17704_logBytes16" [label="logBytes16"]
+"17704_logBytes9" [label="logBytes9"]
+"17704_logBytes23" [label="logBytes23"]
+"17704_logBytes25" [label="logBytes25"]
+"17704_logBytes6" [label="logBytes6"]
+"17704_logBytes14" [label="logBytes14"]
+"17704_log" -> "17704__sendLogPayload"
+"17704_logBytes10" -> "17704__sendLogPayload"
+"17704_logBytes13" -> "17704__sendLogPayload"
+"17704_logBool" -> "17704__sendLogPayload"
+"17704_logBytes" -> "17704__sendLogPayload"
+"17704_logBytes4" -> "17704__sendLogPayload"
+"17704_logBytes30" -> "17704__sendLogPayload"
+"17704_logBytes16" -> "17704__sendLogPayload"
+"17704_logBytes12" -> "17704__sendLogPayload"
+"17704_logBytes6" -> "17704__sendLogPayload"
+"17704_logBytes3" -> "17704__sendLogPayload"
+"17704_logBytes7" -> "17704__sendLogPayload"
+"17704_logBytes31" -> "17704__sendLogPayload"
+"17704_logBytes21" -> "17704__sendLogPayload"
+"17704_logInt" -> "17704__sendLogPayload"
+"17704_logBytes20" -> "17704__sendLogPayload"
+"17704_logAddress" -> "17704__sendLogPayload"
+"17704_logBytes5" -> "17704__sendLogPayload"
+"17704_logBytes32" -> "17704__sendLogPayload"
+"17704_logBytes27" -> "17704__sendLogPayload"
+"17704_logUint" -> "17704__sendLogPayload"
+"17704_logBytes14" -> "17704__sendLogPayload"
+"17704_logBytes26" -> "17704__sendLogPayload"
+"17704_logBytes15" -> "17704__sendLogPayload"
+"17704_logBytes24" -> "17704__sendLogPayload"
+"17704_logBytes28" -> "17704__sendLogPayload"
+"17704_logBytes1" -> "17704__sendLogPayload"
+"17704_logBytes25" -> "17704__sendLogPayload"
+"17704_logBytes18" -> "17704__sendLogPayload"
+"17704_logBytes8" -> "17704__sendLogPayload"
+"17704_logBytes11" -> "17704__sendLogPayload"
+"17704_logBytes17" -> "17704__sendLogPayload"
+"17704_logBytes23" -> "17704__sendLogPayload"
+"17704_logBytes19" -> "17704__sendLogPayload"
+"17704_logString" -> "17704__sendLogPayload"
+"17704_logBytes22" -> "17704__sendLogPayload"
+"17704_logBytes2" -> "17704__sendLogPayload"
+"17704_logBytes9" -> "17704__sendLogPayload"
+"17704_logBytes29" -> "17704__sendLogPayload"
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"abi.encodeWithSignature()" 
+"staticcall(uint256,uint256,uint256,uint256,uint256,uint256)" 
+"gas()" 
+"17704_logBytes3" -> "abi.encodeWithSignature()"
+"17704_logBytes7" -> "abi.encodeWithSignature()"
+"17704_logUint" -> "abi.encodeWithSignature()"
+"17704_logBytes27" -> "abi.encodeWithSignature()"
+"17704_logBytes13" -> "abi.encodeWithSignature()"
+"17704_logBytes21" -> "abi.encodeWithSignature()"
+"17704_logInt" -> "abi.encodeWithSignature()"
+"17704_logBool" -> "abi.encodeWithSignature()"
+"17704_logAddress" -> "abi.encodeWithSignature()"
+"17704_logBytes17" -> "abi.encodeWithSignature()"
+"17704_logBytes29" -> "abi.encodeWithSignature()"
+"17704_logBytes30" -> "abi.encodeWithSignature()"
+"17704_logBytes23" -> "abi.encodeWithSignature()"
+"17704_logBytes22" -> "abi.encodeWithSignature()"
+"17704_logBytes9" -> "abi.encodeWithSignature()"
+"17704_logBytes31" -> "abi.encodeWithSignature()"
+"17704_logBytes5" -> "abi.encodeWithSignature()"
+"17704_logBytes25" -> "abi.encodeWithSignature()"
+"17704_logBytes1" -> "abi.encodeWithSignature()"
+"17704__sendLogPayload" -> "staticcall(uint256,uint256,uint256,uint256,uint256,uint256)"
+"17704_logBytes15" -> "abi.encodeWithSignature()"
+"17704__sendLogPayload" -> "gas()"
+"17704_logString" -> "abi.encodeWithSignature()"
+"17704_logBytes10" -> "abi.encodeWithSignature()"
+"17704_logBytes8" -> "abi.encodeWithSignature()"
+"17704_logBytes18" -> "abi.encodeWithSignature()"
+"17704_logBytes11" -> "abi.encodeWithSignature()"
+"17704_logBytes12" -> "abi.encodeWithSignature()"
+"17704_logBytes20" -> "abi.encodeWithSignature()"
+"17704_logBytes19" -> "abi.encodeWithSignature()"
+"17704_log" -> "abi.encodeWithSignature()"
+"17704_logBytes24" -> "abi.encodeWithSignature()"
+"17704_logBytes26" -> "abi.encodeWithSignature()"
+"17704_logBytes14" -> "abi.encodeWithSignature()"
+"17704_logBytes32" -> "abi.encodeWithSignature()"
+"17704_logBytes4" -> "abi.encodeWithSignature()"
+"17704_logBytes2" -> "abi.encodeWithSignature()"
+"17704_logBytes6" -> "abi.encodeWithSignature()"
+"17704_logBytes" -> "abi.encodeWithSignature()"
+"17704_logBytes28" -> "abi.encodeWithSignature()"
+"17704_logBytes16" -> "abi.encodeWithSignature()"
+}
+}

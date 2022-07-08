@@ -24,10 +24,23 @@ import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappP
 import { getExplorer } from "../../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
+import { useIPFS } from "hooks/useIPFS";
 
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
+
+import { useMoralisWeb3Api } from "react-moralis";
+
+import NFTPlayer from '../nftymix/NFTPlayer'
+import NFTImage from '../nftymix/NFTImage'
+import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
+
+import ProductSkeleton from '../nftyloader/ProductSkeleton'
+import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
+import ProductListLayout from '../nftylayouts/ProductListLayout'
+import styled from 'styled-components'
+
 
 const { Meta } = Card;
 
@@ -43,114 +56,65 @@ const styles = {
   },
 };
 
+const MarketPlaceSection = styled.div `
+    padding-top: 20px;
+    flex:1;
+    overflow:hidden;
+    background-color: white;
+    min-height: 100vh;
+    padding-bottom: 20px;
+`;
+
+
 
 function MyNFTs() {
+  const { resolveLink } = useIPFS();
   const {isAuthenticated, user} = useMoralis();
   const { getNFTBalances, data, error, isLoading, isFetching } = useNFTBalances();
   const [address, setAddress] = useState();
   const [nftData, setNftData] = useState();
-  const [nfts, setNFTs] = useState([]);
+  const [nfts, setNFTs] = useState([{name: "",
+                  description: "",
+                  image: "",
+                  owner:"",
+                  tokenId: "",
+                  tokenAddress: ""}]);
   const { NFTBalance, fetchSuccess } = useNFTBalance();
-  const { chainId, marketAddress, marketContractABI } = useMoralisDapp();
+  const { chainId, marketAddress, marketContractABI, storageAddress, storageContractABI, collectionContractABI, collectionAddress } = useMoralisDapp();
+  const storageContractABIJson = JSON.parse(storageContractABI);
+  const collectionContractABIJson = JSON.parse(collectionContractABI);
+  const Web3Api = useMoralisWeb3Api();
   const [visible, setVisibility] = useState(false);
-  const contractABIJson = JSON.parse(marketContractABI);
+  const marketContractABIJson = JSON.parse(marketContractABI);
   const [nftToSend, setNftToSend] = useState(null);
   const [price, setPrice] = useState(1);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const contractProcessor = useWeb3ExecuteFunction();
   const listItemFunction = "createMarketItem";
-  const ItemImage = Moralis.Object.extend("ItemImages");
+  const ItemImage = Moralis.Object.extend("ListedNFTs");
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  async function list(nft, listPrice) {
-    console.log(nft.token_id);
-    setLoading(true);
-    const p = listPrice * ("1e" + 18);
-    const ops = {
-      contractAddress: marketAddress,
-      functionName: listItemFunction,
-      abi: contractABIJson,
-      params: {
-        tokenId: nft.token_id,
-        price: String(p),
-      },
-    };
-    console.log(ops);
-    await contractProcessor.fetch({
-      params: ops,
-      onSuccess: () => {
-        console.log("success");
-        setLoading(false);
-        setVisibility(false);
-        addItemImage();
-        succList();
-      },
-      onError: (error) => {
-        console.log(error);
-        setLoading(false);
-        failList();
-      },
-    });
-  }
+  useEffect(() => {
+        if(!user) return null
+        setAddress(user.get('ethAddress'));
+        
+        getNFT();
+ 
+        NFTBalances();
+      
+        setTimeout(() => {
+          setLoading(false)
+        }, 1000);
+        console.log(nfts)
+    }, [user]);
 
-  async function approveAll(nft) {
-    setLoading(true);  
-    console.log(nft);
-    const ops = {
-      contractAddress: nft.token_address,
-      functionName: "setApprovalForAll",
-      abi: [{"inputs":[{"internalType":"address","name":"operator","type":"address"},{"internalType":"bool","name":"approved","type":"bool"}],"name":"setApprovalForAll","outputs":[],"stateMutability":"nonpayable","type":"function"}],
-      params: {
-        operator: marketAddress,
-        approved: true
-      },
-    };
-
-    await contractProcessor.fetch({
-      params: ops,
-      onSuccess: () => {
-        console.log("Approval Received");
-        setLoading(false);
-        setVisibility(false);
-      },
-      onError: (error) => {
-        console.log(error)
-        setLoading(false);
-      },
-    });
-  }
   
   const handleSellClick = (nft) => {
     setNftToSend(nft);
     setVisibility(true);
-  };
-
-
-  // const { fetchERC20Balances, data, error, isLoading, isFetching } = useERC20Balances();
-
-  useEffect(() => {
-        if(!user) return null
-        setAddress(user.get('ethAddress'))
-    }, [user]);
-  
-  const fixURL = (url) => {
-    if(url.startsWith("ipfs")){
-      return "https://ipfs.moralis.io:2053/ipfs/"+url.split("ipfs://").pop()
-    }
-    else {
-      return url+"?format=json"
-    }
-  };
-  const fixImageURL = (url) => {
-    if(url.startsWith("/ipfs")){
-      return "https://ipfs.moralis.io:2053"+url
-    }
-    else {
-      return url+"?format=json"
-    }
   };
 
 
@@ -160,25 +124,35 @@ function MyNFTs() {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
 
-    const data = await marketplaceContract.fetchMyNFTs()
+    const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
+
+    const data = await storageContract.fetchMyNFTs()
+    let image = ''
+    let imageLink = ''
 
     const items = await Promise.all(data.map(async i => {
       const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
 
       const meta = await axios.get(fixURL(tokenURI))
-      console.log(meta)
+      for (const j in meta.data) {
+        if ((meta.data[j]).toString().includes('ipfs')) {
+            imageLink = meta.data[j]
+            image = resolveLink(meta.data[j])
+        }
+      }
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
         tokenId: i.tokenId.toNumber(),
         seller: i.seller,
         owner: i.owner,
-        image: fixImageURL(meta.data.image),
+        image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
-        tokenURI
+        tokenURI,
+        tokenAddress: i.tokenAddress
       }
       return item
     }))
@@ -188,6 +162,66 @@ function MyNFTs() {
   }
 
 
+  const getNFT = async() => {
+        const web3Modal = new Web3Modal({})
+        const connection = await web3Modal.connect()
+        const provider = new ethers.providers.Web3Provider(connection)
+        const network = await provider.getNetwork(); 
+        const name = network.name;
+        const signer = provider.getSigner()
+        const signerAddress = await signer.getAddress();
+
+        try {
+          await getNFTBalances({ params: { chain: name } })
+        } catch {
+          return;
+        }
+
+        const dataMarkets = await getNFTBalances({ params: { chain: name } })
+        const results = dataMarkets.result
+        const items = []
+        let image = ''
+        let imageBon = ''
+        let imageLink = ''
+        //let meta = ''
+      
+        for (const i in results) {
+          
+            const object = results[i];
+            if (object?.token_uri) {
+              
+              let meta = await axios.get(fixURL(object.token_uri))
+              for (const j in meta.data) {
+                  if ((meta.data[j]).toString().includes('ipfs')) {
+                      imageLink = meta.data[j]
+                      image = resolveLink(meta.data[j])
+                  }
+              }
+              let item = {
+                  name: meta.data['name'],
+                  description: meta.data['description'],
+                  image: imageLink,
+                  owner: object.owner_of,
+                  tokenId: object.token_id,
+                  tokenAddress: object.token_address
+              }
+              if (nfts.includes(item) === false) {
+                setNFTs((previousNft) => [...previousNft, {
+                    name: meta.data['name'],
+                    description: meta.data['description'],
+                    image: imageLink,
+                    owner: object.owner_of,
+                    tokenId: object.token_id,
+                    tokenAddress: object.token_address
+                }])}
+            }      
+        }
+      
+    }
+
+
+
+
   const ListNFT = async(nft, listPrice) => {
     const web3Modal = new Web3Modal({})
     const connection = await web3Modal.connect()
@@ -195,72 +229,13 @@ function MyNFTs() {
     const signer = provider.getSigner()
     const price = ethers.utils.parseUnits(listPrice, 'ether')
     
-    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-    let listingPrice = await marketplaceContract.getListingPrice()
-    console.log(nft)
-    let transaction = await marketplaceContract.resellToken(nft.tokenId, price, {value: listingPrice})
+    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
+    console.log(nft.tokenId, nft.tokenAddress)
+
+    let transaction = await marketplaceContract.resellToken(nft.tokenId, price, nft.tokenAddress)
     await transaction.wait()
     console.log('success for sure')
 
-  }
-
-
-
-
-
-  function succList() {
-    let secondsToGo = 5;
-    const modal = Modal.success({
-      title: "Success!",
-      content: `Your NFT was listed on the marketplace`,
-    });
-    setTimeout(() => {
-      modal.destroy();
-    }, secondsToGo * 1000);
-  }
-
-  function succApprove() {
-    let secondsToGo = 5;
-    const modal = Modal.success({
-      title: "Success!",
-      content: `Approval is now set, you may list your NFT`,
-    });
-    setTimeout(() => {
-      modal.destroy();
-    }, secondsToGo * 1000);
-  }
-
-  function failList() {
-    let secondsToGo = 5;
-    const modal = Modal.error({
-      title: "Error!",
-      content: `There was a problem listing your NFT`,
-    });
-    setTimeout(() => {
-      modal.destroy();
-    }, secondsToGo * 1000);
-  }
-
-  function failApprove() {
-    let secondsToGo = 5;
-    const modal = Modal.error({
-      title: "Error!",
-      content: `There was a problem with setting approval`,
-    });
-    setTimeout(() => {
-      modal.destroy();
-    }, secondsToGo * 1000);
-  }
-
-  function addItemImage() {
-    const itemImage = new ItemImage();
-
-    itemImage.set("image", nftToSend.image);
-    itemImage.set("nftContract", nftToSend.token_address);
-    itemImage.set("tokenId", nftToSend.token_id);
-    itemImage.set("name", nftToSend.name);
-
-    itemImage.save();
   }
     
 
@@ -269,49 +244,42 @@ function MyNFTs() {
 
 
   return (
-    
-    <Container>
-      <Row xs={1} md={4} className="g-4 d-flex justify-content-center">
-        <div>
-          <Button onClick={() => NFTBalances()}>Fetch NFTs you own</Button>
-        </div>
-      </Row>
-      <Row>
-        {nfts && nfts.slice(0,5).map((nft, index) => (
-        <Col>
-          <Card className="shadow-sm animate__animated animate__fadeInUp" style={{ width: '20rem', height: '25rem', borderRadius:'1rem' }} >
-            <Card.Body key="parent">
-              <h2 key="{nft.name}" className="fw-bold mb-0">{nft.name}</h2>
-              <br></br>
-              <video key="{nft.image}" style={{ width: '15rem', height: '15rem', borderRadius:'1rem' }} src={nft.image} loop={true}
-                                            autoPlay
-                                            muted controls crossOrigin="true"></video>
-              <div key="{nft.description}">{nft.description}</div>
+  <MarketPlaceSection className="d-flex justify-content-center">
+    <ProductListLayout>
+      <React.Fragment>
+              {loading?
+                  //render skeleton when loading
+                (Array(6)
+                .fill()
+                .map((item, index) => {
+                    return(
+                        <ProductSkeleton key={index} />
+                    )
+                  })) : (
+                nfts && nfts.map((nft, index) => {
+                  if (nft.name !== "") { 
+                    return(
+                    <Col>
+                    <ProductCardsLayoutLazy pageFrom="MyNFTs" id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    </Col>
 
-              <div>
-                <button onClick={() => {handleShow(); handleSellClick(nft)}}>List this NFT</button>
-              </div>
-            </Card.Body>
-          </Card>
-          <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
+                  )}}
+              ))
+              }
+      </React.Fragment>
+    </ProductListLayout>
+    <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
             <Input
               autoFocus
               placeholder="Listing Price in ETH"
               onChange={(e) => setPrice(e.target.value)}
             />
-            
-              <Button variant = 'primary' onClick={() => ListNFT(nftToSend, price)}>List</Button>
+            <Button variant = 'primary' onClick={() => ListNFT(nftToSend, price)}>List</Button>
             
           </Modal>
-        
-        </Col>
-        )
-        )} 
-        
-      </Row>
-      
-      
-    </Container>
+  </MarketPlaceSection>
+          
+       
     
   );
 }

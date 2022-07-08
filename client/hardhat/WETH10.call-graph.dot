@@ -1,0 +1,79 @@
+strict digraph {
+subgraph cluster_1283_IERC20Metadata {
+label = "IERC20Metadata"
+"1283_symbol" [label="symbol"]
+"1283_name" [label="name"]
+"1283_decimals" [label="decimals"]
+}subgraph cluster_4678_WETH10 {
+label = "WETH10"
+"4678_approveSpender" [label="approveSpender"]
+"4678_burn" [label="burn"]
+"4678_mint" [label="mint"]
+"4678_constructor" [label="constructor"]
+"4678_approveSpender" -> "4678_approve"
+"4678_burn" -> "4678__burn"
+"4678_mint" -> "4678__mint"
+"4678_constructor" -> "4678_constructor"
+}subgraph cluster_1136_ERC20 {
+label = "ERC20"
+"1136_constructor" [label="constructor"]
+"1136_transfer" [label="transfer"]
+"1136_decimals" [label="decimals"]
+"1136__afterTokenTransfer" [label="_afterTokenTransfer"]
+"1136__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"1136_totalSupply" [label="totalSupply"]
+"1136__spendAllowance" [label="_spendAllowance"]
+"1136_name" [label="name"]
+"1136_balanceOf" [label="balanceOf"]
+"1136__burn" [label="_burn"]
+"1136_increaseAllowance" [label="increaseAllowance"]
+"1136_allowance" [label="allowance"]
+"1136_transferFrom" [label="transferFrom"]
+"1136_decreaseAllowance" [label="decreaseAllowance"]
+"1136__approve" [label="_approve"]
+"1136__transfer" [label="_transfer"]
+"1136_approve" [label="approve"]
+"1136_symbol" [label="symbol"]
+"1136__mint" [label="_mint"]
+"1136__spendAllowance" -> "1136_allowance"
+"1136_transferFrom" -> "1136__transfer"
+"1136__burn" -> "1136__beforeTokenTransfer"
+"1136_increaseAllowance" -> "1136__msgSender"
+"1136__transfer" -> "1136__afterTokenTransfer"
+"1136_transfer" -> "1136__msgSender"
+"1136__burn" -> "1136__afterTokenTransfer"
+"1136_decreaseAllowance" -> "1136__approve"
+"1136_approve" -> "1136__msgSender"
+"1136_increaseAllowance" -> "1136__approve"
+"1136_transfer" -> "1136__transfer"
+"1136__spendAllowance" -> "1136__approve"
+"1136__transfer" -> "1136__beforeTokenTransfer"
+"1136__mint" -> "1136__afterTokenTransfer"
+"1136_transferFrom" -> "1136__msgSender"
+"1136_decreaseAllowance" -> "1136__msgSender"
+"1136_approve" -> "1136__approve"
+"1136_transferFrom" -> "1136__spendAllowance"
+"1136__mint" -> "1136__beforeTokenTransfer"
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_1214_IERC20 {
+label = "IERC20"
+"1214_balanceOf" [label="balanceOf"]
+"1214_approve" [label="approve"]
+"1214_transferFrom" [label="transferFrom"]
+"1214_allowance" [label="allowance"]
+"1214_transfer" [label="transfer"]
+"1214_totalSupply" [label="totalSupply"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool,string)" 
+"1136__spendAllowance" -> "require(bool,string)"
+"1136__mint" -> "require(bool,string)"
+"1136__burn" -> "require(bool,string)"
+"1136__approve" -> "require(bool,string)"
+"1136__transfer" -> "require(bool,string)"
+"1136_decreaseAllowance" -> "require(bool,string)"
+}
+}

@@ -1,0 +1,205 @@
+strict digraph {
+subgraph cluster_548_ReentrancyGuard {
+label = "ReentrancyGuard"
+"548_constructor" [label="constructor"]
+}subgraph cluster_2149_ERC721 {
+label = "ERC721"
+"2149__beforeTokenTransfer" [label="_beforeTokenTransfer"]
+"2149__baseURI" [label="_baseURI"]
+"2149_safeTransferFrom" [label="safeTransferFrom"]
+"2149_getApproved" [label="getApproved"]
+"2149__burn" [label="_burn"]
+"2149_symbol" [label="symbol"]
+"2149__afterTokenTransfer" [label="_afterTokenTransfer"]
+"2149__exists" [label="_exists"]
+"2149__safeTransfer" [label="_safeTransfer"]
+"2149__mint" [label="_mint"]
+"2149_approve" [label="approve"]
+"2149__setApprovalForAll" [label="_setApprovalForAll"]
+"2149__isApprovedOrOwner" [label="_isApprovedOrOwner"]
+"2149_supportsInterface" [label="supportsInterface"]
+"2149_balanceOf" [label="balanceOf"]
+"2149_name" [label="name"]
+"2149_tokenURI" [label="tokenURI"]
+"2149_isApprovedForAll" [label="isApprovedForAll"]
+"2149__transfer" [label="_transfer"]
+"2149__approve" [label="_approve"]
+"2149_transferFrom" [label="transferFrom"]
+"2149_ownerOf" [label="ownerOf"]
+"2149__safeMint" [label="_safeMint"]
+"2149_constructor" [label="constructor"]
+"2149__checkOnERC721Received" [label="_checkOnERC721Received"]
+"2149_setApprovalForAll" [label="setApprovalForAll"]
+"2149__isApprovedOrOwner" -> "2149_isApprovedForAll"
+"2149_transferFrom" -> "2149__msgSender"
+"2149_approve" -> "2149__approve"
+"2149_setApprovalForAll" -> "2149__setApprovalForAll"
+"2149_approve" -> "2149__msgSender"
+"2149__burn" -> "2149__approve"
+"2149_safeTransferFrom" -> "2149__msgSender"
+"2149_getApproved" -> "2149__exists"
+"2149__transfer" -> "2149_ownerOf"
+"2149__mint" -> "2149__afterTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149__exists"
+"2149_tokenURI" -> "2149__exists"
+"2149__isApprovedOrOwner" -> "2149_getApproved"
+"2149_transferFrom" -> "2149__transfer"
+"2149__safeMint" -> "2149__checkOnERC721Received"
+"2149__safeMint" -> "2149__safeMint"
+"2149_safeTransferFrom" -> "2149__isApprovedOrOwner"
+"2149_supportsInterface" -> "2149_supportsInterface"
+"2149_approve" -> "2149_isApprovedForAll"
+"2149__safeTransfer" -> "2149__transfer"
+"2149__burn" -> "2149__afterTokenTransfer"
+"2149_safeTransferFrom" -> "2149_safeTransferFrom"
+"2149__burn" -> "2149__beforeTokenTransfer"
+"2149__mint" -> "2149__exists"
+"2149__transfer" -> "2149__afterTokenTransfer"
+"2149__transfer" -> "2149__approve"
+"2149__transfer" -> "2149__beforeTokenTransfer"
+"2149__isApprovedOrOwner" -> "2149_ownerOf"
+"2149_setApprovalForAll" -> "2149__msgSender"
+"2149__checkOnERC721Received" -> "2149__msgSender"
+"2149__safeTransfer" -> "2149__checkOnERC721Received"
+"2149_tokenURI" -> "2149__baseURI"
+"2149__burn" -> "2149_ownerOf"
+"2149__safeMint" -> "2149__mint"
+"2149__approve" -> "2149_ownerOf"
+"2149_safeTransferFrom" -> "2149__safeTransfer"
+"2149_approve" -> "2149_ownerOf"
+"2149__mint" -> "2149__beforeTokenTransfer"
+"2149_transferFrom" -> "2149__isApprovedOrOwner"
+}subgraph cluster_2265_IERC721 {
+label = "IERC721"
+"2265_getApproved" [label="getApproved"]
+"2265_safeTransferFrom" [label="safeTransferFrom"]
+"2265_transferFrom" [label="transferFrom"]
+"2265_setApprovalForAll" [label="setApprovalForAll"]
+"2265_ownerOf" [label="ownerOf"]
+"2265_approve" [label="approve"]
+"2265_isApprovedForAll" [label="isApprovedForAll"]
+"2265_balanceOf" [label="balanceOf"]
+}subgraph cluster_6764_NFTMarketplace {
+label = "NFTMarketplace"
+"6764_createBredToken" [label="createBredToken"]
+"6764_resellToken" [label="resellToken"]
+"6764_getAllowance" [label="getAllowance"]
+"6764_supportsInterface" [label="supportsInterface"]
+"6764_createMarketSale" [label="createMarketSale"]
+"6764_slitherConstructorConstantVariables" [label="slitherConstructorConstantVariables"]
+"6764_createOwnedTokenFromLazy" [label="createOwnedTokenFromLazy"]
+"6764_constructor" [label="constructor"]
+"6764_slitherConstructorVariables" [label="slitherConstructorVariables"]
+"6764_delistToken" [label="delistToken"]
+"6764_placeBid" [label="placeBid"]
+"6764_acceptBid" [label="acceptBid"]
+"6764_createMarketItem" [label="createMarketItem"]
+"6764_receive" [label="receive"]
+"6764_createOwnedTokenFromLazy" -> "6764__setTokenURI"
+"6764_delistToken" -> "6764__transfer"
+"6764_delistToken" -> "6764_nonReentrant"
+"6764_createMarketItem" -> "6764_setApprovalForAll"
+"6764_createOwnedTokenFromLazy" -> "6764_nonReentrant"
+"6764_acceptBid" -> "6764__transfer"
+"6764_createOwnedTokenFromLazy" -> "6764__setTokenRoyalty"
+"6764_createOwnedTokenFromLazy" -> "6764__transfer"
+"6764_resellToken" -> "6764_setApprovalForAll"
+"6764_constructor" -> "6764_constructor"
+"6764_createMarketSale" -> "6764__transfer"
+"6764_createBredToken" -> "6764__setTokenURI"
+"6764_createOwnedTokenFromLazy" -> "6764__mint"
+"6764_createBredToken" -> "6764__mint"
+"6764_supportsInterface" -> "6764_supportsInterface"
+"6764_createMarketItem" -> "6764_nonReentrant"
+}subgraph cluster_3954_ERC165 {
+label = "ERC165"
+"3954_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_2484_IERC721Metadata {
+label = "IERC721Metadata"
+"2484_name" [label="name"]
+"2484_tokenURI" [label="tokenURI"]
+"2484_symbol" [label="symbol"]
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_2457_ERC721URIStorage {
+label = "ERC721URIStorage"
+"2457__burn" [label="_burn"]
+"2457__setTokenURI" [label="_setTokenURI"]
+"2457_tokenURI" [label="tokenURI"]
+"2457_tokenURI" -> "2457__baseURI"
+"2457_tokenURI" -> "2457_tokenURI"
+"2457_tokenURI" -> "2457__exists"
+"2457__setTokenURI" -> "2457__exists"
+"2457__burn" -> "2457__burn"
+}subgraph cluster_2682_ERC2981 {
+label = "ERC2981"
+"2682__setTokenRoyalty" [label="_setTokenRoyalty"]
+"2682_supportsInterface" [label="supportsInterface"]
+"2682_royaltyInfo" [label="royaltyInfo"]
+"2682__setDefaultRoyalty" [label="_setDefaultRoyalty"]
+"2682__feeDenominator" [label="_feeDenominator"]
+"2682__deleteDefaultRoyalty" [label="_deleteDefaultRoyalty"]
+"2682__resetTokenRoyalty" [label="_resetTokenRoyalty"]
+"2682__setDefaultRoyalty" -> "2682__feeDenominator"
+"2682__setTokenRoyalty" -> "2682__feeDenominator"
+"2682_supportsInterface" -> "2682_supportsInterface"
+"2682_royaltyInfo" -> "2682__feeDenominator"
+}subgraph cluster_508_IERC2981 {
+label = "IERC2981"
+"508_royaltyInfo" [label="royaltyInfo"]
+}subgraph cluster_3966_IERC165 {
+label = "IERC165"
+"3966_supportsInterface" [label="supportsInterface"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool)" 
+"revert(string)" 
+"mload(uint256)" 
+"revert(uint256,uint256)" 
+"type()" 
+"revert()" 
+"abi.encodePacked()" 
+"require(bool,string)" 
+"2149__mint" -> "require(bool,string)"
+"6764_resellToken" -> "revert()"
+"2149__transfer" -> "require(bool,string)"
+"2149__setApprovalForAll" -> "require(bool,string)"
+"2149_getApproved" -> "require(bool,string)"
+"2149__safeMint" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "mload(uint256)"
+"2149_ownerOf" -> "require(bool,string)"
+"2149_transferFrom" -> "require(bool,string)"
+"3954_supportsInterface" -> "type()"
+"2682__setTokenRoyalty" -> "require(bool,string)"
+"2149__safeTransfer" -> "require(bool,string)"
+"6764_createMarketItem" -> "require(bool,string)"
+"2149_approve" -> "require(bool,string)"
+"2149__checkOnERC721Received" -> "revert(string)"
+"2682__setDefaultRoyalty" -> "require(bool,string)"
+"2457_tokenURI" -> "require(bool,string)"
+"6764_placeBid" -> "require(bool,string)"
+"6764_acceptBid" -> "require(bool,string)"
+"6764_createBredToken" -> "require(bool,string)"
+"2682_supportsInterface" -> "type()"
+"2149_safeTransferFrom" -> "require(bool,string)"
+"2149_tokenURI" -> "require(bool,string)"
+"2457_tokenURI" -> "abi.encodePacked()"
+"6764_createOwnedTokenFromLazy" -> "require(bool,string)"
+"6764_createMarketSale" -> "require(bool,string)"
+"2457__setTokenURI" -> "require(bool,string)"
+"2149_tokenURI" -> "abi.encodePacked()"
+"6764_acceptBid" -> "require(bool)"
+"2149__checkOnERC721Received" -> "revert(uint256,uint256)"
+"2149_supportsInterface" -> "type()"
+"2149_balanceOf" -> "require(bool,string)"
+"2149__isApprovedOrOwner" -> "require(bool,string)"
+}"6764_createMarketItem" -> "2265_ownerOf"
+"6764_resellToken" -> "2265_transferFrom"
+"6764_createMarketItem" -> "2265_transferFrom"
+"6764_createBredToken" -> "508_royaltyInfo"
+"6764_createBredToken" -> "2265_ownerOf"
+"6764_resellToken" -> "2265_ownerOf"
+"6764_createMarketItem" -> "508_royaltyInfo"
+}

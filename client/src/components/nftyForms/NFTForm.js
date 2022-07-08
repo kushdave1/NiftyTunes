@@ -4,6 +4,7 @@ import styled from 'styled-components'
 
 //components 
 import NFTModalNfty from './NFTModalNfty'
+import Board from '../nftyDraggable/board'
 
 //Bootstrap
 import Container from 'react-bootstrap/Container'
@@ -29,6 +30,7 @@ import Moralis from 'moralis'
 
 
 
+
 function NFTForm (props) {
     document.body.style.overflow = "hidden";
 
@@ -36,8 +38,12 @@ function NFTForm (props) {
     let address = props.address;
 
     /*file states*/
-    const [audioFile, setAudioFile] = useState();
-    const [videoFile, setVideoFile] = useState();    
+    const [audioFile, setAudioFile] = useState('');
+    const [videoFile, setVideoFile] = useState('');    
+    const [audioTokenId, setAudioTokenId] = useState('');
+    const [videoTokenId, setVideoTokenId] = useState('');
+    const [audioTokenAddress, setAudioTokenAddress] = useState('');
+    const [videoTokenAddress, setVideoTokenAddress] = useState('');
     const [output, setOutput] = useState();
     const [resultFile, setResultFile] = useState();
     const [mixMessage, setMixMessage] = useState('');
@@ -91,22 +97,28 @@ function NFTForm (props) {
                 video.onerror = function () {
                     reject("Please select a valid video file.");
                 }
-        
-                video.src = window.URL.createObjectURL(file);
+                // video.src = window.URL.createObjectURL(file);
+                video.src = window.URL.createObjectURL(new Blob([file.buffer], {type: 'video/mp4'}));
             } catch (e) {
                 reject(e);
             }
         });
 
+        const url = new URL(videoFile);
+        ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
+        const fileOne = ffmpeg.FS('readFile', 'video.mp4')
+        const videoDurations = await loadVideo(fileOne);
+        let videoDurs = await videoDurations.duration;
+        const videoDurationFinal = parseFloat(videoDurs)
+
         if(!videoFile || !audioFile){
             setMixMessage('Please select an audio and video file to mix!');
         }
-        else if(await videoFile.type.includes('image')){
+        else if(videoDurationFinal === 0){
             //if input is an image
             setMixMessage('');
             setIsMixing(true);
 
-            console.log(videoFile.type);
             ffmpeg.FS('writeFile', 'video.png', await fetchFile(videoFile));
             ffmpeg.FS('writeFile', 'audio.wav', await fetchFile(audioFile));
             
@@ -129,7 +141,7 @@ function NFTForm (props) {
             await setFileType('video')
             setIsMixing(false);
         }
-        else if(await videoFile.type.includes('video')){
+        else if(videoDurs !== 0){
             //if file is a video
             setMixMessage('');
         
@@ -138,8 +150,14 @@ function NFTForm (props) {
             ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
             ffmpeg.FS('writeFile', 'audio.wav', await fetchFile(audioFile));
 
-            const videoDuration = await loadVideo(videoFile);
-            const audioDuration = await loadVideo(audioFile);
+            // const videoDuration = await loadVideo(videoFile);
+            // const audioDuration = await loadVideo(audioFile);
+
+            const fileVideo = ffmpeg.FS('readFile', 'video.mp4')
+            const videoDuration = await loadVideo(fileVideo);
+
+            const fileAudio = ffmpeg.FS('readFile', 'audio.wav')
+            const audioDuration = await loadVideo(fileAudio)
 
             const videoDur = await videoDuration.duration;
             const audioDur = await audioDuration.duration;
@@ -189,14 +207,14 @@ function NFTForm (props) {
       <Container>
             <Row>
                     <div className='d-flex justify-content-center'>
-                    <Card className="shadow-lg animate__animated animate__fadeInUp" style={{ width: '45rem', height: '35rem', borderRadius:'1rem' }}>
+                    <Card className="shadow-lg animate__animated animate__fadeInUp rounded" style={{ width: '45rem', height: '80rem', borderRadius:'1rem' }}>
                         <Card.Body className ="p-5">
                             <h2 className="fw-bold mb-0">Build a NFTYTUNE from scratch</h2>
                             <small className="mb-5 fw-bold text-primary">in 3 easy steps</small>
                                       <Form onSubmit={handleMix} className='my-5'>
                                       <Stack gap={4}>
                                         <Row>
-                                            <Col xs={1}>
+                                            <Col xs={1} className="align-self-center">
                                                 <i className="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
                                             </Col>
                                             <Col className="align-self-center">
@@ -206,20 +224,26 @@ function NFTForm (props) {
                                                 </div>
                                             </Col>
                                             <Col xs={6}>
-                                                 <FormGroup controlId = "uploadVideoFile">
+                                                 {/* <FormGroup controlId = "uploadVideoFile">
                                                     <Form.Control 
                                                          type="file" 
                                                          placeholder="Upload File" 
                                                          onChange={(e) => setVideoFile(e.target.files?.item(0))}
                                                      />
-                                                </FormGroup>
+                                                </FormGroup> */}
+                                                <Board><div 
+                                                onDrop={(e) => {setVideoFile(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.firstChild.src);
+                                                                setVideoTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenId);
+                                                                setVideoTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenAddress);} }
+                                                style={{padding:"10px", height: 400, width: 280, border: "1px dotted black", overflow: "hidden"}}></div>
+                                                </Board>
                                             </Col>
                                             </Row>
                                         
                                         
 
                                         <Row>
-                                            <Col xs={1}>
+                                            <Col xs={1} className="align-self-center">
                                                 <i className="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
                                             </Col>
                                             <Col className="align-self-center">
@@ -229,13 +253,19 @@ function NFTForm (props) {
                                                 </div>
                                             </Col>
                                             <Col xs={6}>
-                                                <FormGroup controlId = "uploadAudioFile">
+                                                {/* <FormGroup controlId = "uploadAudioFile">
                                                     <Form.Control 
                                                         type="file" 
                                                         placeholder="Upload File" 
                                                         onChange={(e) => setAudioFile(e.target.files?.item(0))}
                                                     />
-                                                </FormGroup>
+                                                </FormGroup> */}
+                                                <Board><div 
+                                                onDrop={(e) => {setAudioFile(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.firstChild.src);
+                                                                setAudioTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenId);
+                                                                setAudioTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenAddress);} }
+                                                style={{padding:"10px", height: 400, width: 280, border: "1px dotted black", overflow: "hidden"}}></div>
+                                                </Board>
                                             </Col>
                                         </Row>
 
@@ -290,7 +320,11 @@ function NFTForm (props) {
                                 mintProgress = {mintProgress}
                                 mintProgressLabel = {mintProgressLabel}
                                 setMintProgress = {setMintProgress}
-                                setMintProgressLabel = {setMintProgressLabel} />
+                                setMintProgressLabel = {setMintProgressLabel}
+                                audioTokenAddress = {audioTokenAddress}
+                                audioTokenId = {audioTokenId} 
+                                videoTokenAddress = {videoTokenAddress}
+                                videoTokenId = {videoTokenId}/>
                     }
             </Row>
             </Container> 

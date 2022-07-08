@@ -17,9 +17,17 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
 /* DAPP connection handler */
 import {MoralisProvider} from 'react-moralis'
-  
-const APP_ID = 'gHZB462va1nfDt9kiggqQMxXl3UA6nYDXVNFQbrr';
-const SERVER_URL = 'https://nkh6xkvx6bxv.usemoralis.com:2053/server';
+
+// localHost
+
+const APP_ID = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
+const SERVER_URL = 'https://5p6jpspfzahc.usemoralis.com:2053/server';
+
+// Testnet
+
+// const APP_ID = 'PmqJ61GHHBspngQTnorGwE6eDkfkyg5cgW5zl7nj';
+// const SERVER_URL = 'https://f9plp9sez0zx.usemoralis.com:2053/server';
+
 
 const Application = () => {
     const isServerInfo = APP_ID && SERVER_URL ? true : false;

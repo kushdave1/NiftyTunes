@@ -52,14 +52,17 @@ function LandingCards() {
   const [nfts, setNFTs] = useState([]);
   const { NFTBalance, fetchSuccess } = useNFTBalance();
   const { chainId, marketAddress, marketContractABI } = useMoralisDapp();
+  const { storageAddress, storageContractABI } = useMoralisDapp();
+  const storageContractABIJson = JSON.parse(storageContractABI);
   const [visible, setVisibility] = useState(false);
-  const contractABIJson = JSON.parse(marketContractABI);
+  const marketContractABIJson = JSON.parse(marketContractABI);
+  
   const [nftToSend, setNftToSend] = useState(null);
   const [price, setPrice] = useState(1);
   const [loading, setLoading] = useState(false);
   const contractProcessor = useWeb3ExecuteFunction();
   const listItemFunction = "createMarketItem";
-  const ItemImage = Moralis.Object.extend("ItemImages");
+  const ItemImage = Moralis.Object.extend("ListedNFTs");
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
@@ -184,9 +187,11 @@ function LandingCards() {
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
 
-    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
+    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
 
-    const data = await marketplaceContract.fetchMarketItems()
+    const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
+
+    const data = await storageContract.fetchMarketItems()
 
     const items = await Promise.all(data.map(async i => {
       const tokenURI = await marketplaceContract.tokenURI(i.tokenId)

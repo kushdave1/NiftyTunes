@@ -12,6 +12,18 @@ function AccountNav() {
 
     let navigate = useNavigate();
 
+    const collectionsRoute = () => {
+        navigate('/collections');
+    }
+
+    const stakingRoute = () => {
+        navigate('/staking');
+    }
+
+    const wethRoute = () => {
+        navigate('/wethbalance');
+    }
+
     const exploreRoute = () => {
         navigate('/marketplace');
     }
@@ -33,7 +45,9 @@ function AccountNav() {
                 <Container>   
                 <Navbar.Brand className="text-light" style={{fontSize: '35px'}} href="/">NftyTunes</Navbar.Brand>   
                                 <Navbar.Collapse className='gap-3 justify-content-end'>
-                                 
+                                        <Button variant="dark" onClick={collectionsRoute}>Collections</Button>
+                                        <Button variant="dark" onClick={stakingRoute}>Staking</Button>
+                                        <Button variant="dark" onClick={wethRoute}>Deposit WETH</Button>
                                         <Button variant="dark" onClick={exploreRoute}>Explore</Button>
                                         <Button variant="dark" onClick={createRoute}>Create</Button>
                                         <Button variant="dark" onClick={nftRoute}>View my NFTs</Button>

@@ -1,0 +1,54 @@
+strict digraph {
+subgraph cluster_5746_NFTMarketplaceStorage {
+label = "NFTMarketplaceStorage"
+"5746_storeLazyMintedItem" [label="storeLazyMintedItem"]
+"5746_storeMarketItem" [label="storeMarketItem"]
+"5746_fetchMyNFTs" [label="fetchMyNFTs"]
+"5746_deleteOwnedItem" [label="deleteOwnedItem"]
+"5746_getItemDetails" [label="getItemDetails"]
+"5746_storeBid" [label="storeBid"]
+"5746_setMarketSale" [label="setMarketSale"]
+"5746_storeBredItem" [label="storeBredItem"]
+"5746_getHighestBid" [label="getHighestBid"]
+"5746_storeResellData" [label="storeResellData"]
+"5746_fetchMarketItems" [label="fetchMarketItems"]
+"5746_deleteMarketItem" [label="deleteMarketItem"]
+"5746_getBidDetails" [label="getBidDetails"]
+"5746_fetchItemsListed" [label="fetchItemsListed"]
+"5746_fetchMarketItems" -> "5746_owner"
+"5746_storeBid" -> "5746_onlyOwner"
+"5746_storeBredItem" -> "5746_onlyOwner"
+"5746_storeMarketItem" -> "5746_onlyOwner"
+"5746_setMarketSale" -> "5746_onlyOwner"
+"5746_storeLazyMintedItem" -> "5746_onlyOwner"
+"5746_storeResellData" -> "5746_onlyOwner"
+"5746_deleteOwnedItem" -> "5746_onlyOwner"
+"5746_deleteMarketItem" -> "5746_onlyOwner"
+}subgraph cluster_486_Ownable {
+label = "Ownable"
+"486_constructor" [label="constructor"]
+"486_owner" [label="owner"]
+"486__transferOwnership" [label="_transferOwnership"]
+"486_transferOwnership" [label="transferOwnership"]
+"486_renounceOwnership" [label="renounceOwnership"]
+"486_transferOwnership" -> "486_onlyOwner"
+"486_constructor" -> "486__msgSender"
+"486_renounceOwnership" -> "486_onlyOwner"
+"486_transferOwnership" -> "486__transferOwnership"
+"486_constructor" -> "486__transferOwnership"
+"486_renounceOwnership" -> "486__transferOwnership"
+}subgraph cluster_2999_Context {
+label = "Context"
+"2999__msgSender" [label="_msgSender"]
+"2999__msgData" [label="_msgData"]
+}subgraph cluster_solidity {
+label = "[Solidity]"
+"require(bool,string)" 
+"require(bool)" 
+"5746_deleteOwnedItem" -> "require(bool,string)"
+"486_transferOwnership" -> "require(bool,string)"
+"5746_deleteMarketItem" -> "require(bool,string)"
+"5746_storeBid" -> "require(bool,string)"
+"5746_deleteMarketItem" -> "require(bool)"
+}
+}
