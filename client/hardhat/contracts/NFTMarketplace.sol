@@ -44,6 +44,8 @@ contract NFTMarketplaceStorage is Ownable {
     Counters.Counter private _lazyItemsSold;
     address WETH;
 
+    bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
+
     event bidPlaced (
       uint256 indexed bid,
       address bidder
@@ -97,6 +99,10 @@ contract NFTMarketplaceStorage is Ownable {
 
     }
 
+    function setSignerRole(address nftyLazyFactory) public {
+      IAccessControl(nftyLazyFactory).grantRole(SIGNER_ROLE, msg.sender);
+    }
+
     /////////////////////// GETTERS //////////////////////////
 
     function getItemSeller(uint256 marketItemId) public view returns (address) {
@@ -140,7 +146,7 @@ contract NFTMarketplaceStorage is Ownable {
     function setItemBid(address bidder, uint256 bid, uint256 marketItemId) onlyOwner external {
       WETH10 wethContract = WETH10(WETH);
       require(IERC20(wethContract).balanceOf(msg.sender) > bid, "You don't have enough WETH");
-      
+
       tokenIdToBidderToBid[marketItemId][bidder] = bid;
     }
 
@@ -384,6 +390,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     address payable owner;
     address Storage;
     address WETH;
+    
 
     event received(address, uint256);
 
@@ -399,9 +406,14 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //                       //
     //                       // 
 
+    
+
     receive() external payable {
         emit received(msg.sender, msg.value);
     }
+
+
+    
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -417,6 +429,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //  Create an Item from a lazy Minted NFT  //
     //                                         //
     //                                         // 
+
 
     function createOwnedTokenFromLazy(
       address galleryAddress, 
@@ -570,25 +583,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //                                                                                  //
     //                                                                                  // 
 
-    // function placeBid(
-    //   uint256 marketItemId,
-    //   uint256 price
-    // ) public payable {
-
-    //   NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
-    //   WETH10 wethContract = WETH10(WETH);
-
-    //   require(IERC20(wethContract).balanceOf(msg.sender) > price, "You don't have enough WETH");
-
-    //   storageContract.setItemBid(msg.sender, price, marketItemId);
-
-    // }
-
-    // function getAllowance() external view returns (uint256) {
-    //   WETH10 wethContract = WETH10(WETH);
-    //   return IERC20(wethContract).allowance(msg.sender, address(this)) / 10**18;
-    // }
-
     function acceptBid(
       uint256 marketItemId,
       address bidder
@@ -632,24 +626,6 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
       }
     }
 
-
-
-    //                                                          //
-    //                                                          //
-    //             Fetch Items from the marketplace             //
-    //                                                          //
-    //                                                          // 
-
-    /* Returns all unsold market items */
-    
-
-    // /* Returns only items that a user has purchased */
-
-
-    
-
-    /* Returns only items a user has listed */
-    
 }
 
 
@@ -696,14 +672,11 @@ contract NftyLazyFactory is
     event RedeemedAndMinted(uint256 indexed tokenId);
 
     constructor(
-        address payable marketplaceAddress,
-        string memory name,
-        string memory symbol,
-        address payable artist
+        address payable marketplaceAddress
     ) ERC721("NftyTunes Tokens", "NFTY") EIP712(SIGNING_DOMAIN_NAME, SIGNING_DOMAIN_VERSION) {
-        _setupRole(SIGNER_ROLE, artist);
+        
         theMarketPlace = marketplaceAddress;
-        theArtist = artist;
+        _setupRole(DEFAULT_ADMIN_ROLE, theMarketPlace);
     }
 
     function redeem(
@@ -714,7 +687,8 @@ contract NftyLazyFactory is
 
         require(msg.value == voucher.priceWei, "Enter the correct price");
         require(signer != buyer, "You can not purchase your own token");
-        require(hasRole(SIGNER_ROLE, signer), "Invalid Signature");
+        // require(hasRole(SIGNER_ROLE, signer), "Invalid Signature");
+        
 
         setApprovalForAll(theMarketPlace, true); // sender approves Market Place to transfer tokens
         NFTMarketplace nftMarketplace = NFTMarketplace(theMarketPlace);
@@ -723,6 +697,8 @@ contract NftyLazyFactory is
         uint256 amount = msg.value;
 
         nftMarketplace.createOwnedTokenFromLazy(address(this), voucher.tokenUri, amount, royaltyAmount, signer, buyer);
+
+
 
         payable(signer).transfer(amount - (amount * nftyFee / 100));
         payable(theMarketPlace).transfer(amount * nftyFee / 100);

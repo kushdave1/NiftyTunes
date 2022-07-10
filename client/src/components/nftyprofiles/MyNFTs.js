@@ -35,6 +35,7 @@ import { useMoralisWeb3Api } from "react-moralis";
 import NFTPlayer from '../nftymix/NFTPlayer'
 import NFTImage from '../nftymix/NFTImage'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
+import { fetchOwnedIds } from '../nftyFunctions/FetchTokenIds'
 
 import ProductSkeleton from '../nftyloader/ProductSkeleton'
 import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
@@ -103,12 +104,11 @@ function MyNFTs() {
         
         getNFT();
  
-        NFTBalances();
+        fetchOwnedIds(marketAddress, marketContractABI, storageAddress, storageContractABI);
       
         setTimeout(() => {
           setLoading(false)
         }, 1000);
-        console.log(nfts)
     }, [user]);
 
   
@@ -116,50 +116,6 @@ function MyNFTs() {
     setNftToSend(nft);
     setVisibility(true);
   };
-
-
-  const NFTBalances = async() => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-
-    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
-
-    const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
-
-    const data = await storageContract.fetchMyNFTs()
-    let image = ''
-    let imageLink = ''
-
-    const items = await Promise.all(data.map(async i => {
-      const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
-
-      const meta = await axios.get(fixURL(tokenURI))
-      for (const j in meta.data) {
-        if ((meta.data[j]).toString().includes('ipfs')) {
-            imageLink = meta.data[j]
-            image = resolveLink(meta.data[j])
-        }
-      }
-      let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-      let item = {
-        price,
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: imageLink,
-        name: meta.data.name,
-        description: meta.data.description,
-        tokenURI,
-        tokenAddress: i.tokenAddress
-      }
-      return item
-    }))
-    setNFTs(items)
-    console.log(items);
-    setLoading(true) 
-  }
 
 
   const getNFT = async() => {
@@ -238,11 +194,6 @@ function MyNFTs() {
 
   }
     
-
-
-
-
-
   return (
   <MarketPlaceSection className="d-flex justify-content-center">
     <ProductListLayout>
@@ -260,7 +211,10 @@ function MyNFTs() {
                   if (nft.name !== "") { 
                     return(
                     <Col>
-                    <ProductCardsLayoutLazy pageFrom="MyNFTs" id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    <ProductCardsLayoutLazy pageFrom="MyNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
+                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
+                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price} 
+                    handleShow={handleShow} handleSellClick={handleSellClick}/>
                     </Col>
 
                   )}}

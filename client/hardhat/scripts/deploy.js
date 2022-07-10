@@ -56,6 +56,15 @@ async function main() {
   const marketOwner = await marketplaceStorage.owner();
 
   console.log("marketplace deployed to:", nftMarket.address);
+
+  const NftyLazyFactory = await ethers.getContractFactory("NftyLazyFactory");
+  const nftyLazyFactory = await NftyLazyFactory.deploy(marketplaceStorage.address);
+
+  await nftyLazyFactory.deployed();
+
+  console.log("Lazy Factory deployed to:", nftyLazyFactory.address);
+
+  
   const NFT = await ethers.getContractFactory("NFT");
   const nft = await NFT.deploy(nftMarket.address);
 

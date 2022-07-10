@@ -91,7 +91,7 @@ export const connectWallet = async() => {
   }
 };
 
-export const deployMyGallery = async(marketPlaceAddress, galleryName) => {
+export const deployMyGallery = async(marketPlaceAddress, galleryName, gallerySymbol) => {
       const web3Modal = new Web3Modal()
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
@@ -111,8 +111,16 @@ export const deployMyGallery = async(marketPlaceAddress, galleryName) => {
       await signerContract.deployTransaction.wait(); // loading before confirmed transaction
 
       const galleryAddress = await signerContract.address;
+
+      const Collections = Moralis.Object.extend("Collections")
+      const Collection = new Collections()
+
+      Collection.set("collectionAddress", galleryAddress)
+      Collection.set("collectionName", galleryName)
+      Collection.set("collectionSymbol", gallerySymbol)
+      Collection.set("signerAddress", artistWalletAddress)
+
       return galleryAddress;
-      // updateArtistGallery(galleryAddress, artistId, artistWalletAddress);
   
 };
 
@@ -127,7 +135,6 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     const provider = new ethers.providers.Web3Provider(connection)
     const signer = provider.getSigner()
     const signerAddress = await signer.getAddress()
-    console.log(signerAddress, 'hi')
     let voucher;
     // try {
         // connect wallet
@@ -143,7 +150,6 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
       signer
     );
     //     // apparently you can attach an address to a contract -- look into this
-    console.log(artistGalleryAddress);
     const signerContract = signerFactory.attach(artistGalleryAddress);
 
     //     // create the voucher using the Voucher class which is imported and in a separate file
@@ -158,7 +164,6 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
 
     //     // look into how an 'artwork' struct is structured, make modifications for a nftytunes piece
     //     // signTransaction comes from voucher
-    console.log(signerAddress)
     const ListedNFTs = Moralis.Object.extend("ListedNFTs");
     const listedNFT = new ListedNFTs();
     listedNFT.set("galleryAddress", artistGalleryAddress);

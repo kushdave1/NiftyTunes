@@ -42,7 +42,7 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
  
-function ProductCardsLayoutLazy({image, name, description, price, nft, artist, artistPhoto, artistName, lazy, pageFrom, handleShow, handleSellClick}) {
+function ProductCardsLayoutLazy({image, name, description, price, nft, artist, artistPhoto, artistName, owner, ownerPhoto, ownerName, lazy, pageFrom, handleShow, handleSellClick}) {
 
   const [offerPrice, setOfferPrice] = useState(1);
 
@@ -59,13 +59,15 @@ function ProductCardsLayoutLazy({image, name, description, price, nft, artist, a
                         <Card.Title className="text-dark" style={{fontSize: 16}}>{name}</Card.Title>
                     </Col>
                     <Col>
-                        <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="20" width="20"></img></Card.Title>
+                        <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>{price}
+                        <img src={img} height="20" width="20"></img></Card.Title>
                     </Col>
               </Row>
               <br></br>
               <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
                     <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}><img style={{display: "inline", borderRadius:'2.0rem'}} src={artistPhoto} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img> @{artistName}</Card.Text>
+                        <Card.Text className="text-dark" style={{fontSize: 12}}><img style={{display: "inline", borderRadius:'2.0rem'}} 
+                        src={artistPhoto} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img> @{artistName}</Card.Text>
                     </Col>
               </Row>
 

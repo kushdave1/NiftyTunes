@@ -17,6 +17,7 @@ import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Web3Modal from 'web3modal'
 //APIs
 import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
@@ -24,6 +25,7 @@ import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
 import Moralis from 'moralis'
 import { ethers } from 'ethers'
 import { TypedDataUtils } from 'ethers-eip712'
+import { changeBackgroundWhite, changeBackgroundBlack } from "../nftyFunctions/hover"
 
 import { useNFTBalance } from "../../hooks/useNFTBalance";
 import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
@@ -44,9 +46,17 @@ function NFTModalNftyLazy(props) {
      /* mint form states */
     const [name, setName] = useState('');
     const [galleryName, setGalleryName] = useState('');
+    const [gallerySymbol, setGallerySymbol] = useState('');
     const [description, setDescription] = useState('');
     const [royalties, setRoyalties] = useState('');
     const [supply, setSupply] = useState(1);
+    const [collectionSelectedYes, setCollectionSelectedYes] = useState(false);
+    const [collectionSelectedNo, setCollectionSelectedNo] = useState(false);
+
+    const [collectionSelectedNew, setCollectionSelectedNew] = useState(false);
+    const [collectionSelectedExisting, setCollectionSelectedExisting] = useState(false);
+
+    const [showCollectionOne, setShowCollectionOne] = useState(false)
 
 
     const [address, setAddress] = useState();
@@ -54,7 +64,7 @@ function NFTModalNftyLazy(props) {
     const [nfts, setNFTs] = useState([]);
     const [tokenURI, setTokenURI] = useState('');
     const { NFTBalance, fetchSuccess } = useNFTBalance();
-    const { chainId, marketAddress, marketContractABI } = useMoralisDapp();
+    const { chainId, marketAddress, marketContractABI, nftyLazyFactoryAddress, nftyLazyContractABI } = useMoralisDapp();
     const [visible, setVisibility] = useState(false);
     const contractABIJson = JSON.parse(marketContractABI);
     const [nftToSend, setNftToSend] = useState(null);
@@ -89,34 +99,33 @@ function NFTModalNftyLazy(props) {
 
     async function list(nft, listPrice) {
 
-    setLoading(true);
-    const p = listPrice * ("1e" + 18);
-    const ops = {
-      contractAddress: marketAddress,
-      functionName: listItemFunction,
-      abi: contractABIJson,
-      params: {
-        tokenId: nft.token_id,
-        price: String(p),
-      },
-    };
-    console.log(ops);
-    await contractProcessor.fetch({
-      params: ops,
-      onSuccess: () => {
-        console.log("success");
-        setLoading(false);
-        setVisibility(false);
-        addItemImage();
-        succList();
-      },
-      onError: (error) => {
-        console.log(error);
-        setLoading(false);
-        failList();
-      },
-    });
-  }
+      setLoading(true);
+      const p = listPrice * ("1e" + 18);
+      const ops = {
+        contractAddress: marketAddress,
+        functionName: listItemFunction,
+        abi: contractABIJson,
+        params: {
+          tokenId: nft.token_id,
+          price: String(p),
+        },
+      };
+      console.log(ops);
+      await contractProcessor.fetch({
+        params: ops,
+        onSuccess: () => {
+          console.log("success");
+          setLoading(false);
+          setVisibility(false);
+          succList();
+        },
+        onError: (error) => {
+          console.log(error);
+          setLoading(false);
+          failList();
+        },
+      }); 
+    }
 
 
     function succList() {
@@ -163,36 +172,36 @@ function NFTModalNftyLazy(props) {
     }, secondsToGo * 1000);
   }
 
-  function addItemImage() {
-    const itemImage = new ItemImage();
-
-    itemImage.set("image", nftToSend.image);
-    itemImage.set("nftContract", nftToSend.token_address);
-    itemImage.set("tokenId", nftToSend.token_id);
-    itemImage.set("name", nftToSend.name);
-
-    itemImage.save();
-  }
-
-
 
 
     // Listing and minting your NFT //
 
-    async function listNFTForLazy(url, listPrice, royalty, artName, desc, galleryName) {
+    async function listNFTForLazy(url) {
         const web3Modal = new Web3Modal()
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
         const signer = provider.getSigner()
 
         /* next, create the item */
-        const price = ethers.utils.parseUnits(listPrice, 'ether')
-        const royaltyFee = royalty
+        const price = ethers.utils.parseUnits(listingPrice, 'ether')
+        const royaltyFee = royalties
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
-        let contract = new ethers.Contract(marketAddress, contractABIJson, signer)
-        const galleryAddress = await deployMyGallery(marketAddress, galleryName)
-        console.log(galleryAddress);
-        await signMyItem(galleryAddress, artName, listPrice, url, royaltyFee)
+
+        const galleryAddress = await deployMyGallery(marketAddress, galleryName, gallerySymbol)
+        await signMyItem(galleryAddress, name, listingPrice, url, royaltyFee)
+    }
+
+    async function listNFTOnNfty(url) {
+        const web3Modal = new Web3Modal()
+        const connection = await web3Modal.connect()
+        const provider = new ethers.providers.Web3Provider(connection)
+        const signer = provider.getSigner()
+
+        /* next, create the item */
+        const price = ethers.utils.parseUnits(listingPrice, 'ether')
+        const royaltyFee = royalties
+        const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
+        await signMyItem(marketAddress, name, listingPrice, url, royaltyFee)
     }
 
 
@@ -243,7 +252,11 @@ function NFTModalNftyLazy(props) {
                     props.setMintProgressLabel('Awaiting Signature')
                     await Moralis.enableWeb3();
                     const tokenURI = ('ipfs://' + metadataFile._hash);
-                    const success = await listNFTForLazy(tokenURI, listingPrice, royalties, name, description, galleryName);
+                    if (collectionSelectedNo) {
+                      const success = await listNFTOnNfty(tokenURI);
+                    } else {
+                      const success = await listNFTForLazy(tokenURI);
+                    }
                     props.setMintProgress(100)
                     props.setMintProgressLabel('Done!')
                     setMintSuccessMsg(`Congrats, you have minted and listed your NFT for sale! `)
@@ -268,7 +281,7 @@ function NFTModalNftyLazy(props) {
     }
 
   return (
-        <Modal show={props.show} onHide={props.toggleShow} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" keyboard={false} >
+        <Modal show={props.show} onHide={props.toggleShow} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" style={{borderRadius: "2rem"}} keyboard={false} >
                         <Modal.Body>
 
                         <h2 className='text-start fw-bold py-3 mb-3'>Done, let's take a look!</h2>
@@ -313,7 +326,7 @@ function NFTModalNftyLazy(props) {
                         <Row className='mb-5'>
                             <Col>
                             <div className='d-flex justify-content-center mb-5 '>
-                                <Button variant="dark" className = 'w-75' onClick={props.toggleShow}>
+                                <Button variant="dark" className = 'w-75' onMouseEnter={changeBackgroundBlack} onMouseOut={changeBackgroundWhite} onClick={props.toggleShow}>
                                     Meh, let me try that again
                                 </Button>
                             </div>
@@ -323,21 +336,17 @@ function NFTModalNftyLazy(props) {
                             <h2 className='text-start fw-bold py-3 mb-3'>Ready to mint? Let's add some details. </h2>
                             <Col>
                              {/* NFT metadata */}
-                           <Form>
-                            <Form.Group className="mb-3" controlId="nft.Name">
-                                <FloatingLabel
-                                    controlId="floatingInput"
-                                    label="Gallery Name"
-                                    className="mb-3"
-                                >
-                                <Form.Control 
-                                    type="input"
-                                    placeholder= 'Gallery Name'
-                                    onChange={e => setGalleryName(e.target.value)}/>
-                                </FloatingLabel>
-                            </Form.Group>
-                               {/* Name */}
-                            <Form.Group className="mb-3" controlId="nft.Name">
+                            <center>
+                              <div>Is this NFT part of a collection?</div>
+                              <ButtonGroup style={{width: "75%", padding: "20px"}}>
+                                  <Button variant={(collectionSelectedYes) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedYes(true);setCollectionSelectedNo(false);}}>Yes</Button>
+                                  <Button variant={(collectionSelectedNo) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedYes(false);setCollectionSelectedNo(true);}}>No</Button>
+                              </ButtonGroup>
+                            </center>
+
+                            {collectionSelectedNo && 
+                            <Form>
+                              <Form.Group className="mb-3" controlId="nft.Name">
                                 <FloatingLabel
                                     controlId="floatingInput"
                                     label="Name your masterpiece"
@@ -348,41 +357,190 @@ function NFTModalNftyLazy(props) {
                                     placeholder= 'Name your masterpiece'
                                     onChange={e => setName(e.target.value)}/>
                                 </FloatingLabel>
-                            </Form.Group>
+                              </Form.Group>
 
-                             {/* Description */}
-                            <Form.Group className="mb-3" controlId="nft.Desc">
-                                 <FloatingLabel controlId="floatingInput" label="Give it a description">
+                              {/* Description */}
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Give it a description">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Give it a description'
+                                          rows={5}
+                                          onChange={e => setDescription(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Set your Listing Price'
+                                          rows={5}
+                                          onChange={e => setListingPrice(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <InputGroup className="mb-3 justify-content-center">
+                                  <FloatingLabel controlId="floatingInput" label="Set your royalty">
+                                      <Form.Control 
+                                          as="input" 
+                                          placeholder="Set your royalty percentage"
+                                          aria-label="Dollar amount (with dot and 1 decimal places)" 
+                                          onChange={e => setRoyalties(e.target.value)}/>
+                                  </FloatingLabel>
+                                  
+                                  <Button variant="outline-secondary" disabled><i className="bi bi-percent"></i>
+                                  </Button>
+                              </InputGroup>
+              
+                            </Form>
+                            }
+
+                            {collectionSelectedYes && 
+                            <center>
+                              <div>Are you adding to a new or existing collection?</div>
+                              <ButtonGroup style={{width: "75%", padding: "20px"}}>
+                                  <Button variant={(collectionSelectedNew) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedNew(true);setCollectionSelectedExisting(false);}}>New</Button>
+                                  <Button variant={(collectionSelectedExisting) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedNew(false);setCollectionSelectedExisting(true);}}>Existing</Button>
+                              </ButtonGroup>
+                            </center>
+                            }
+
+                            {collectionSelectedYes && collectionSelectedNew &&
+                            <Form>
+                              <Form.Group className="mb-3" controlId="nft.galleryName">
+                                  <FloatingLabel
+                                      controlId="floatingInput"
+                                      label="Collection Name"
+                                      className="mb-3"
+                                  >
+                                  <Form.Control 
+                                      type="input"
+                                      placeholder= 'Collection Name'
+                                      onChange={e => setGalleryName(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <Form.Group className="mb-3" controlId="nft.gallerySymbol">
+                                  <FloatingLabel
+                                      controlId="floatingInput"
+                                      label="Collection Symbol"
+                                      className="mb-3"
+                                  >
+                                  <Form.Control 
+                                      type="input"
+                                      placeholder= 'Collection Symbol'
+                                      onChange={e => setGallerySymbol(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                                {/* Name */}
+                              <Form.Group className="mb-3" controlId="nft.Name">
+                                  <FloatingLabel
+                                      controlId="floatingInput"
+                                      label="Name your masterpiece"
+                                      className="mb-3"
+                                  >
+                                  <Form.Control 
+                                      type="input"
+                                      placeholder= 'Name your masterpiece'
+                                      onChange={e => setName(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+
+                              {/* Description */}
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Give it a description">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Give it a description'
+                                          rows={5}
+                                          onChange={e => setDescription(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Set your Listing Price'
+                                          rows={5}
+                                          onChange={e => setListingPrice(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <InputGroup className="mb-3 justify-content-center">
+                                <FloatingLabel controlId="floatingInput" label="Set your royalty">
                                     <Form.Control 
-                                        as="textarea" 
-                                        placeholder='Give it a description'
-                                        rows={5}
-                                        onChange={e => setDescription(e.target.value)}/>
+                                          as="input" 
+                                          placeholder="Set your royalty percentage"
+                                          aria-label="Dollar amount (with dot and 1 decimal places)" 
+                                          onChange={e => setRoyalties(e.target.value)}/>
                                 </FloatingLabel>
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="nft.Desc">
-                                 <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
-                                    <Form.Control 
-                                        as="textarea" 
-                                        placeholder='Set your Listing Price'
-                                        rows={5}
-                                        onChange={e => setListingPrice(e.target.value)}/>
-                                </FloatingLabel>
-                            </Form.Group>
-                           <InputGroup className="mb-3 justify-content-center">
-                                    <FloatingLabel controlId="floatingInput" label="Set your royalty scheme">
-                                        <Form.Control 
-                                             as="input" 
-                                             placeholder="Set your royalty percentage"
-                                             aria-label="Dollar amount (with dot and 1 decimal places)" 
-                                             onChange={e => setRoyalties(e.target.value)}/>
-                                    </FloatingLabel>
-                                    
-                                    <Button variant="outline-secondary" disabled><i className="bi bi-percent"></i>
-                                        </Button>
-                                 </InputGroup>
+                                
+                                <Button variant="outline-secondary" disabled><i className="bi bi-percent"></i>
+                                </Button>
+                              </InputGroup>
             
                            </Form>
+
+                            }
+
+                            {collectionSelectedYes && collectionSelectedExisting &&
+                            <Form>
+                              <Form.Group className="mb-3" controlId="nft.galleryName">
+                                  <Form.Select>
+                                    <option>Select your Collection</option>
+                                    <option value="1">One</option>
+                                    <option value="2">Two</option>
+                                    <option value="3">Three</option>
+                                  </Form.Select>
+                              </Form.Group>
+                                {/* Name */}
+                              <Form.Group className="mb-3" controlId="nft.Name">
+                                  <FloatingLabel
+                                      controlId="floatingInput"
+                                      label="Name your masterpiece"
+                                      className="mb-3"
+                                  >
+                                  <Form.Control 
+                                      type="input"
+                                      placeholder= 'Name your masterpiece'
+                                      onChange={e => setName(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+
+                              {/* Description */}
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Give it a description">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Give it a description'
+                                          rows={5}
+                                          onChange={e => setDescription(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <Form.Group className="mb-3" controlId="nft.Desc">
+                                  <FloatingLabel controlId="floatingInput" label="Set your Listing Price">
+                                      <Form.Control 
+                                          as="textarea" 
+                                          placeholder='Set your Listing Price'
+                                          rows={5}
+                                          onChange={e => setListingPrice(e.target.value)}/>
+                                  </FloatingLabel>
+                              </Form.Group>
+                              <InputGroup className="mb-3 justify-content-center">
+                                <FloatingLabel controlId="floatingInput" label="Set your royalty">
+                                    <Form.Control 
+                                          as="input" 
+                                          placeholder="Set your royalty percentage"
+                                          aria-label="Dollar amount (with dot and 1 decimal places)" 
+                                          onChange={e => setRoyalties(e.target.value)}/>
+                                </FloatingLabel>
+                                
+                                <Button variant="outline-secondary" disabled><i className="bi bi-percent"></i>
+                                </Button>
+                              </InputGroup>
+            
+                            </Form>
+
+                            }
+
+                           
                            </Col>
                         </Row>
                         <Row>

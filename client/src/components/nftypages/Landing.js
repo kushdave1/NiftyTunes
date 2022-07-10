@@ -259,7 +259,7 @@ function Landing() {
                         
                     </Row>
                     <Row className = "justify-content-center align-items-center" id="livemint">
-                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Try our Free NftyLooper</h1>
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>NftyTunes: Putting your Experiences On-Chain</h1>
                         <Carousel variant="dark" fade="true">
                             <Carousel.Item>
                                 
@@ -288,7 +288,7 @@ function Landing() {
                     </Row>
                     
                     <Row className = "justify-content-center align-items-center" id="livemint">
-                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Putting your Experiences On-Chain</h1>
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Try our Free NftyLooper</h1>
                         <Carousel variant="dark" fade="true">
                             <Carousel.Item>
                                 
@@ -307,15 +307,7 @@ function Landing() {
                         </Carousel>
 
                     </Row>
-                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
-                        <center className="bounce">
-                            <a href="#nftylooper">
-                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
-                            </a>
-                        </center>
-                        
-                    </Row>
-                    
+                
                     
                     <Row xs={12} className = 'mt-auto justify-content-between animate__animated animate__fadeIn animate__delay-1s'>
                         <Col xs={12} lg={3}>

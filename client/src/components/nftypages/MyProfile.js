@@ -26,6 +26,8 @@ import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 import { Tooltip, Spin, Input } from "antd";
 
+import link from '../../assets/images/link.png'
+
 
 //components
 import MyNFTs from '../nftyprofiles/MyNFTs'
@@ -140,7 +142,7 @@ function MyProfile() {
                                 style={{padding: "10px",border: "2px solid black", marginTop: "-110px",borderRadius: "5.00rem"}}></img>)}
 
                                 <div style={{paddingTop: "20px", paddingBottom: "20px"}}> 
-                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white",  boxShadow: "2px 2px 2px 2px #888888"}}>{address.slice(0,5)}...{address.slice(38,43)}</Button></div>
+                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>{address.slice(0,5)}...{address.slice(38,43)}</Button></div>
                                     <div style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</div>
                                     <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
                                 </div>
