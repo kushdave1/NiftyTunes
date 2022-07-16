@@ -160,7 +160,7 @@ function MyListedNFTs() {
                     <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
                     artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
                     gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price}
-                    handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    handleShow={handleShow} handleSellClick={handleSellClick} coverPhotoURL={nft.coverPhotoURL}/>
                     </Col>
 
                   )}}

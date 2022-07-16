@@ -3,6 +3,8 @@ import { ethers, utils } from 'ethers';
 import Web3Modal from 'web3modal';
 import Moralis from 'moralis';
 import LazyFactory from '../../contracts/NFTMarketplace.sol/LazyFactory.json';
+import NftyLazyFactory from '../../contracts/NFTMarketplace.sol/NftyLazyFactory.json';
+import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
 
 const decimalPlaces = 2;
 
@@ -126,7 +128,7 @@ export const deployMyGallery = async(marketPlaceAddress, galleryName, gallerySym
 
 // Sign an item in voucher form that becomes an off-chain ticket for a buyer to purchase for an NFT
 
-export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, tokenURI, royalty) => {
+export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, tokenURI, royalty, coverFile, saveFile, isCollection) => {
     
 
 
@@ -136,6 +138,12 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     const signer = provider.getSigner()
     const signerAddress = await signer.getAddress()
     let voucher;
+
+
+    //const outputFile = URL.createObjectURL(coverFile, {type: 'image/png'});
+
+    //console.log(outputFile)
+
     // try {
         // connect wallet
 
@@ -144,17 +152,32 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
         // make sure the address is the artist's address who is uploading the work
       // await validateAddress(signerAddress, artwork.artist.wallet_address);
       //   // create a contract factory -- look up specs for ContractFactory
-    const signerFactory = new ethers.ContractFactory(
+
+    let signerFactory = ""
+
+    if (isCollection) {
+      signerFactory = new ethers.ContractFactory(
       LazyFactory.abi,
       LazyFactory.bytecode,
       signer
     );
-    //     // apparently you can attach an address to a contract -- look into this
-    const signerContract = signerFactory.attach(artistGalleryAddress);
+      //     // apparently you can attach an address to a contract -- look into this
+     
 
-    //     // create the voucher using the Voucher class which is imported and in a separate file
+    } else {
+      signerFactory = new ethers.ContractFactory(
+      NftyLazyFactory.abi,
+      NftyLazyFactory.bytecode,
+      signer
+    );
+     
+    }
+
+     const signerContract = signerFactory.attach(artistGalleryAddress);
+
+      //     // create the voucher using the Voucher class which is imported and in a separate file
     const theSignature = new Voucher({ contract: signerContract, signer });
-
+    
 
     const totalInWei = ethers.utils.parseUnits(
       (parseFloat(artworkPriceEth)).toString(),
@@ -176,6 +199,12 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
     listedNFT.set("ownerName", `${signerAddress}${artwork}`)
     listedNFT.set("buyerAddress", []);
     listedNFT.set("pricePurchased", []);
+
+    await saveFile("photo.jpg", coverFile, {
+            type: "image",
+            onSuccess: (result) => {listedNFT.set('coverPhoto', result); listedNFT.set('coverPhotoURL', result.url());console.log("success")},
+            onError: (error) => console.log(error),
+        });
 
     const query = new Moralis.Query('ListedNFTs');
     const results = await query.find();
@@ -199,7 +228,7 @@ export const signMyItem = async(artistGalleryAddress, artwork, artworkPriceEth, 
 
   
 
-export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
+export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth, nftyLazyFactoryAddress) => {
       const web3Modal = new Web3Modal()
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
@@ -226,10 +255,24 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
 
       const recoveredAddress = ethers.utils.verifyTypedData(domain, types, voucher, voucher.signature);
 
+      let abi = ""
+      let bytecode = ""
+
+      if (artistGalleryAddress == nftyLazyFactoryAddress) {
+
+        abi = NftyLazyFactory.abi
+        bytecode = NftyLazyFactory.bytecode
+
+      } else {
+        abi = LazyFactory.abi
+        bytecode = LazyFactory.bytecode
+
+     
+    }
       // Returns a new instance of the ContractFactory with the same interface and bytecode, but with a different signer.
       const redeemerFactory = new ethers.ContractFactory(
-        LazyFactory.abi,
-        LazyFactory.bytecode,
+        abi,
+        bytecode,
         redeemer
       );
 
@@ -252,13 +295,17 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth) => {
         parseFloat(feeEth).toFixed(5).toString(),
         'ether'
       );
+      console.log(redeemerAddress,
+        theVoucher,
+        recoveredAddress)
     // execute smart contract redeem function to buy nft and transfer fee to marketplace contract, can withdrawe using withdraw function on marketplace contract
+      console.log(redeemerContract)
       const redeemTx = await redeemerContract.redeem(
         redeemerAddress,
         theVoucher,
         recoveredAddress,
         {
-          value: voucher.priceWei,
+          value: voucher.priceWei
         }
       );
       const transactionData = await redeemTx.wait();

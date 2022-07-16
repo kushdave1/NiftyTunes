@@ -58,58 +58,58 @@ async function main() {
   console.log("marketplace deployed to:", nftMarket.address);
 
   const NftyLazyFactory = await ethers.getContractFactory("NftyLazyFactory");
-  const nftyLazyFactory = await NftyLazyFactory.deploy(marketplaceStorage.address);
+  const nftyLazyFactory = await NftyLazyFactory.deploy(nftMarket.address);
 
   await nftyLazyFactory.deployed();
 
   console.log("Lazy Factory deployed to:", nftyLazyFactory.address);
 
   
-  const NFT = await ethers.getContractFactory("NFT");
-  const nft = await NFT.deploy(nftMarket.address);
+  // const NFT = await ethers.getContractFactory("NFT");
+  // const nft = await NFT.deploy(nftMarket.address);
 
-  await nft.deployed();
-  console.log("nft deployed to: ", nft.address);
+  // await nft.deployed();
+  // console.log("nft deployed to: ", nft.address);
 
-  let whitelistAddresses = [
-    "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
-    "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" // The address in remix
-  ];
+  // let whitelistAddresses = [
+  //   "0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65",
+  //   "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC" // The address in remix
+  // ];
 
-  const leafNodes = whitelistAddresses.map(addr => keccak256(addr));
-  const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true});
-  const buf2hex = (x) => {
-    const hex = '0x' + x.toString('hex');
-    return hex;
-  }
-  const rootHash = merkleTree.getRoot();
+  // const leafNodes = whitelistAddresses.map(addr => keccak256(addr));
+  // const merkleTree = new MerkleTree(leafNodes, keccak256, { sortPairs: true});
+  // const buf2hex = (x) => {
+  //   const hex = '0x' + x.toString('hex');
+  //   return hex;
+  // }
+  // const rootHash = merkleTree.getRoot();
 
-  const Collection = await ethers.getContractFactory("Collection");
-  const collection = await Collection.deploy(rootHash);
+  // const Collection = await ethers.getContractFactory("Collection");
+  // const collection = await Collection.deploy(rootHash);
 
-  await collection.deployed();
+  // await collection.deployed();
 
-  console.log("collection deployed to:", collection.address);
+  // console.log("collection deployed to:", collection.address);
 
-  // const Tunes = await ethers.getContractFactory("TUNES");
-  // const tunes = await Collection.deploy();
+  // // const Tunes = await ethers.getContractFactory("TUNES");
+  // // const tunes = await Collection.deploy();
 
-  // await tunes.deployed();
+  // // await tunes.deployed();
 
-  // console.log("collection deployed to:", tunes.address);
+  // // console.log("collection deployed to:", tunes.address);
 
-  // const hexProof = merkleTree.getHexProof(leafNodes[1]);
-  // console.log(hexProof);
+  // // const hexProof = merkleTree.getHexProof(leafNodes[1]);
+  // // console.log(hexProof);
 
-  // // ✅ - ❌: Verify is claiming address is in the merkle tree or not.
-  // // This would be implemented in your Solidity Smart Contract
-  // console.log(merkleTree.verify(hexProof, leafNodes[1], rootHash));
-  const Staking = await ethers.getContractFactory("NFTStaking");
-  const staking = await Staking.deploy(collection.address, weth.address);
+  // // // ✅ - ❌: Verify is claiming address is in the merkle tree or not.
+  // // // This would be implemented in your Solidity Smart Contract
+  // // console.log(merkleTree.verify(hexProof, leafNodes[1], rootHash));
+  // const Staking = await ethers.getContractFactory("NFTStaking");
+  // const staking = await Staking.deploy(collection.address, weth.address);
 
-  await staking.deployed();
+  // await staking.deployed();
 
-  console.log("staking deployed to:", staking.address);
+  // console.log("staking deployed to:", staking.address);
 
   
 

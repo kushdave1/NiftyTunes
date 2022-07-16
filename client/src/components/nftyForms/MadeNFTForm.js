@@ -91,7 +91,16 @@ function MadeNFTForm(props) {
         }
         else if(await singleFile.type.includes('audio')){
             //if file is a video
-            setRenderMessage(`Audio files are unsupported (Rarible's fault)`);
+            setRenderMessage('');
+            setIsRender(true);
+            setFileType('audio')
+
+            await setResultFile(singleFile);
+
+            const url = URL.createObjectURL(singleFile, {type: 'audio/mp3'});
+            await setOutput(url);
+            setIsRender(false);
+            //setRenderMessage(`Audio files are unsupported (Rarible's fault)`);
         }
         else{
             setRenderMessage('File type unsupported.');
@@ -145,7 +154,7 @@ function MadeNFTForm(props) {
                                             <Col className="align-self-center">
                                                 <div>
                                                     <h4 className="text-start fw-bold mb-0">Mint it for the <span className='text-success'>children</span></h4>
-                                                    <small className='text-muted'>View and mint your new NFT on Rarible. No gas fees! Lucky You.</small>
+                                                    <small className='text-muted'>View and mint your new NFT on NftyTunes. No gas fees! Lucky You.</small>
                                                 </div>
                                             </Col>
                                             <Col xs={6}>

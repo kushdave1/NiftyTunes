@@ -46,6 +46,8 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 import styled from 'styled-components'
 
+import { APP_ID, SERVER_URL } from '../../index'
+
 const HeaderSection = styled.div `
     display:flex;
     flex:1;
@@ -75,8 +77,8 @@ function ProductPage() {
     lazy: true
   }]);
 
-  const appId = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
-  const serverUrl = 'https://5p6jpspfzahc.usemoralis.com:2053/server';   
+  const appId = APP_ID;
+  const serverUrl = SERVER_URL;   
   Moralis.start({ serverUrl, appId});
 
 
@@ -121,7 +123,7 @@ function ProductPage() {
       voucher: object.get("voucher"),
       createdAt: object.get("createdAt").toUTCString(),
       gallery: object.get("galleryAddress"),
-      image: fixImageURL(meta.data.image),
+      image: fixURL(meta.data.image),
       name: meta.data.name,
       description: meta.data.description,
       tokenURI: object.get("tokenURI"),
@@ -140,21 +142,16 @@ function ProductPage() {
       {!isLoading && (
         <HeaderSection>
             <Container fluid="sm">
-            <div style={{fontWeight: "Bold", fontSize: 20, display: "flex"}}>List Price: <img src={img} height="30" width="30"></img>{nft[0].price}</div>
+            
                 <center>
                     <NFTPlayerLarge output={nft[0].image}/>
                 </center>
                 <hr/>
                 <Row class="d-flex" style={{paddingBottom: "5px"}}>
-                  <Col style={{fontWeight: "Bold"}}>Artist: <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img> {nft[0].artistName}</Col>
-                  { (nft[0].ownerName ) ? (
-                    <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].ownerPhoto}></img> {nft[0].ownerName}</Col>
-                  ) : (nft[0].owner.length !== 0) ? (
-                    <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: ...{nft[0].owner.slice(35,43)}</Col>
-                  ) : (
-                    <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img> {nft[0].artistName}</Col>
-                  )
-                  }
+                  <Col style={{fontWeight: "Bold"}}>Artist: {nft[0].artistPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img>} {nft[0].artistName}</Col>
+                 
+                  <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: {nft[0].ownerPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].ownerPhoto}></img>} {nft[0].ownerName}</Col>
+               
                   
                 
                 </Row>
@@ -164,10 +161,11 @@ function ProductPage() {
                         
                         <div style={{fontWeight: "Bold", fontSize: 16}}>Minted on: {nft[0].createdAt}</div>
                         
-                        
-                        <div style={{fontWeight: "Bold", fontSize: 30, paddingTop: 100, paddingBottom: 20}}><hr/>Description</div>
+                        <div style={{fontWeight: "Bold", fontSize: 20, marginTop: 100, display: "flex"}}>List Price: <img src={img} height="30" width="30"></img>{nft[0].price}</div >
+                        <div style={{fontWeight: "Bold", fontSize: 30, paddingBottom: 20}}><hr/>Description</div>
                         
                         <ListGroup style={{paddingBottom: 50}}>
+                            
                             <ListGroup.Item style={{fontSize: 16, paddingTop: 20, paddingBottom: 20}}>{nft[0].description}</ListGroup.Item>
                             
                         </ListGroup>

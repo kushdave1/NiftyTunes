@@ -43,6 +43,7 @@ const Ellipse1 = styled.div `
     position: absolute;
     width: 250px;
     height: 250px;
+    overflow: hidden;
 
     /* Pink */
 
@@ -57,6 +58,7 @@ const Ellipse2 = styled.div `
     position: absolute;
     width: 450px;
     height: 450px;
+    overflow: hidden;
     /* Orange */
 
     // background: #FCA17D;
@@ -71,6 +73,7 @@ const Ellipse3 = styled.div `
     position: absolute;
     width: 250px;
     height: 250px;
+    overflow: hidden;
 
     /* Pink */
 
@@ -85,6 +88,7 @@ const nftyImage = styled.div `
     position: absolute;
     width: 250px;
     height: 250px;
+    overflow: hidden;
 
     /* Pink */
 
@@ -99,6 +103,7 @@ const Ellipse4 = styled.div `
     position: absolute;
     width: 450px;
     height: 450px;
+    overflow: hidden;
     /* Orange */
 
     // background: #FCA17D;
@@ -124,7 +129,6 @@ function Landing() {
     const saveUserInfo = () => {
         const UserInfo = Moralis.Object.extend("UserInfo");
         const userInfo = new UserInfo();
-        console.log('hi')
         userInfo.set("FullName", nameEntered);
         userInfo.set("email", emailEntered);
     }
@@ -132,8 +136,8 @@ function Landing() {
     return (
     <React.Fragment>
             <HeaderSection>
-                <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch'>
-                    <Row className='mt-auto' style={{paddingTop: "200px"}}>
+                <Container className='d-flex flex-column col-xl-12 py-3 align-items-stretch' style={{overflow: "hidden"}}>
+                    <Row className='mt-auto' style={{paddingTop: "180px"}}>
                         <Col lg={4} md={6} xs={{ order: 'last' }}> 
                             <Row className='mt-auto'>
                                     <Col> 
@@ -188,7 +192,7 @@ function Landing() {
                                 </Col>
                             </Row>
                             <Row className='mt-auto' >
-                            <Col> 
+                                    <Col> 
                                         <Ellipse3 />
                                     </Col>
                                     <Col>
@@ -259,7 +263,7 @@ function Landing() {
                         
                     </Row>
                     <Row className = "justify-content-center align-items-center" id="livemint">
-                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>NftyTunes: Putting your Experiences On-Chain</h1>
+                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Real-Life Experiences On-Chain</h1>
                         <Carousel variant="dark" fade="true">
                             <Carousel.Item>
                                 

@@ -18,7 +18,7 @@ function NFTTokenIds() {
   const { resolveLink } = useIPFS();
   const {isAuthenticated, user} = useMoralis();
   const [nfts, setNFTs] = useState([]);
-  const { chainId, marketAddress, marketContractABI, storageAddress, storageContractABI } = useMoralisDapp();
+  const { chainId, marketAddress, marketContractABI, storageAddress, storageContractABI, nftyLazyFactoryAddress } = useMoralisDapp();
   const [visible, setVisibility] = useState(false);
   const contractABIJson = JSON.parse(marketContractABI);
   const storageContractABIJson = JSON.parse(storageContractABI);
@@ -27,12 +27,19 @@ function NFTTokenIds() {
   const [loading, setLoading] = useState(true);
   
   useEffect(async() => {
+    try {
     const tokenIds = await fetchTokenIds( marketAddress, marketContractABI, storageAddress, storageContractABI);
     setNFTs(tokenIds)
     fetchArtistPhoto();
+    
+    } catch (error) {
+      setNFTs([])
+    }
+    
+    
     setTimeout(() => {
       setLoading(false)
-    }, 1000);
+    }, 500);
   }, []);
 
   return (
@@ -50,7 +57,11 @@ function NFTTokenIds() {
             (nfts &&
               nfts.map((nft, index) => {
                 return (
-                    <ProductCardsLayoutLazy key={index} pageFrom="Explore" owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price}/>
+                    <ProductCardsLayoutLazy key={index} pageFrom="Explore" owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
+                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
+                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} 
+                    price={nft.price} coverPhotoURL={nft.coverPhotoURL} nftyLazyFactoryAddress={nftyLazyFactoryAddress} 
+                    />
                 )}
               ))
           }

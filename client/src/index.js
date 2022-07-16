@@ -20,13 +20,13 @@ import {MoralisProvider} from 'react-moralis'
 
 // localHost
 
-const APP_ID = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
-const SERVER_URL = 'https://5p6jpspfzahc.usemoralis.com:2053/server';
+// export const APP_ID = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
+// export const SERVER_URL = 'https://5p6jpspfzahc.usemoralis.com:2053/server';
 
 // Testnet
 
-// const APP_ID = 'PmqJ61GHHBspngQTnorGwE6eDkfkyg5cgW5zl7nj';
-// const SERVER_URL = 'https://f9plp9sez0zx.usemoralis.com:2053/server';
+export const APP_ID = 'PmqJ61GHHBspngQTnorGwE6eDkfkyg5cgW5zl7nj';
+export const SERVER_URL = 'https://f9plp9sez0zx.usemoralis.com:2053/server';
 
 
 const Application = () => {

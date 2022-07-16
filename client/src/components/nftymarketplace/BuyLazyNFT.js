@@ -6,7 +6,7 @@ import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappP
 import { mintAndRedeem } from "../nftyFunctions/LazyFactoryAction"
 
 
-export const BuyLazyNFT = async(nft) => {
+export const BuyLazyNFT = async(nft, nftyLazyFactoryAddress) => {
     // const { chainId, marketAddress, marketContractABI } = useMoralisDapp();
     // const contractABIJson = JSON.parse(marketContractABI);
     const web3Modal = new Web3Modal({})
@@ -16,9 +16,9 @@ export const BuyLazyNFT = async(nft) => {
     const price = ethers.utils.parseUnits(nft.price, 'ether')
 
     // const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-    console.log(nft)
+    console.log(nftyLazyFactoryAddress)
     
-    let transaction = await mintAndRedeem(nft.gallery, nft.voucher, nft.price)
+    let transaction = await mintAndRedeem(nft.gallery, nft.voucher, nft.price, nftyLazyFactoryAddress)
     console.log('success')
 
   }

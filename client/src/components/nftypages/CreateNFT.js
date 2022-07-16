@@ -15,9 +15,11 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import Card from 'react-bootstrap/Card';
 import Board from '../nftyDraggable/board';
 import Cards from '../nftyDraggable/cards';
+import ButtonGroup from 'react-bootstrap/ButtonGroup'
 
 //Pages
 import ProductCardsLayoutMixer from '../nftylayouts/ProductCardsLayoutMixer'
+import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 
 //Moralis
 import Moralis from 'moralis'
@@ -75,23 +77,11 @@ function CreateNFT() {
     const Web3Api = useMoralisWeb3Api();
     const [visible, setVisibility] = useState(false);
     const marketContractABIJson = JSON.parse(marketContractABI);
-    const [audioNFTs, setAudioNFTs] = useState([{
-        name: "",
-        description: "",
-        image: "",
-        owner: "",
-        tokenId: "",
-        tokenAddress: ""
-    }]);
-    const [visualNFTs, setVisualNFTs] = useState([{
-        name: "",
-        description: "",
-        image: "",
-        owner: "",
-        tokenId: "",
-        tokenAddress: ""
-    }]);
+    const [audioNFTs, setAudioNFTs] = useState([]);
+    const [visualNFTs, setVisualNFTs] = useState([]);
     const [loading, setLoading] = useState(false);
+    const [visualSearch, setVisualSearch] = useState('')
+    const [audioSearch, setAudioSearch] = useState('')
 
     const load = async() => {
         await ffmpeg.load();
@@ -111,57 +101,8 @@ function CreateNFT() {
         }
     }, [user]);
 
-    const fixURL = (url) => {
-        if(url.startsWith("ipfs")){
-        return "https://ipfs.moralis.io:2053/ipfs/"+url.split("ipfs://").pop()
-        }
-        else {
-        return url+"?format=json"
-        }
-    };
-    const fixImageURL = (url) => {
-        if(url.startsWith("/ipfs")){
-        return "https://ipfs.moralis.io:2053"+url
-        }
-        else {
-        return url+"?format=json"
-        }
-    };
 
-    // const NFTBalances = async() => {
-    //     const web3Modal = new Web3Modal({})
-    //     const connection = await web3Modal.connect()
-    //     const provider = new ethers.providers.Web3Provider(connection)
-    //     const signer = provider.getSigner()
-
-    //     const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
-
-    //     const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
-
-    //     const data = await storageContract.fetchMyNFTs()
-
-    //     const items = await Promise.all(data.map(async i => {
-    //     const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
-
-    //     const meta = await axios.get(fixURL(tokenURI))
-    //     console.log(meta)
-    //     let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-    //     let item = {
-    //         price,
-    //         tokenId: i.tokenId.toNumber(),
-    //         seller: i.seller,
-    //         owner: i.owner,
-    //         image: fixImageURL(meta.data.image),
-    //         name: meta.data.name,
-    //         description: meta.data.description,
-    //         tokenURI
-    //     }
-    //     return item
-    //     }))
-    //     setNFTs(items)
-    //     console.log(items);
-    //     setLoading(true) 
-    // }
+    
     const getNFT = async() => {
         const web3Modal = new Web3Modal({})
         const connection = await web3Modal.connect()
@@ -171,6 +112,7 @@ function CreateNFT() {
         const signer = provider.getSigner()
         console.log(name)
         const signerAddress = await signer.getAddress();
+        
 
         const collectionContract = new ethers.Contract(collectionAddress, collectionContractABIJson, signer)
 
@@ -201,26 +143,47 @@ function CreateNFT() {
                 tokenAddress: object.token_address
             }
             if (audioNFTs.includes(item) === false && visualNFTs.includes(item) === false) {
-            if (item.image.includes('mp3')) {
-                console.log(item)
-                setAudioNFTs((previousNft) => [...previousNft, {
-                name: meta.data['name'],
-                description: meta.data['description'],
-                image: imageLink,
-                owner: object.owner_of,
-                tokenId: object.token_id,
-                tokenAddress: object.token_address
-            }])
-            } else {
-                setVisualNFTs((previousNft) => [...previousNft, {
-                name: meta.data['name'],
-                description: meta.data['description'],
-                image: imageLink,
-                owner: object.owner_of,
-                tokenId: object.token_id,
-                tokenAddress: object.token_address
-            }])
-            }
+
+                console.log(imageLink)
+                try {
+                    let file = resolveLink(imageLink);
+                    console.log(file, "filename")
+                    const req = await fetch(file, {method:'HEAD'});
+                    console.log(req.headers.get('content-type'));
+                } catch {try {
+                    let file = fixImageURL(imageLink)
+                    console.log(file, "fileNameTwo")
+                    const req = await fetch(file, {method:'HEAD'});
+                    console.log(req.headers.get('content-type'));
+                } catch {
+                    let file = fixURL(imageLink)
+                    console.log(file, "fileNameThree")
+                    const req = await fetch(file, {method:'HEAD'});
+                    console.log(req.headers.get('content-type'));
+                }
+                }
+                
+
+                if (item.image.includes('mp3') || item.image.includes('wav')) {
+                    console.log(item)
+                    setAudioNFTs((previousNft) => [...previousNft, {
+                    name: meta.data['name'],
+                    description: meta.data['description'],
+                    image: imageLink,
+                    owner: object.owner_of,
+                    tokenId: object.token_id,
+                    tokenAddress: object.token_address
+                }])
+                } else {
+                    setVisualNFTs((previousNft) => [...previousNft, {
+                    name: meta.data['name'],
+                    description: meta.data['description'],
+                    image: imageLink,
+                    owner: object.owner_of,
+                    tokenId: object.token_id,
+                    tokenAddress: object.token_address
+                }])
+                }
             }
         }
         console.log(itemsVisual)
@@ -247,29 +210,56 @@ function CreateNFT() {
                     
                         <Col style={{display: "flex", paddingTop: "105px", justifyContent: "center"}}>
                             <Board id="board-1" className="board">
-                                <Card style={{background: "#FAFDFF", padding: "10px"}}>
-                                    <Card.Title>Visual</Card.Title>
+                                <Card style={{background: "#FAFDFF", overflow: "auto", maxHeight: "800px", paddingLeft: "5px"}}>
+                                    <center>
+                                    <Card.Title style={{paddingTop: "5px"}}>Visuals 
+                                    <div style={{paddingTop: "5px"}} className="search-container">
+                                        <div className="search-inner">
+                                            <input
+                                            type="search"
+                                            placeholder="Search"
+                                            className="me-2"
+                                            aria-label="Search"
+                                            style={{width:"270px", height: "35px", padding: "5px", fontSize: 12}}
+                                            onChange={(e) => setVisualSearch(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    </Card.Title>
                                     <ListGroup> 
-                                    {visualNFTs && visualNFTs.map((nft, index) => (
-                                        <ListGroup.Item style={{background: "linear-gradient(#F0FFFF, #FFB6C1)"}}>
+                                    {visualNFTs.filter(nft => {
+                                        const searchTerm = visualSearch.toLowerCase()
+                                        const name = nft.name.toLowerCase()
+                                        if (searchTerm !== '') {
+                                            return searchTerm && name.startsWith(searchTerm)
+                                        } else {
+                                            return visualNFTs
+                                        }
+                                    })
+                                    .map((nft, index) => (
+                                        <ListGroup.Item style={{background: "linear-gradient(#F0FFFF, #FFB6C1)", height: "22rem", width: "17rem"}}>
                                             <Cards id={index} draggable="true">
                                                 { (nft.name !== "") ? (
-                                                <ProductCardsLayoutMixer id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price}/>
+                                                <ProductCardsLayoutMixer id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} 
+                                                voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} 
+                                                owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price}/>
                                                 ) : (null)}
                                             </Cards>
                                         </ListGroup.Item>
                                     ))}
                                     </ListGroup>
+                 
+                                    </center>
                                 </Card>
                             </Board>
                         </Col>
                     
                         <Col xs={5}>
                             <ChoiceSection className="d-flex mt-1 justify-content-center" style={{paddingTop: "50px"}}>
-                                <Stack direction="horizontal" gap={2}>
+                                {/* <Stack direction="horizontal" gap={3}>
                                     <Button 
                                         variant="primary"
-                                        onClick={handleNew}>
+                                        onClick={handleNew} href="#form">
                                         I want to make an NFT
                                     </Button>{' '}
 
@@ -278,10 +268,16 @@ function CreateNFT() {
                                     onClick={handleReadyMade}>
                                     I already have an NFT
                                 </Button>{' '}
-                            </Stack>
+                            </Stack> */}
+                            <center>
+                              <ButtonGroup>
+                                  <Button href="#form" variant={(isNew) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>handleNew()}>I want to make an NFT</Button>
+                                  <Button variant={(isReadyMade) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>handleReadyMade()}>I already have an NFT</Button>
+                              </ButtonGroup>
+                            </center>
                         </ChoiceSection>
 
-                        <FormSection className="d-flex mt-3 justify-content-center">
+                        <FormSection id="form" className="d-flex mt-3 justify-content-center">
                             {
                                 isNew?(
                                     <NFTForm 
@@ -297,21 +293,48 @@ function CreateNFT() {
                                 
                         </FormSection>
                         </Col>
-                        <Col style={{display: "flex", paddingTop: "105px", justifyContent: "center"}}>
+                        <Col style={{display: "flex", paddingTop: "105px", justifyContent: "center", overflow: "auto", maxHeight: "800px", paddingLeft: "5px"}}>
                             <Board id="board-1" className="board">
                                 <Card style={{background: "#FAFDFF", padding: "10px"}}>
-                                    <Card.Title>Audio</Card.Title>
+                                    <center>
+                                    <Card.Title >Chunes
+                                    <div style={{paddingTop: "5px"}} className="search-container">
+                                        <div className="search-inner">
+                                            <input
+                                            type="search"
+                                            placeholder="Search"
+                                            className="me-2"
+                                            aria-label="Search"
+                                            style={{width:"270px", height: "35px", padding: "5px", fontSize: 12}}
+                                            onChange={(e) => setVisualSearch(e.target.value)}
+                                            />
+                                        </div>
+                                    </div>
+                                    </Card.Title>
+                                    
                                     <ListGroup> 
-                                    {audioNFTs && audioNFTs.map((nft, index) => (
+                                    {audioNFTs.filter(nft => {
+                                        const searchTerm = audioSearch.toLowerCase()
+                                        const name = nft.name.toLowerCase()
+                                        if (searchTerm !== '') {
+                                            return searchTerm && name.startsWith(searchTerm)
+                                        } else {
+                                            return audioNFTs
+                                        }
+                                    })
+                                    .map((nft, index) => (
                                         <ListGroup.Item style={{background: "linear-gradient(#F0FFFF, #FFB6C1)"}}>
                                             <Cards id={index} className="card" draggable="true">
                                                 { (nft.name !== "") ? (
-                                                <ProductCardsLayoutMixer id={index} key={index} lazy={nft.lazy} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price}/>
+                                                <ProductCardsLayoutMixer id={index} key={index} lazy={nft.lazy} voucher={nft.voucher} 
+                                                gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} 
+                                                description={nft.description} tokenId={nft.tokenId} price={nft.price}/>
                                                 ) : (null)}
                                             </Cards>
                                         </ListGroup.Item>
                                     ))}
                                     </ListGroup>
+                                    </center>
                                 </Card>
                             </Board>
                         </Col>
@@ -324,7 +347,8 @@ function CreateNFT() {
                         <Container fluid>
                             <Row className = 'mt-5'>
                                 <div className='d-flex justify-content-center'>
-                                    <h1 className = 'text-primary animate__animated animate__bounce animate__infinite infinite' style={{ fontFamily:"Pixeboy"}}>NiftyTunes</h1>
+                                    <h1 className = 'text-primary animate__animated animate__bounce animate__infinite infinite' 
+                                    style={{ fontFamily:"Pixeboy"}}>NiftyTunes</h1>
                                 </div>
                             </Row>
                             <Row className = 'mt-5'>

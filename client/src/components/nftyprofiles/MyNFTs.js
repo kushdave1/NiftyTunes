@@ -25,6 +25,7 @@ import { getExplorer } from "../../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 import { useIPFS } from "hooks/useIPFS";
+import nftyimg from '../../assets/images/NT_White_Isotype.png'
 
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
@@ -98,14 +99,36 @@ function MyNFTs() {
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
-  useEffect(() => {
+  useEffect(async() => {
         if(!user) return null
         setAddress(user.get('ethAddress'));
-        
+
         getNFT();
+
+        // const items = await fetchOwnedIds(marketAddress, marketContractABI, storageAddress, storageContractABI);
+
+        // for (const i in items) {
+        //     let item = {
+        //         name: items[i].name,
+        //         description: items[i].description,
+        //         image: items[i].image,
+        //         owner: items[i].owner,
+        //         tokenId: items[i].tokenId,
+        //         tokenAddress: items[i].tokenAddress
+        //     }
+        //     console.log(item)
+        //     if (nfts.includes(item) === false) {
+        //       setNFTs((previousNft) => [...previousNft, {
+        //           name: items[i].name,
+        //           description: items[i].description,
+        //           image: items[i].image,
+        //           owner: items[i].owner,
+        //           tokenId: items[i].tokenId,
+        //           tokenAddress: items[i].tokenAddress
+        //       }])}
+        // }
+        
  
-        fetchOwnedIds(marketAddress, marketContractABI, storageAddress, storageContractABI);
-      
         setTimeout(() => {
           setLoading(false)
         }, 1000);
@@ -126,12 +149,12 @@ function MyNFTs() {
         const name = network.name;
         const signer = provider.getSigner()
         const signerAddress = await signer.getAddress();
-
-        try {
-          await getNFTBalances({ params: { chain: name } })
-        } catch {
-          return;
-        }
+        console.log(name, "type")
+        // try {
+        //   await getNFTBalances({ params: { chain: name } })
+        // } catch {
+        //   return;
+        // }
 
         const dataMarkets = await getNFTBalances({ params: { chain: name } })
         const results = dataMarkets.result
@@ -151,6 +174,7 @@ function MyNFTs() {
                   if ((meta.data[j]).toString().includes('ipfs')) {
                       imageLink = meta.data[j]
                       image = resolveLink(meta.data[j])
+                      console.log(imageLink)
                   }
               }
               let item = {
@@ -174,6 +198,18 @@ function MyNFTs() {
         }
       
     }
+  
+  const ApproveNFT = async(nft) => {
+    const web3Modal = new Web3Modal({})
+    const connection = await web3Modal.connect()
+    const provider = new ethers.providers.Web3Provider(connection)
+    const signer = provider.getSigner()
+    
+    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
+    let transactionApprove = await marketplaceContract.approve(marketAddress, nft.tokenId)
+    await transactionApprove.wait()
+    console.log('success for sure')
+  }
 
 
 
@@ -210,12 +246,12 @@ function MyNFTs() {
                 nfts && nfts.map((nft, index) => {
                   if (nft.name !== "") { 
                     return(
-                    <Col>
+     
                     <ProductCardsLayoutLazy pageFrom="MyNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
                     artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
                     gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price} 
                     handleShow={handleShow} handleSellClick={handleSellClick}/>
-                    </Col>
+   
 
                   )}}
               ))
@@ -223,14 +259,37 @@ function MyNFTs() {
       </React.Fragment>
     </ProductListLayout>
     <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-            <Input
-              autoFocus
-              placeholder="Listing Price in ETH"
-              onChange={(e) => setPrice(e.target.value)}
-            />
-            <Button variant = 'primary' onClick={() => ListNFT(nftToSend, price)}>List</Button>
+    
+        <Modal.Header style={{backgroundColor: "black"}} >
+            <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
+        </Modal.Header>
+        <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
+            List your NFT
+        </Modal.Title>
+        <Form style={{padding: "30px"}}>
+            <Form.Group className="mb-3" controlId="formTwitter">
+                <Form.Label>Approve your NFT to be Listed on our Marketplace</Form.Label>
+                <Button variant = 'dark' style={{borderRadius: "2rem", marginTop: "5px"}} onClick={() => ApproveNFT(nftToSend)}>Approve</Button>
+            </Form.Group>
             
-          </Modal>
+            <Form.Group className="my-3" controlId="listPrice">
+                <Form.Label>Enter your Listing Price</Form.Label>
+                <Row className="my-1">
+                  <Col xs={4}>
+                  <Form.Control 
+                  type="list" 
+                  placeholder="List Price" 
+                  onInput={e => setPrice(e.target.value)}/>
+                  <Form.Text className="text-muted">
+                  </Form.Text>
+                  </Col>
+                </Row>
+                <Button variant = 'dark' style={{borderRadius: "2rem", float: "right"}} onClick={() => ListNFT(nftToSend, price)}>List your NFT!</Button>
+               
+            </Form.Group>
+            
+        </Form>
+    </Modal>
   </MarketPlaceSection>
           
        

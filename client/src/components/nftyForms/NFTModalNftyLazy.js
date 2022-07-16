@@ -19,6 +19,7 @@ import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import Web3Modal from 'web3modal'
+import nftyimg from '../../assets/images/NT_White_Isotype.png'
 //APIs
 import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
 import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
@@ -66,11 +67,13 @@ function NFTModalNftyLazy(props) {
     const { NFTBalance, fetchSuccess } = useNFTBalance();
     const { chainId, marketAddress, marketContractABI, nftyLazyFactoryAddress, nftyLazyContractABI } = useMoralisDapp();
     const [visible, setVisibility] = useState(false);
+    const nftyLazyContractABIJson = JSON.parse(nftyLazyContractABI)
     const contractABIJson = JSON.parse(marketContractABI);
     const [nftToSend, setNftToSend] = useState(null);
     const [price, setPrice] = useState(1);
     const [listingPrice, setListingPrice] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [singleFile, setSingleFile] = useState()
     const contractProcessor = useWeb3ExecuteFunction();
     const listItemFunction = "createMarketItem";
     const ItemImage = Moralis.Object.extend("ListedNFTs");
@@ -95,37 +98,7 @@ function NFTModalNftyLazy(props) {
 
 
 
-    // Extraneous moralis functions -- ended up going with ethers for contract interaction //
-
-    async function list(nft, listPrice) {
-
-      setLoading(true);
-      const p = listPrice * ("1e" + 18);
-      const ops = {
-        contractAddress: marketAddress,
-        functionName: listItemFunction,
-        abi: contractABIJson,
-        params: {
-          tokenId: nft.token_id,
-          price: String(p),
-        },
-      };
-      console.log(ops);
-      await contractProcessor.fetch({
-        params: ops,
-        onSuccess: () => {
-          console.log("success");
-          setLoading(false);
-          setVisibility(false);
-          succList();
-        },
-        onError: (error) => {
-          console.log(error);
-          setLoading(false);
-          failList();
-        },
-      }); 
-    }
+    // Extraneous moralis functions -- ended up going with ethers for contract interaction /
 
 
     function succList() {
@@ -188,7 +161,7 @@ function NFTModalNftyLazy(props) {
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
 
         const galleryAddress = await deployMyGallery(marketAddress, galleryName, gallerySymbol)
-        await signMyItem(galleryAddress, name, listingPrice, url, royaltyFee)
+        await signMyItem(galleryAddress, name, listingPrice, url, royaltyFee, singleFile, saveFile, true)
     }
 
     async function listNFTOnNfty(url) {
@@ -201,7 +174,8 @@ function NFTModalNftyLazy(props) {
         const price = ethers.utils.parseUnits(listingPrice, 'ether')
         const royaltyFee = royalties
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
-        await signMyItem(marketAddress, name, listingPrice, url, royaltyFee)
+        console.log(singleFile)
+        await signMyItem(nftyLazyFactoryAddress, name, listingPrice, url, royaltyFee, singleFile, saveFile, false)
     }
 
 
@@ -222,7 +196,9 @@ function NFTModalNftyLazy(props) {
 
         props.setMintProgress(10)
         props.setMintProgressLabel('Saving Content to IPFS')
+        console.log(file.name, file)
         const arr = new Moralis.File(file.name, file)
+        console.log(arr)
         const fileIPFS = await arr.saveIPFS();
 
         if(fileIPFS){
@@ -282,6 +258,9 @@ function NFTModalNftyLazy(props) {
 
   return (
         <Modal show={props.show} onHide={props.toggleShow} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" style={{borderRadius: "2rem"}} keyboard={false} >
+                        <Modal.Header style={{backgroundColor: "black"}} >
+                            <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
+                        </Modal.Header>
                         <Modal.Body>
 
                         <h2 className='text-start fw-bold py-3 mb-3'>Done, let's take a look!</h2>
@@ -319,13 +298,31 @@ function NFTModalNftyLazy(props) {
                                     }
                                 </div>
                             </Col>
-                            <div className='d-flex justify-content-center mt-0'>
+                            {(props.fileType == 'audio') ? (
+                              <>
+                              <div className='d-flex justify-content-center mt-0'>
+                                <small className='text-muted'>Upload a cover for your mp3!</small>
+                              </div>
+                              <div className='d-flex justify-content-center m-2'>
+                                  <FormGroup controlId = "uploadVideoFile" style={{width: 275}}>
+                                    <Form.Control 
+                                          type="file" 
+                                          placeholder="Upload File" 
+                                          onChange={(e) => setSingleFile(e.target.files?.item(0))}
+                                      />
+                                  </FormGroup>
+       
+                              </div>
+
+                              </>
+                            ) : (console.log("hi"))}
+                            <div className='d-flex justify-content-center mt-4'>
                                 <small className='text-muted'>Make sure to turn the sound all the way up!</small>
                             </div>
                         </Row>
                         <Row className='mb-5'>
                             <Col>
-                            <div className='d-flex justify-content-center mb-5 '>
+                            <div className='d-flex justify-content-center mb-2 '>
                                 <Button variant="dark" className = 'w-75' onMouseEnter={changeBackgroundBlack} onMouseOut={changeBackgroundWhite} onClick={props.toggleShow}>
                                     Meh, let me try that again
                                 </Button>
@@ -339,7 +336,7 @@ function NFTModalNftyLazy(props) {
                             <center>
                               <div>Is this NFT part of a collection?</div>
                               <ButtonGroup style={{width: "75%", padding: "20px"}}>
-                                  <Button variant={(collectionSelectedYes) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedYes(true);setCollectionSelectedNo(false);}}>Yes</Button>
+                                  <Button variant={(collectionSelectedYes) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedYes(true);console.log(props);setCollectionSelectedNo(false);}}>Yes</Button>
                                   <Button variant={(collectionSelectedNo) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setCollectionSelectedYes(false);setCollectionSelectedNo(true);}}>No</Button>
                               </ButtonGroup>
                             </center>

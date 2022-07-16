@@ -40,12 +40,12 @@ function Explore() {
         </Container>
         <Container fluid className="p-0" style={{backgroundColor: "white"}}>
             <hr></hr>
-            <Row className="p-3">
-                <Col sm={3} style={{paddingRight: "30px"}}>
+            <Row className="p-2">
+                <Col sm={2} style={{paddingRight: "20px"}}>
                     <FilterLayout></FilterLayout>
                 </Col>
 
-                <Col sm={9} style={{ paddingLeft: "30px"}}>
+                <Col sm={10} style={{ paddingLeft: "20px"}}>
                     
                     <ProductListLayout>
                         <NFTTokenIds/>
