@@ -11,8 +11,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import FormGroup from 'react-bootstrap/FormGroup'
 
 //custom
-import NFTPlayer from '../nftymix/NFTPlayer'
-import NFTImage from '../nftymix/NFTImage'
+import NFTPlayerSmall from '../nftymix/NFTPlayerSmall'
+import NFTImageSmall from '../nftymix/NFTImageSmall'
 
 //loading skeleton
 import Skeleton from "react-loading-skeleton";
@@ -45,18 +45,18 @@ function ProductCardsLayoutMixer({image, tokenAddress, tokenId, name, descriptio
 
 
   return (
-      <Card className="bg-light shadow-md p-0" onClick={() => console.log('clicked')}
-            style={{ width: '22.5rem', height: '30rem', borderRadius:'2.00rem', cursor: "pointer", overflow: "hidden"}} tokenaddress={tokenAddress} tokenid={tokenId}>
-            { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImage output={image}/>) : (<NFTPlayer output={image}/>) }
+      <Card className="bg-light shadow-md p-0"
+            style={{ width: '15rem', height: '21rem', borderRadius:'2.00rem', cursor: "pointer", overflow: "hidden"}} tokenaddress={tokenAddress} tokenid={tokenId}>
+            { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImageSmall output={image}/>) : (<NFTPlayerSmall output={image}/>) }
           
           <Card.Body>
             <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
                   <Col>
-                      <Card.Title className="text-dark" style={{fontSize: 14}}>{name}</Card.Title>
+                      <Card.Title className="text-dark" style={{fontSize: 10}}>{name}</Card.Title>
                       {/* <Card.Text className="text-dark">{description}</Card.Text> */}
                   </Col>
                   <Col>
-                      <Card.Title className="text-dark" style={{fontSize: 14, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="25" width="25"></img></Card.Title>
+                      {/* <Card.Title className="text-dark" style={{fontSize: 10, justifyContent: 'right', display: "flex"}}>{price}<img src={img} height="15" width="15"></img></Card.Title> */}
                   </Col>
                 
               </Row>
@@ -67,7 +67,7 @@ function ProductCardsLayoutMixer({image, tokenAddress, tokenId, name, descriptio
               <Button className="button-hover" variant="secondary" style={{ color: "white", background: "black" }} onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} onClick={() => BuyNFT(nft)}>Buy</Button>
             </Col> */}
             <Col style={{justifyContent: 'right', display: "flex"}}>
-              <img src={nftyimg} height="35" width="40"></img>
+              <img src={nftyimg} height="25" width="30"></img>
             </Col>
           </Row>
           </Card.Footer>

@@ -52,14 +52,19 @@ $headings-font-weight: 400;
 
 a { color: black; text-decoration: none; text-align: "center"}
 
+.socials:hover {
+  box-shadow: 5px 5px 5px rgba(0,0,0,.12), 5px 5px 5px 5px rgba(0,0,0,.06);
+  border-radius: 2rem;
+}
+
 .arrow {
   text-align: center;
   margin: 8% 0;
 }
 .bounce {
-  -moz-animation: bounce 2s infinite;
-  -webkit-animation: bounce 2s infinite;
-  animation: bounce 2s infinite;
+  -moz-animation: bounce 3s infinite;
+  -webkit-animation: bounce 3s infinite;
+  animation: bounce 3s infinite;
 }
 
 @keyframes bounce {

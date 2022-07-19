@@ -81,6 +81,7 @@ function NFTForm (props) {
     
 
     const convertToGif = async() => {
+        console.log(videoTokenId, videoTokenAddress, audioTokenId, audioTokenAddress)
         setOutput(null);
         setMintProgress(null);
         setMintProgressLabel('');
@@ -105,6 +106,7 @@ function NFTForm (props) {
         });
 
         const url = new URL(videoFile);
+
         ffmpeg.FS('writeFile', 'video.mp4', await fetchFile(videoFile));
         const fileOne = ffmpeg.FS('readFile', 'video.mp4')
         const videoDurations = await loadVideo(fileOne);
@@ -133,7 +135,9 @@ function NFTForm (props) {
             await ffmpeg.run('-i', 'output.mp4', '-i', 'audio1.wav', '-c:v', 'copy', '-map', '0:v:0', '-map', '1:a:0', '-c:a', 'aac', '-b:a', '192k', 'out.mp4');
             const data = ffmpeg.FS('readFile', 'out.mp4');
 
-            await setResultFile(data);
+            const rf = new Blob([data.buffer], {type: 'video/mp4'});
+            
+            await setResultFile(rf)
 
             //create url
             const url = URL.createObjectURL(new Blob([data.buffer], {type: 'video/mp4'}));
@@ -182,9 +186,8 @@ function NFTForm (props) {
         
 
             const rf = new Blob([data.buffer], {type: 'video/mp4'});
-
         
-            await setResultFile(data)
+            await setResultFile(rf)
 
             //create a URL
             const url = URL.createObjectURL(rf);
@@ -207,13 +210,14 @@ function NFTForm (props) {
       <Container>
             <Row>
                     <div className='d-flex justify-content-center'>
-                    <Card className="shadow-lg animate__animated animate__fadeInUp rounded" style={{ width: '45rem', height: '80rem', borderRadius:'1rem' }}>
+                    <Card className="shadow-lg animate__animated animate__fadeInUp rounded" style={{ width: '50rem', height: '55rem', borderRadius:'2rem' }}>
                         <Card.Body className ="p-5">
                             <h2 className="fw-bold mb-0">Build a NFTYTUNE from scratch</h2>
                             <small className="mb-5 fw-bold text-primary">in 3 easy steps</small>
                                       <Form onSubmit={handleMix} className='my-5'>
                                       <Stack gap={4}>
                                         <Row>
+
                                             <Col xs={1} className="align-self-center">
                                                 <i className="bi bi-camera-video-fill" style={{fontSize: "2rem", color: '#FF3998'}}></i>
                                             </Col>
@@ -223,6 +227,21 @@ function NFTForm (props) {
                                                  <small className='text-muted'>Any video or image file works!</small>
                                                 </div>
                                             </Col>
+                                            <Col xs={1} className="align-self-center">
+                                                <i className="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
+                                            </Col>
+                                            <Col className="align-self-center">
+                                                <div>
+                                                    <h4 className="text-start fw-bold mb-0">Upload an absolute <span className="text-secondary">chune</span></h4>
+                                                    <small className='text-muted'>We'll merge and loop this over your file.</small>
+                                                </div>
+                                            </Col>
+                                            
+                                        </Row>
+                                        
+                                        
+
+                                        <Row>
                                             <Col xs={6}>
                                                  {/* <FormGroup controlId = "uploadVideoFile">
                                                     <Form.Control 
@@ -233,25 +252,12 @@ function NFTForm (props) {
                                                 </FormGroup> */}
                                                 <Board><div 
                                                 onDrop={(e) => {setVideoFile(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.firstChild.src);
-                                                                setVideoTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenId);
-                                                                setVideoTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenAddress);} }
-                                                style={{padding:"10px", height: 400, width: 280, border: "1px dotted black", overflow: "hidden"}}></div>
+                                                                setVideoTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.getAttribute("tokenid"));
+                                                                setVideoTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.getAttribute("tokenaddress"));} }
+                                                style={{padding:"10px", height: 360, width: 260, border: "1px dotted black", overflow: "hidden"}}></div>
                                                 </Board>
                                             </Col>
-                                            </Row>
-                                        
-                                        
-
-                                        <Row>
-                                            <Col xs={1} className="align-self-center">
-                                                <i className="bi bi-boombox" style={{fontSize: "2rem", color: "#8A97B3"}}></i>
-                                            </Col>
-                                            <Col className="align-self-center">
-                                                <div>
-                                                    <h4 className="text-start fw-bold mb-0">Upload an absolute <span className="text-secondary">chune</span></h4>
-                                                    <small className='text-muted'>We'll merge and loop this over your file.</small>
-                                                </div>
-                                            </Col>
+                                            
                                             <Col xs={6}>
                                                 {/* <FormGroup controlId = "uploadAudioFile">
                                                     <Form.Control 
@@ -262,9 +268,9 @@ function NFTForm (props) {
                                                 </FormGroup> */}
                                                 <Board><div 
                                                 onDrop={(e) => {setAudioFile(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.firstChild.src);
-                                                                setAudioTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenId);
-                                                                setAudioTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.tokenAddress);} }
-                                                style={{padding:"10px", height: 400, width: 280, border: "1px dotted black", overflow: "hidden"}}></div>
+                                                                setAudioTokenId(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.getAttribute("tokenid"));
+                                                                setAudioTokenAddress(document.getElementById(e.dataTransfer.getData('card_id')).firstChild.getAttribute("tokenaddress"));} }
+                                                style={{padding:"10px", height: 360, width: 260, border: "1px dotted black", overflow: "hidden"}}></div>
                                                 </Board>
                                             </Col>
                                         </Row>
@@ -276,7 +282,7 @@ function NFTForm (props) {
                                             <Col className="align-self-center">
                                                 <div>
                                                     <h4 className="text-start fw-bold mb-0">Create something <span className='text-success'>unique</span></h4>
-                                                    <small className='text-muted'>View and mint your new NFT on Rarible. No gas fees! Lucky You.</small>
+                                                    <small className='text-muted'>View and mint your new NFT on NftyTunes.</small>
                                                 </div>
                                             </Col>
                                             <Col xs={6}>

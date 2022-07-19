@@ -69,7 +69,9 @@ return (
 
 		</Row>
 	</Container>
-    <img style={{marginLeft: "790px"}} height="50" width="50" src={nftyimg}></img>
+	<center>
+    <img height="50" width="50" src={nftyimg}></img>
+	</center>
 	</Box>
 );
 };

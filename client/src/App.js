@@ -17,6 +17,8 @@ import MyCollections from './components/nftyprofiles/MyCollections'
 import MyWETHBalance from './components/nftyprofiles/MyWETHBalance'
 import Staking from './components/nftypages/Staking'
 import ProductPage from './components/nftypages/ProductPage'
+import LiveMint from './components/nftypages/LiveMint'
+import LiveCollectionPage from './components/nftypages/LiveCollectionPage'
 
 //Layout
 import PageLayout from './components/nftylayouts/PageLayout'
@@ -34,6 +36,7 @@ function App() {
           <Route path="/wethbalance" element={<MyWETHBalance />}/>
           <Route path="/createnft" element={<CreateNFT />}/>
           <Route path="/marketplace" element={<Explore />} />
+          <Route path="/live" element={<LiveMint />} />
           <Route path="/profile" element={<MyProfile />} >
               <Route path="onsale" element={<MyListedNFTs />} />
               <Route path="sold" element={console.log("sold")} />
@@ -43,6 +46,7 @@ function App() {
           </Route>
           <Route path="/multistep" element={<MultiStepForm />} />
           <Route path="/:owner/:name" element={<ProductPage />} />
+          <Route path="/live/:liveMintAddress/:collectionName" element={<LiveCollectionPage />} />
         </Routes>
         </PageLayout>
         <FooterPage />

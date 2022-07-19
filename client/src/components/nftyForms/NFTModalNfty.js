@@ -17,6 +17,7 @@ import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
 import Web3Modal from 'web3modal'
+import nftyimg from '../../assets/images/NT_White_Isotype.png'
 //APIs
 import {useRaribleLazyMint, useMoralis, useMoralisFile} from 'react-moralis'
 import { createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg'
@@ -154,8 +155,11 @@ function NFTModalNfty(props) {
         const royaltyFeeFinal = ethers.utils.parseUnits(royaltyFee, 'wei')
         console.log("Price" + price, "royalty" + royaltyFeeFinal);
         let contract = new ethers.Contract(marketAddress, contractABIJson, signer)
-        let listingPrice = await contract.getListingPrice()
-        listingPrice = listingPrice.toString()
+        console.log(props.videoTokenId, props.videoTokenAddress, props.audioTokenId, props.audioTokenAddress)
+
+        let approveTransaction = await contract.setApprovalForAll(marketAddress, true)
+        await approveTransaction.wait()
+
         let transaction = await contract.createBredToken(props.videoTokenId, props.videoTokenAddress, props.audioTokenId, props.audioTokenAddress, url)
         await transaction.wait()
         console.log('success for sure')
@@ -179,7 +183,8 @@ function NFTModalNfty(props) {
 
         props.setMintProgress(10)
         props.setMintProgressLabel('Saving Content to IPFS')
-        const arr = new Moralis.File(file.nam, file, {base64: 'video/mp4'})
+        console.log(file, name)
+        const arr = new Moralis.File("file.mp4", file, {base64: 'video/mp4'})
         const fileIPFS = await arr.saveIPFS();
 
         if(fileIPFS){
@@ -301,6 +306,10 @@ function NFTModalNfty(props) {
 
   return (
         <Modal show={props.show} onHide={props.toggleShow} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' backdrop="static" keyboard={false} >
+                        <Modal.Header style={{backgroundColor: "black"}} >
+                            <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
+                        </Modal.Header>
+                        
                         <Modal.Body>
 
                         <h2 className='text-start fw-bold py-3 mb-3'>Done, let's take a look!</h2>

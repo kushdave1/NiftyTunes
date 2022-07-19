@@ -35,11 +35,13 @@ import { useMoralisWeb3Api } from "react-moralis";
 import NFTPlayer from '../nftymix/NFTPlayer'
 import NFTImage from '../nftymix/NFTImage'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
+import { fetchListedIds } from '../nftyFunctions/FetchTokenIds'
 
 import ProductSkeleton from '../nftyloader/ProductSkeleton'
 import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
 import ProductListLayout from '../nftylayouts/ProductListLayout'
 import styled from 'styled-components'
+
 
 const { Meta } = Card;
 
@@ -98,100 +100,15 @@ function MyListedNFTs() {
 
   // const { fetchERC20Balances, data, error, isLoading, isFetching } = useERC20Balances();
 
-  useEffect(() => {
+  useEffect(async() => {
         if(!user) return null
         setAddress(user.get('ethAddress'));
-        NFTBalancesListed();
+        const tokenIds = await fetchListedIds(marketAddress, marketContractABI,storageAddress, storageContractABI);
+        setNFTs(tokenIds)
         setTimeout(() => {
           setLoading(false)
         }, 1000);
     }, [user]);
-  
-
-  const NFTBalancesListed = async() => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-
-    const signerAddress = await signer.getAddress();
-    console.log(signerAddress)
-    const ItemImage = await Moralis.Object.extend("ListedNFTs");
-
-    const query = new Moralis.Query(ItemImage);
-
-    let image = ''
-    let imageLink = ''
-
-    query.equalTo("signerAddress", signerAddress);
-    const data = await query.find();
-    console.log(data.length)
-    const items = []
-    for (let i = 0; i < data.length; i++) {
-      const object = data[i];
-      console.log(object)
-      const meta = await axios.get(fixURL(object.get("tokenURI")))
-      for (const j in meta.data) {
-        if ((meta.data[j]).toString().includes('ipfs')) {
-            imageLink = meta.data[j]
-            image = resolveLink(meta.data[j])
-        }
-      }
-      let item = {
-        price: object.get("price"), 
-        tokenId: object.get("tokenId"),
-        owner: object.get("signerAddress"),
-        image: imageLink,
-        name: meta.data.name,
-        description: meta.data.description,
-        tokenURI: object.get("tokenURI"),
-        isSold: object.get("isSold")
-      }
-      console.log(item.isSold)
-      if (item.isSold === false) {
-        console.log(item)
-        items.push(item);
-      }
-    }
-
-    const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
-
-    const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-
-    const dataFromContract = await storageContract.fetchItemsListed(signerAddress)
-    
-
-    const itemsContract = await Promise.all(dataFromContract.map(async i => {
-      console.log(i.tokenId.toNumber(), i.seller)
-      const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
-
-      const meta = await axios.get(fixURL(tokenURI))
-      for (const j in meta.data) {
-        if ((meta.data[j]).toString().includes('ipfs')) {
-            imageLink = meta.data[j]
-            image = resolveLink(meta.data[j])
-        }
-      }
-      
-      let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
-
-      let item = {
-        price,
-        tokenId: i.tokenId.toNumber(),
-        seller: i.seller,
-        owner: i.owner,
-        image: imageLink,
-        name: meta.data.name,
-        description: meta.data.description,
-        tokenURI
-      }
-      
-      items.push(item)
-      console.log(item)
-    }))
-    setNFTs(items);
-  
-  }
 
 
   const deListNFT = async(nft) => {
@@ -240,7 +157,10 @@ function MyListedNFTs() {
                   if (nft.name !== "") { 
                     return(
                     <Col>
-                    <ProductCardsLayoutLazy id={index} key={index} lazy={nft.lazy} tokenAddress={nft.tokenAddress} voucher={nft.voucher} gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} owner={nft.owner} description={nft.description} tokenId={nft.tokenId} price={nft.price} handleShow={handleShow} handleSellClick={handleSellClick}/>
+                    <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
+                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
+                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price}
+                    handleShow={handleShow} handleSellClick={handleSellClick} coverPhotoURL={nft.coverPhotoURL}/>
                     </Col>
 
                   )}}

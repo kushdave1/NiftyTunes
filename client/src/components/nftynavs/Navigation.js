@@ -18,6 +18,7 @@ import AccountButton from './AccountButton'
 import ConnectButton from './ConnectButton'
 import Search from '../nftymarketplace/Search'
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
+import live from "../../assets/images/liveTwo.png"
 
 const NavFormat = styled.div `
     font-weight : 200;
@@ -79,8 +80,8 @@ function Navigation() {
                                     <div className="dropdown">
                                         {data.filter(item => {
                                             console.log(search.toString())
-                                            const searchTerm = search;
-                                            const name = item.name;
+                                            const searchTerm = search.toLowerCase();
+                                            const name = item.name.toLowerCase();
                                             return searchTerm && name.startsWith(searchTerm);
                                         })
                                         .map((item) => (<div className="dropdown-row" style=
@@ -97,18 +98,22 @@ function Navigation() {
                             <Nav.Link className="text-dark-2" onClick={()=>navigate('/staking')} style={{fontWeight:"500"}}>NFT Staking</Nav.Link> */}
                             {/* <Nav.Link className="text-dark-2" onClick={()=>navigate('/wethbalance')} style={{fontWeight:"500"}}>WETH Balance</Nav.Link> */}
                             {/* <Nav.Link className="text-dark-2" href="#action3" style={{fontWeight:"500"}}>Creators</Nav.Link> */}
-                            <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
+                            
+                            
+                            
                             <ConnectButton />
                             {user?
                                 (
                                 <>
-                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT Looper</Nav.Link>
-                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/about')}>About</Nav.Link>
+                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/live')}><div style={{display: "inline-block"}}><img style={{display: "inline-block"}} src={live} height="15px" width="15px"></img> Live</div></Nav.Link>
+                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
+                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT Looper</Nav.Link>
                                 {/* <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/profile')}>My profile</Nav.Link> */}
                                 </>
                                 ):
                                 (<></>)
                             }
+
                             
                         </Navbar.Collapse>
                         </NavFormat>

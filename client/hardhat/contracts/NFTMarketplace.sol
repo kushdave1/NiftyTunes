@@ -44,6 +44,8 @@ contract NFTMarketplaceStorage is Ownable {
     Counters.Counter private _lazyItemsSold;
     address WETH;
 
+    
+
     event bidPlaced (
       uint256 indexed bid,
       address bidder
@@ -60,6 +62,14 @@ contract NFTMarketplaceStorage is Ownable {
       uint256 royalty;
       bool sold;
       bool bred;
+      bool locked;
+    }
+
+    struct BredItemTokens {
+      uint256 tokenIdBredOne;
+      uint256 tokenIdBredTwo;
+      address tokenIdBredOneAddress;
+      address tokenIdBredTwoAddress;
     }
 
     event MarketItemCreated (
@@ -72,10 +82,12 @@ contract NFTMarketplaceStorage is Ownable {
       uint256 price,
       uint256 royalty,
       bool sold,
-      bool bred
+      bool bred,
+      bool locked
     );
 
     mapping(uint256 => mapping(address => uint256)) private tokenIdToBidderToBid;
+    mapping(uint256 => BredItemTokens) private tokenIdToBredTokens;
     mapping(uint256 => MarketItem) private idToMarketItem;
 
     constructor(address _WETH) {
@@ -94,6 +106,20 @@ contract NFTMarketplaceStorage is Ownable {
         }  
       }
       return false;
+
+    }
+
+    function getItemId(address tokenAddress, uint256 tokenId) public view returns (uint) {
+
+      uint totalItemCount = _marketItemId.current();
+      uint itemCount = 0;
+      uint currentIndex = 0;
+
+      for (uint i = 0; i < totalItemCount; i++) {
+        if (idToMarketItem[i + 1].tokenId == tokenId && idToMarketItem[i + 1].tokenAddress == tokenAddress) {
+          return (i+1);
+        }  
+      }
 
     }
 
@@ -135,12 +161,32 @@ contract NFTMarketplaceStorage is Ownable {
       return tokenIdToBidderToBid[marketItemId][bidder];
     }
 
+    function getItemLocked(uint256 marketItemId) public view returns (bool) {
+      return idToMarketItem[marketItemId].locked;
+    }
+
+    function getTokenIdOne(uint256 marketItemId) public view returns (uint) {
+      return tokenIdToBredTokens[marketItemId].tokenIdBredOne;
+    }
+
+    function getTokenIdTwo(uint256 marketItemId) public view returns (uint) {
+      return tokenIdToBredTokens[marketItemId].tokenIdBredTwo;
+    }
+
+    function getTokenIdOneAddress(uint256 marketItemId) public view returns (address) {
+      return tokenIdToBredTokens[marketItemId].tokenIdBredOneAddress;
+    }
+
+    function getTokenIdTwoAddress(uint256 marketItemId) public view returns (address) {
+      return tokenIdToBredTokens[marketItemId].tokenIdBredTwoAddress;
+    }
+
     //////////////////////// SET BIDS ///////////////////////////////////////////
 
     function setItemBid(address bidder, uint256 bid, uint256 marketItemId) onlyOwner external {
       WETH10 wethContract = WETH10(WETH);
       require(IERC20(wethContract).balanceOf(msg.sender) > bid, "You don't have enough WETH");
-      
+
       tokenIdToBidderToBid[marketItemId][bidder] = bid;
     }
 
@@ -171,6 +217,7 @@ contract NFTMarketplaceStorage is Ownable {
         price,
         royaltyAmount,
         true,
+        false,
         false
       );
 
@@ -184,6 +231,7 @@ contract NFTMarketplaceStorage is Ownable {
         price,
         royaltyAmount,
         true,
+        false,
         false
       );
 
@@ -201,6 +249,15 @@ contract NFTMarketplaceStorage is Ownable {
         _itemsSold.decrement();
 
     }
+
+    function storeLockedData(uint256 marketItemId, address owner) onlyOwner external {
+
+        idToMarketItem[marketItemId].seller = payable(owner);
+        idToMarketItem[marketItemId].owner = payable(msg.sender);
+        idToMarketItem[marketItemId].locked = true;
+
+    }
+
 
     function storeDelistData(uint256 marketItemId, address owner) onlyOwner external {
 
@@ -221,6 +278,25 @@ contract NFTMarketplaceStorage is Ownable {
       idToMarketItem[tokenId].sold = true;
       idToMarketItem[tokenId].seller = payable(msg.sender);
       idToMarketItem[tokenId].price = price;
+
+      if (idToMarketItem[tokenId].bred) {
+        uint256 tokenIdOne = getTokenIdOne(tokenId);
+        uint256 tokenIdTwo = getTokenIdTwo(tokenId);
+        address tokenIdOneAddress = getTokenIdOneAddress(tokenId);
+        address tokenIdTwoAddress = getTokenIdTwoAddress(tokenId);
+
+        uint256 marketItemIdOne = getItemId(tokenIdOneAddress, tokenIdOne);
+        uint256 marketItemIdTwo = getItemId(tokenIdTwoAddress, tokenIdTwo);
+
+        idToMarketItem[marketItemIdOne].owner = payable(newOwner);
+        idToMarketItem[marketItemIdOne].sold = true;
+        idToMarketItem[marketItemIdOne].seller = payable(msg.sender);
+
+        idToMarketItem[marketItemIdTwo].owner = payable(newOwner);
+        idToMarketItem[marketItemIdTwo].sold = true;
+        idToMarketItem[marketItemIdTwo].seller = payable(msg.sender);
+
+      }
 
     }
 
@@ -246,6 +322,7 @@ contract NFTMarketplaceStorage is Ownable {
         price,
         royaltyAmount,
         false,
+        false,
         false
       );
 
@@ -259,8 +336,24 @@ contract NFTMarketplaceStorage is Ownable {
         price,
         royaltyAmount,
         false,
+        false,
         false
       );
+
+    }
+
+    function setBredContractInfo(
+      uint256 tokenIdOne,
+      uint256 tokenIdTwo,
+      address tokenIdOneContract,
+      address tokenIdTwoContract,
+      uint256 marketItemId
+    ) onlyOwner external {
+
+      tokenIdToBredTokens[marketItemId].tokenIdBredOne = tokenIdOne;
+      tokenIdToBredTokens[marketItemId].tokenIdBredTwo = tokenIdTwo;
+      tokenIdToBredTokens[marketItemId].tokenIdBredOneAddress = tokenIdOneContract;
+      tokenIdToBredTokens[marketItemId].tokenIdBredTwoAddress = tokenIdTwoContract;
 
     }
 
@@ -268,42 +361,84 @@ contract NFTMarketplaceStorage is Ownable {
       address creator,
       address publisherOne,
       address publisherTwo,
-      uint256 price,
       uint256 bredRoyaltyValue
       ) onlyOwner external returns (uint256) {
+
+      _marketItemId.increment();
+
+      idToMarketItem[_marketItemId.current()] =  MarketItem(
+        _marketItemId.current(),
+        payable(creator),
+        payable(creator),
+        payable(publisherOne),
+        payable(publisherTwo),
+        msg.sender,
+        0,
+        bredRoyaltyValue,
+        true,
+        true,
+        false
+      );
+
+      emit MarketItemCreated(
+        _marketItemId.current(),
+        address(creator),
+        address(creator),
+        address(publisherOne),
+        address(publisherTwo),
+        msg.sender,
+        0,
+        bredRoyaltyValue,
+        true,
+        true,
+        false
+      );
+
+      return _marketItemId.current();
+
+    }
+    
+    function storeLockedItem(
+      uint256 tokenId,
+      address seller,
+      address royaltyAddress,
+      uint256 royaltyAmount,
+      address tokenAddress
+    ) onlyOwner external {
 
       _marketItemId.increment();
       uint256 newMarketItemId = _marketItemId.current();
 
       idToMarketItem[newMarketItemId] =  MarketItem(
         newMarketItemId,
-        payable(creator),
-        payable(creator),
-        payable(publisherOne),
-        payable(publisherTwo),
-        msg.sender,
-        price,
-        bredRoyaltyValue,
-        true,
+        payable(seller),
+        payable(msg.sender),
+        payable(royaltyAddress),
+        payable(royaltyAddress),
+        tokenAddress,
+        0,
+        royaltyAmount,
+        false,
+        false,
         true
       );
 
       emit MarketItemCreated(
         newMarketItemId,
-        address(creator),
-        address(creator),
-        address(publisherOne),
-        address(publisherTwo),
+        seller,
         msg.sender,
-        price,
-        bredRoyaltyValue,
-        true,
+        address(royaltyAddress),
+        address(royaltyAddress),
+        address(tokenAddress),
+        0,
+        royaltyAmount,
+        false,
+        false,
         true
       );
 
-      return newMarketItemId;
-
     }
+    
 
     
     function fetchMarketItems() public view returns (MarketItem[] memory) {
@@ -317,7 +452,7 @@ contract NFTMarketplaceStorage is Ownable {
 
       MarketItem[] memory items = new MarketItem[](itemCount);
       for (uint i = 0; i < itemCount; i++) {
-        if (idToMarketItem[i + 1].owner == owner) {
+        if (idToMarketItem[i + 1].owner == owner && idToMarketItem[i+1].locked == false) {
           uint currentId = i + 1;
           console.log(currentId);
           console.log(unsoldItemCount);
@@ -336,14 +471,14 @@ contract NFTMarketplaceStorage is Ownable {
       address owner = owner();
 
       for (uint i = 0; i < totalItemCount; i++) {
-        if (idToMarketItem[i + 1].seller == msg.sender || idToMarketItem[i + 1].owner == owner) {
+        if (idToMarketItem[i + 1].seller == msg.sender && idToMarketItem[i + 1].owner == owner && idToMarketItem[i+1].locked == false) {
           itemCount += 1;
         }
       }
 
       MarketItem[] memory items = new MarketItem[](itemCount);
       for (uint i = 0; i < totalItemCount; i++) {
-        if (idToMarketItem[i + 1].seller == msg.sender || idToMarketItem[i + 1].owner == owner) {
+        if (idToMarketItem[i + 1].seller == msg.sender && idToMarketItem[i + 1].owner == owner && idToMarketItem[i+1].locked == false) {
           uint currentId = i + 1;
           MarketItem storage currentItem = idToMarketItem[currentId];
           items[currentIndex] = currentItem;
@@ -378,6 +513,148 @@ contract NFTMarketplaceStorage is Ownable {
 }
 
 
+// contract LiveMintFactory is ERC721URIStorage, Ownable, ERC2981, AccessControl, ReentrancyGuard {
+
+//     using Counters for Counters.Counter;
+//     Counters.Counter private _amountMinted;
+
+//     address payable owner; 
+//     uint256 mintAmount;
+//     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
+    
+//     constructor(
+//         address payable marketplaceAddress,
+//         string memory name,
+//         string memory symbol,
+//         address payable artist,
+//         uint256 _mintAmount
+//     ) ERC721(name, symbol) {
+//         owner = msg.sender
+//         theMarketPlace = marketplaceAddress;
+//         theArtist = artist;
+//         mintAmount = _mintAmount;
+//     })
+
+//     function supportsInterface(bytes4 interfaceId)
+//         public
+//         view
+//         override(ERC721, ERC2981)
+//         returns (bool)
+//     {
+//         return super.supportsInterface(interfaceId);
+//     }
+
+//     function mint() public nonReentrant {
+
+//       require(hasRole(SIGNER_ROLE, msg.sender), "Invalid Signature");
+//       _amountMinted.increment();
+//       require(_amountMinted < mintAmount, "Mint Amount Exceeded");
+      
+//       _mint(msg.sender, 1);
+
+//       return _amountMinted.current();
+
+//     }
+
+//     function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
+//       require(owner == msg.sender, "Only the owner can change metadata");
+//       _setTokenURI(tokenId, tokenURI);
+//     }
+    
+// }
+
+
+
+// contract LiveMintAuction {
+
+//   event Start();
+//   event End(address highestBidder, uint highestBid);
+//   event Bid(address indexed sender, uint amount);
+//   event Withdraw(address indexed bidder, uint amount);
+
+//   address payable public seller;
+
+//   bool public started;
+//   bool public ended;
+//   uint public endAt;
+//   address public highestBidder;
+//   uint public highestBid;
+//   uint timeOfAuction
+
+//   IERC721 public nft;
+//   IAccessControl public nftAccess;
+//   uint public nftId;
+
+//   mapping(address => uint) public bids;
+
+//   constructor(uint _timeOfAuction, IERC721 tokenContract, IAccessControl accessContract) {
+//     seller = payable(msg.sender);
+//     timeOfAuction = _timeOfAuction;
+//     nft = tokenContract;
+//     nftAccess = accessContract;
+//     nftAccess.grantRole(SIGNER_ROLE, address(this));
+
+//   }
+
+//   function start() external {
+//     require(!started, "Already Started!");
+//     require(msg.sender == seller, "You are not the contract owner");
+
+//     uint tokenId = nft.mint();
+
+//     nftId = tokenId;
+
+//     started = true;
+//     endAt = block.timestamp + timeOfAuction seconds;
+
+//     emit Start();
+
+//   }
+
+//   function bid() external payable {
+//         require(started, "Not started.");
+//         require(block.timestamp < endAt, "Ended!");
+//         require(msg.value > highestBid);
+
+//         if (highestBidder != address(0)) {
+//             bids[highestBidder] += highestBid;
+//         }
+
+//         highestBid = msg.value;
+//         highestBidder = msg.sender;
+
+//         emit Bid(highestBidder, highestBid);
+//   }
+
+//    function withdraw() external payable {
+//         uint bal = bids[msg.sender];
+//         bids[msg.sender] = 0;
+//         (bool sent, bytes memory data) = payable(msg.sender).call{value: bal}("");
+//         require(sent, "Could not withdraw");
+
+//         emit Withdraw(msg.sender, bal);
+//     }
+
+//   function end() external {
+//     require(started, "The Auction hasn't started yet.");
+//     require(block.timestamp >= endAt, "Auction is still ongoing!");
+//     require(!ended, "Auction already ended!");
+//     require(msg.sender == seller, "Only the seller can end the auction");
+
+//     if (highestBidder != address(0)) {
+//         nft.transfer(highestBidder, nftId);
+//         (bool sent, bytes memory data) = seller.call{value: highestBid}("");
+//         require(sent, "Could not pay seller!");
+//     } else {
+//         nft.transfer(seller, nftId);
+//     }
+
+//     ended = true;
+//     emit End(highestBidder, highestBid);
+//   }
+
+// }
+
 contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
   
     uint256 nftySecondaryFee = 5;
@@ -385,6 +662,8 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     address Storage;
     address WETH;
 
+    bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
+    
     event received(address, uint256);
 
     constructor(address NFTStorage, address _WETH) ERC721("NftyTunes Tokens", "NFTY") {
@@ -399,9 +678,14 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //                       //
     //                       // 
 
+    
+
     receive() external payable {
         emit received(msg.sender, msg.value);
     }
+
+
+    
 
     function supportsInterface(bytes4 interfaceId)
         public
@@ -412,11 +696,17 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
         return super.supportsInterface(interfaceId);
     }
 
+    function setSignerRole(address nftyLazyFactory) public {
+      
+      IAccessControl(nftyLazyFactory).grantRole(SIGNER_ROLE, msg.sender);
+    }
+
     //                                         //
     //                                         //
     //  Create an Item from a lazy Minted NFT  //
     //                                         //
     //                                         // 
+
 
     function createOwnedTokenFromLazy(
       address galleryAddress, 
@@ -451,16 +741,15 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
       if (storageContract.checkIfItemExists(nftContract, tokenId)) {
 
         storageContract.storeResellData(tokenId, msg.sender, price);
-        setApprovalForAll(address(this), true);
+        IERC721(nftContract).approve(address(this), tokenId);
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);    
 
       } else {
 
         (address royaltyAddress, uint256 royaltyAmount) = IERC2981(nftContract).royaltyInfo(tokenId, uint256(price));
-        setApprovalForAll(address(this), true);
+        IERC721(nftContract).approve(address(this), tokenId);
         storageContract.storeMarketItem(tokenId, msg.sender, royaltyAddress, royaltyAmount, price, nftContract);
-        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
-
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId); 
       }
     }
 
@@ -504,6 +793,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
 
       require(owner == address(this), "Only marketplace items can be bought");
       require(msg.value == price, "Please submit the asking price in order to complete the purchase");
+      require(storageContract.getItemLocked(marketItemId) == false, "This token is locked due to breeding");
       
       if (bredStatus == false) {
 
@@ -546,22 +836,77 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
       require(IERC721(tokenIdOneContract).ownerOf(tokenIdOne) == msg.sender, "Only item 1 owner can perform this operation");
       require(IERC721(tokenIdTwoContract).ownerOf(tokenIdTwo) == msg.sender, "Only item 2 owner can perform this operation");
 
-      uint256 price = 1 ether;
 
-      (address publisherOne, uint256 royaltyAmountOne) = IERC2981(tokenIdOneContract).royaltyInfo(tokenIdOne, uint256(price));
-      (address publisherTwo, uint256 royaltyAmountTwo) = IERC2981(tokenIdTwoContract).royaltyInfo(tokenIdTwo, uint256(price));
-
-      uint256 bredRoyaltyValue = (royaltyAmountOne*price + royaltyAmountTwo*price) / 2;
+      (address publisherOne, uint256 royaltyAmountOne) = IERC2981(tokenIdOneContract).royaltyInfo(tokenIdOne, 1 ether);
+      (address publisherTwo, uint256 royaltyAmountTwo) = IERC2981(tokenIdTwoContract).royaltyInfo(tokenIdTwo, 1 ether);
 
       NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
-      uint256 newMarketItemId = storageContract.storeBredItem(msg.sender, publisherOne, publisherTwo, price, bredRoyaltyValue);
-            
+
+      if (storageContract.checkIfItemExists(tokenIdOneContract, tokenIdOne)) {
+        uint marketItemId = storageContract.getItemId(tokenIdOneContract, tokenIdOne);
+        storageContract.storeLockedData(marketItemId, msg.sender);
+      } else {
+        storageContract.storeLockedItem(tokenIdOne, msg.sender, publisherOne, royaltyAmountOne, tokenIdOneContract);
+      }
+
+      if (storageContract.checkIfItemExists(tokenIdTwoContract, tokenIdTwo)) {
+        uint marketItemId = storageContract.getItemId(tokenIdTwoContract, tokenIdTwo);
+        storageContract.storeLockedData(marketItemId, msg.sender);
+      } else {
+        storageContract.storeLockedItem(tokenIdTwo, msg.sender, publisherTwo, royaltyAmountTwo, tokenIdTwoContract);
+      }
+
+      IERC721(tokenIdOneContract).approve(address(this), tokenIdOne);
+      IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdOne);
+      IERC721(tokenIdTwoContract).approve(address(this), tokenIdTwo);
+      IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdTwo);
+
+     
+      uint256 newMarketItemId = storageContract.storeBredItem(
+        msg.sender, 
+        publisherOne, 
+        publisherTwo, 
+        ((royaltyAmountOne*(1 ether) + royaltyAmountTwo*(1 ether)) / 2));
+      
+      storageContract.setBredContractInfo(
+        tokenIdOne,
+        tokenIdTwo,
+        tokenIdOneContract,
+        tokenIdTwoContract,
+        newMarketItemId
+      );
+
       _mint(msg.sender, newMarketItemId);
       _setTokenURI(newMarketItemId, bredTokenUri);
-      _transfer(address(this), msg.sender, newMarketItemId);
             
       return newMarketItemId;
 
+    }
+
+    function unBreedToken(
+      uint256 marketItemId
+    ) public payable returns (uint, uint) {
+
+      NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
+      address owner = storageContract.getItemOwner(marketItemId);
+      bool bred = storageContract.getItemBred(marketItemId);
+
+      require(owner == msg.sender, "You do not own this token");
+      require(bred, "This is not a NftyTunes bred token");
+
+      uint256 tokenIdOne = storageContract.getTokenIdOne(marketItemId);
+      uint256 tokenIdTwo = storageContract.getTokenIdTwo(marketItemId);
+      address tokenIdOneAddress = storageContract.getTokenIdOneAddress(marketItemId);
+      address tokenIdTwoAddress = storageContract.getTokenIdTwoAddress(marketItemId);
+
+      storageContract.getItemId(tokenIdOneAddress, tokenIdOne);
+
+      _transfer(address(this), msg.sender, tokenIdOne);
+      _transfer(address(this), msg.sender, tokenIdTwo);
+
+      _transfer(msg.sender, address(0), marketItemId);
+
+      return (tokenIdOne, tokenIdTwo);
     }
 
     //                                                                                  //
@@ -570,86 +915,49 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //                                                                                  //
     //                                                                                  // 
 
-    // function placeBid(
+    // function acceptBid(
     //   uint256 marketItemId,
-    //   uint256 price
-    // ) public payable {
+    //   address bidder
+    //   ) public payable {
 
     //   NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
     //   WETH10 wethContract = WETH10(WETH);
 
-    //   require(IERC20(wethContract).balanceOf(msg.sender) > price, "You don't have enough WETH");
+    //   uint256 tokenId = storageContract.getItemTokenId(marketItemId);
+    //   address owner = storageContract.getItemOwner(marketItemId);
+    //   address seller = storageContract.getItemSeller(marketItemId);
+    //   uint256 price = storageContract.getItemPrice(marketItemId);
+    //   bool bredStatus = storageContract.getItemBred(marketItemId);
+    //   uint256 royaltyAmount = storageContract.getItemRoyalty(marketItemId);
+    //   address publisherOne = storageContract.getItemPublisherOne(marketItemId);
+    //   address publisherTwo = storageContract.getItemPublisherTwo(marketItemId);
 
-    //   storageContract.setItemBid(msg.sender, price, marketItemId);
+    //   uint256 bid = storageContract.getItemBid(marketItemId, bidder);
 
+    //   require(seller == msg.sender, "You don't own this token");
+    //   require(IERC20(wethContract).balanceOf(bidder) > bid, "Bidder doesn't have enough money");
+
+    //   storageContract.withdrawItemBid(msg.sender, marketItemId);
+    //   storageContract.setMarketSale(tokenId, bidder, bid);
+
+    //   if (bredStatus == false) {
+
+    //     IERC20(wethContract).transferFrom(bidder, publisherOne, ((bid * royaltyAmount) / 10000));
+    //     IERC20(wethContract).transferFrom(bidder, address(this), ((bid * nftySecondaryFee) / 100));
+    //     IERC20(wethContract).transferFrom(bidder, seller, bid-((bid * royaltyAmount) / 10000)-((bid * nftySecondaryFee) / 100));
+    //     _transfer(address(this), bidder, tokenId);
+
+    //   } else {
+
+    //     IERC20(wethContract).transferFrom(bidder, publisherOne, (((bid * royaltyAmount) / 10000) / 2));
+    //     IERC20(wethContract).transferFrom(bidder, publisherOne, (((bid * royaltyAmount) / 10000) / 2));
+    //     IERC20(wethContract).transferFrom(bidder, address(this), ((bid * nftySecondaryFee) / 100));
+    //     IERC20(wethContract).transferFrom(bidder, seller, bid-((bid * royaltyAmount) / 10000)-((bid * nftySecondaryFee) / 100));
+    //      _transfer(address(this), bidder, tokenId);
+
+    //   }
     // }
 
-    // function getAllowance() external view returns (uint256) {
-    //   WETH10 wethContract = WETH10(WETH);
-    //   return IERC20(wethContract).allowance(msg.sender, address(this)) / 10**18;
-    // }
-
-    function acceptBid(
-      uint256 marketItemId,
-      address bidder
-      ) public payable {
-
-      NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
-      WETH10 wethContract = WETH10(WETH);
-
-      uint256 tokenId = storageContract.getItemTokenId(marketItemId);
-      address owner = storageContract.getItemOwner(marketItemId);
-      address seller = storageContract.getItemSeller(marketItemId);
-      uint256 price = storageContract.getItemPrice(marketItemId);
-      bool bredStatus = storageContract.getItemBred(marketItemId);
-      uint256 royaltyAmount = storageContract.getItemRoyalty(marketItemId);
-      address publisherOne = storageContract.getItemPublisherOne(marketItemId);
-      address publisherTwo = storageContract.getItemPublisherTwo(marketItemId);
-
-      uint256 bid = storageContract.getItemBid(marketItemId, bidder);
-
-      require(seller == msg.sender, "You don't own this token");
-      require(IERC20(wethContract).balanceOf(bidder) > bid, "Bidder doesn't have enough money");
-
-      storageContract.withdrawItemBid(msg.sender, marketItemId);
-      storageContract.setMarketSale(tokenId, bidder, bid);
-
-      if (bredStatus == false) {
-
-        IERC20(wethContract).transferFrom(bidder, publisherOne, ((bid * royaltyAmount) / 10000));
-        IERC20(wethContract).transferFrom(bidder, address(this), ((bid * nftySecondaryFee) / 100));
-        IERC20(wethContract).transferFrom(bidder, seller, bid-((bid * royaltyAmount) / 10000)-((bid * nftySecondaryFee) / 100));
-        _transfer(address(this), bidder, tokenId);
-
-      } else {
-
-        IERC20(wethContract).transferFrom(bidder, publisherOne, (((bid * royaltyAmount) / 10000) / 2));
-        IERC20(wethContract).transferFrom(bidder, publisherOne, (((bid * royaltyAmount) / 10000) / 2));
-        IERC20(wethContract).transferFrom(bidder, address(this), ((bid * nftySecondaryFee) / 100));
-        IERC20(wethContract).transferFrom(bidder, seller, bid-((bid * royaltyAmount) / 10000)-((bid * nftySecondaryFee) / 100));
-         _transfer(address(this), bidder, tokenId);
-
-      }
-    }
-
-
-
-    //                                                          //
-    //                                                          //
-    //             Fetch Items from the marketplace             //
-    //                                                          //
-    //                                                          // 
-
-    /* Returns all unsold market items */
-    
-
-    // /* Returns only items that a user has purchased */
-
-
-    
-
-    /* Returns only items a user has listed */
-    
 }
 
 
@@ -696,14 +1004,11 @@ contract NftyLazyFactory is
     event RedeemedAndMinted(uint256 indexed tokenId);
 
     constructor(
-        address payable marketplaceAddress,
-        string memory name,
-        string memory symbol,
-        address payable artist
+        address payable marketplaceAddress
     ) ERC721("NftyTunes Tokens", "NFTY") EIP712(SIGNING_DOMAIN_NAME, SIGNING_DOMAIN_VERSION) {
-        _setupRole(SIGNER_ROLE, artist);
+        
         theMarketPlace = marketplaceAddress;
-        theArtist = artist;
+        _setupRole(DEFAULT_ADMIN_ROLE, theMarketPlace);
     }
 
     function redeem(
@@ -715,6 +1020,7 @@ contract NftyLazyFactory is
         require(msg.value == voucher.priceWei, "Enter the correct price");
         require(signer != buyer, "You can not purchase your own token");
         require(hasRole(SIGNER_ROLE, signer), "Invalid Signature");
+        
 
         setApprovalForAll(theMarketPlace, true); // sender approves Market Place to transfer tokens
         NFTMarketplace nftMarketplace = NFTMarketplace(theMarketPlace);
@@ -723,6 +1029,8 @@ contract NftyLazyFactory is
         uint256 amount = msg.value;
 
         nftMarketplace.createOwnedTokenFromLazy(address(this), voucher.tokenUri, amount, royaltyAmount, signer, buyer);
+
+
 
         payable(signer).transfer(amount - (amount * nftyFee / 100));
         payable(theMarketPlace).transfer(amount * nftyFee / 100);
