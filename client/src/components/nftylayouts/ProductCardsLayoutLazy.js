@@ -47,7 +47,9 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 function ProductCardsLayoutLazy({
   image, name, description, price, nft, artist, artistPhoto, 
   artistName, owner, ownerPhoto, ownerName, lazy, pageFrom, 
-  handleShow, handleSellClick, coverPhotoURL, nftyLazyFactoryAddress}) {
+  handleShow, handleSellClick, coverPhotoURL, nftyLazyFactoryAddress,
+  marketAddress, marketContractABIJson
+  }) {
 
   const [offerPrice, setOfferPrice] = useState(1);
 
@@ -61,10 +63,10 @@ function ProductCardsLayoutLazy({
             
             <Card.Body>
               <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                    <Col>
-                        <Card.Title className="text-dark" style={{fontSize: 16}}>{name}</Card.Title>
+                    <Col sm={8}>
+                        <Card.Title className="text-dark truncate" style={{fontSize: 16}}>{name}</Card.Title>
                     </Col>
-                    <Col>
+                    <Col sm={4}>
                         <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>{price}
                         <img src={img} height="20" width="20"></img></Card.Title>
                     </Col>
@@ -86,7 +88,7 @@ function ProductCardsLayoutLazy({
               <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
                 <Col>
                   {(pageFrom==="Explore") ? ((lazy) ? (<BuyLazyNFTButton nft={nft} nftyLazyFactoryAddress={nftyLazyFactoryAddress}></BuyLazyNFTButton>) 
-                  : (<BuyNFTButton></BuyNFTButton>)) 
+                  : (<BuyNFTButton nft={nft} marketAddress={marketAddress} marketContractABIJson={marketContractABIJson}></BuyNFTButton>)) 
                   : ((pageFrom==="MyNFTs") ? (<ListNFTButton nft={nft} handleShow={handleShow} handleSellClick={handleSellClick}></ListNFTButton>) 
                   : (<DeListNFTButton nft={nft} handleShow={handleShow} handleSellClick={handleSellClick}></DeListNFTButton>))}
                 </Col>

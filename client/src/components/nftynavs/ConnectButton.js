@@ -78,9 +78,6 @@ function ConnectButton() {
         const signerAddress = signer.getAddress()
         const marketContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
         const nftyLazyContract = new ethers.Contract(nftyLazyFactoryAddress, nftyLazyContractABIJson, signer)
-
-
-
         
         const signerRole = utils.keccak256(utils.toUtf8Bytes("SIGNER_ROLE"))
 
@@ -126,7 +123,7 @@ function ConnectButton() {
                 
     ) : (
         <>
-        <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={() => handleShow()}>Connect Wallet</Nav.Link> 
+        <Nav.Link className="text-primary" style={{fontWeight:"500", paddingLeft: "250px"}} onClick={() => handleShow()}>Connect Wallet</Nav.Link> 
         <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >  
             <center>
                 <div style={{paddingTop: "20px"}}>How would you like to pay for your NFTs?</div>

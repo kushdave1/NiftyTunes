@@ -6,13 +6,16 @@ export const fixURL = (url) => {
     else if(url.startsWith("https://ipfs.moralis.io:2053/")) {
       console.log(url, "searchedMiddle")
       return url
-      } else {
+      } else if(url.startsWith("/ipfs")) {
+        console.log("https://ipfs.moralis.io:2053"+url, "searchedBottomTwo")
+        return "https://ipfs.moralis.io:2053"+url
+      }
 
-      console.log(url.split("ipfs://").pop(), "searchedBottom")
+      console.log(url.split("ipfs://"), "searchedBottom")
       //console.log("https://ipfs.moralis.io:2053/ipfs/".concat(url.split("ipfs://").pop()))
       return "https://ipfs.moralis.io:2053/ipfs/".concat(url.split("ipfs://").pop())
-    }
-  };
+    };
+
 export const fixImageURL = (url) => {
     if(url.startsWith("/ipfs")){
       return "https://ipfs.moralis.io:2053"+url

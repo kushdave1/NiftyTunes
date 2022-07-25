@@ -40,32 +40,38 @@ contract LiveMintFactory is ERC721URIStorage, Ownable, ERC2981, ReentrancyGuard 
         return super.supportsInterface(interfaceId);
     }
 
-    function mint() public nonReentrant onlyOwner returns (uint256) {
+    function getCurrentId() external view returns (uint256) {
+        return _amountMinted.current();
+    }
 
-      _amountMinted.increment();
+    function mint(string memory tokenURI) public nonReentrant onlyOwner returns (uint256) {
+
       uint256 auctionItemId = _amountMinted.current();
       require(mintAmount > auctionItemId, "Mint Amount Exceeded");
       
       _mint(msg.sender, auctionItemId);
       _setTokenRoyalty(auctionItemId, theArtist, royaltyValue);
+      _setTokenURI(auctionItemId, tokenURI);
+      _amountMinted.increment();
 
       return auctionItemId;
 
     }
 
-    function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
-      _setTokenURI(tokenId, tokenURI);
-    }
+    // function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
+    //   _setTokenURI(tokenId, tokenURI);
+    // }
+
     
 }
 
 
 
-contract LiveMintAuction {
+contract LiveMintAuction is ReentrancyGuard {
 
-  event Start();
-  event End(address highestBidder, uint highestBid);
-  event Bid(address indexed sender, uint amount);
+  event Start(uint tokenId, uint highestBid);
+  event End(address highestBidder, uint highestBid, uint tokenId);
+  event Bid(address indexed sender, uint amount, uint tokenId);
   event Withdraw(address indexed bidder, uint amount);
 
   address payable public seller;
@@ -80,7 +86,9 @@ contract LiveMintAuction {
 
   uint public nftId;
 
-  mapping(address => uint) public bids;
+  mapping(uint => mapping(address => uint)) public bids;
+
+  mapping(uint => mapping(address => uint)) public fundsByBidder;
 
   constructor(address _nftContract) {
     seller = payable(msg.sender);
@@ -89,20 +97,49 @@ contract LiveMintAuction {
 
   }
 
-  function start() external {
+  function isStarted() external view returns (bool) {
+      if (started) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+
+  function getCurrentItem() external view returns (uint256) {
+      LiveMintFactory mintContract = LiveMintFactory(nftContract); 
+      uint256 tokenId = mintContract.getCurrentId();
+      return tokenId;
+  }
+
+  function getEndAt() external view returns (uint) {
+      return endAt;
+  }
+
+  function getBid(uint tokenId) external view returns (uint256) {
+      return bids[tokenId][msg.sender];
+  }
+
+  function getHighestBidBidder(uint tokenId) external view returns (uint, address) {
+      return (highestBid, highestBidder);
+  }
+
+
+  function start(uint timeOfAuction, uint startingBid) external {
     require(!started, "Already Started!");
     require(msg.sender == seller, "You are not the contract owner");
 
     LiveMintFactory mintContract = LiveMintFactory(nftContract); 
 
-    uint256 tokenId = mintContract.mint();
+    uint256 tokenId = mintContract.getCurrentId();
 
     nftId = tokenId;
 
     started = true;
-    endAt = block.timestamp + 5 minutes;
+    ended = false;
+    endAt = block.timestamp + (timeOfAuction * 1 minutes);
+    highestBid = startingBid;
 
-    emit Start();
+    emit Start(nftId, highestBid);
 
   }
 
@@ -112,47 +149,58 @@ contract LiveMintAuction {
         require(msg.value > highestBid);
 
         if (highestBidder != address(0)) {
-            bids[highestBidder] += highestBid;
+            bids[nftId][highestBidder] += highestBid;
         }
+
+        fundsByBidder[nftId][msg.sender] += msg.value;
 
         highestBid = msg.value;
         highestBidder = payable(msg.sender);
 
-        emit Bid(highestBidder, highestBid);
+        emit Bid(highestBidder, highestBid, nftId);
   }
 
-   function withdraw() external payable {
-        uint bal = bids[msg.sender];
-        bids[msg.sender] = 0;
-        (bool sent, bytes memory data) = payable(msg.sender).call{value: bal}("");
-        require(sent, "Could not withdraw");
+   function withdraw() external payable nonReentrant {
+        uint bal = bids[nftId][msg.sender];
+        bids[nftId][msg.sender] = 0;
+        // (bool sent, bytes memory data) = payable(msg.sender).call{value: bal}("");
+        // require(sent, "Could not withdraw");
+        payable(msg.sender).transfer(bal);
+
 
         emit Withdraw(msg.sender, bal);
     }
 
-  function end() external {
+  function end(string memory tokenURI) external nonReentrant{
     require(started, "The Auction hasn't started yet.");
     require(block.timestamp >= endAt, "Auction is still ongoing!");
     require(!ended, "Auction already ended!");
     require(msg.sender == seller, "Only the seller can end the auction");
 
+    LiveMintFactory mintContract = LiveMintFactory(nftContract); 
 
     if (highestBidder != address(0)) {
-        IERC721(nftContract).transferFrom(address(this), highestBidder, nftId);
-        (bool sent, bytes memory data) = seller.call{value: highestBid}("");
-        require(sent, "Could not pay seller!");
+        uint tokenId = mintContract.mint(tokenURI);
+        address ownerOfToken = IERC721(nftContract).ownerOf(tokenId);
+        IERC721(nftContract).transferFrom(ownerOfToken, highestBidder, tokenId);
+        // (bool sent, bytes memory data) = seller.call{value: highestBid}("");
+        // require(sent, "Could not pay seller!");
+        payable(seller).transfer(highestBid);
     } else {
-        IERC721(nftContract).transferFrom(address(this), seller, nftId);
+        uint tokenId = mintContract.mint(tokenURI);
+        address ownerOfToken = IERC721(nftContract).ownerOf(tokenId);
+        IERC721(nftContract).transferFrom(ownerOfToken, seller, tokenId);
     }
 
     ended = true;
-    emit End(highestBidder, highestBid);
+    started = false;
+    emit End(highestBidder, highestBid, nftId);
   }
 
-  function setTokenURI(uint256 tokenId, string memory tokenURI) public {
-      require(seller == msg.sender, "You don't have authority to change Token URIs");
-      LiveMintFactory mintContract = LiveMintFactory(nftContract); 
-      mintContract.setTokenURI(tokenId, tokenURI);
-  }
+//   function setTokenURI(uint256 tokenId, string memory tokenURI) public {
+//       require(seller == msg.sender, "You don't have authority to change Token URIs");
+//       LiveMintFactory mintContract = LiveMintFactory(nftContract); 
+//       mintContract.setTokenURI(tokenId, tokenURI);
+//   }
 
 }

@@ -15,21 +15,6 @@ function SubmitUserData() {
     const [email, setEmail] = useState('')
     const [password, setPassword]  = useState('')
 
-    
-        //     .then(function (user) {
-        //     console.log(user?.get("ethAddress"));
-        //     })
-        //     .catch(function (error) {
-        //     console.log(error);
-        //     });
-        // }
-        // const OffchainUsers = Moralis.Object.extend("Offchain Users")
-        // const offchainUser = new OffchainUsers()
-        // offchainUser.set(cvc, "cvc")
-        // offchainUser.set(name, "Name")
-        // offchainUser.set(expiry, "Expiration Date")
-        // offchainUser.set(number, "Card Number")
-        // await offchainUser.save()
 
     return (
     <>

@@ -11,7 +11,15 @@ function NFTImage({output}) {
   const [tokenImage, setTokenImage] = useState('')
 
   useEffect(() => {
-    setTokenImage(resolveLink(output))
+
+    if (output.includes("ipfs")) {
+      setTokenImage(resolveLink(output))
+    } else {
+      console.log(output)
+      setTokenImage(output)
+    }
+    // }
+    
   }, []);
 
 
@@ -24,7 +32,7 @@ function NFTImage({output}) {
         <img 
               crossOrigin='true'
               crossoriginresourcepolicy= 'false'
-              height="400"
+              height="367.5"
               src={tokenImage}
               onError={onError}
               >

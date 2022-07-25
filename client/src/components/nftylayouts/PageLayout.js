@@ -7,7 +7,7 @@ const Body = styled.div `
     min-height:100vh;
     display:flex;
     flex-direction:column;
-    background-color:#17171b;
+    background-color:#e1eafa;
     overflow:auto;
 `;
 

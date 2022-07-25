@@ -6,12 +6,12 @@ import Button from 'react-bootstrap/Button'
 import { BuyNFT } from '../nftymarketplace/BuyNFT'
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 
-function BuyNFTButton({nft}) {
+function BuyNFTButton({nft, marketAddress, marketContractABIJson}) {
   return (
     <Button className="button-hover" variant="secondary" 
                   style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem" }} 
                   onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
-                  onClick={(e) => {BuyNFT(nft); e.preventDefault();}}>Buy</Button>
+                  onClick={(e) => {BuyNFT(nft, marketAddress, marketContractABIJson); e.preventDefault();}}>Buy</Button>
   )
 }
 
