@@ -20,6 +20,7 @@ function NFTPlayer({output}) {
   const player = useRef(null)
 
   useEffect(() => {
+    console.log(output, "this video for me")
     setTokenVideo(resolveLink(output))
   }, []);
 

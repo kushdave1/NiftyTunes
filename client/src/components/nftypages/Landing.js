@@ -11,11 +11,17 @@ import Button from 'react-bootstrap/Button'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Carousel from 'react-bootstrap/Carousel'
 import Video from "../../assets/videos/landing_video.mp4";
+import ProductListLayout from '../nftylayouts/ProductListLayout'
 
 import Moralis from 'moralis';
 import { useMoralis } from 'react-moralis'
 
+import LiveMintingLanding from "../../assets/images/LiveMintingLanding.png"
+import NftyLoopsLanding from "../../assets/images/NftyLoopsLanding.png"
+import MarketplaceLanding from "../../assets/images/MarketplaceLanding.png"
+
 import img from "../../assets/images/firelips.png";
+import nftyimgwhite from "../../assets/images/NT_White_Isotype.png"
 import kush from "../../assets/images/kush2.jpg"
 import bassy from "../../assets/images/bassybob.png"
 import nftyimg from "../../assets/images/NT_Black_2.png";
@@ -24,8 +30,8 @@ import livemint from "../../assets/images/livemint2.png";
 import downarrow from "../../assets/images/downarrow3.png"
 import ConnectButton from '../nftynavs/ConnectButton'
 import ExploreButton from '../nftynavs/ExploreButton'
-import { MDBCard, MDBCardBody, MDBCardTitle, MDBCardText, MDBCardImage, MDBCardVideo, MDBBtn, MDBRipple } from 'mdb-react-ui-kit';
 
+import CollectionImage from '../nftymix/CollectionImageLanding'
 
 const HeaderSection = styled.div `
     display:flex;
@@ -162,9 +168,7 @@ function Landing() {
                                     </div>
                                     <Card.Footer>
                                         <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                                            {/* <Col>
-                                            <></>
-                                            </Col> */}
+                        
                                             <Col>
                                                 <Card.Title className="text-dark" style={{fontSize: 12}}>FireLips</Card.Title>
                                                 <Card.Title className="text-dark" style={{fontSize: 12}}>Molly Diario</Card.Title>
@@ -180,7 +184,7 @@ function Landing() {
                        
                         <Col xs={12} md={8} lg={8}>
                             <Row className='mt-auto'>
-                            {/* <small className = 'text-primary animate__animated animate__fadeIn animate__delay-5s' style={{fontWeight:"700", fontSize:'20px'}}>Launching Soon</small> */}
+                           
                             <h1 className="text-dark display-3" style={{fontWeight: "1000"}}>Collect Digital Vibes</h1>
                             <Col xs={12} md={6}>
                                 <p className="lead text-dark">Purchase, build, and sell musical GIFs from the world's top artists.</p>
@@ -212,7 +216,7 @@ function Landing() {
                     </Row>
                     
                     
-                    <Row className = "content justify-content-center align-items-center" id="founders" style={{backgroundImage: `url(${nftyimgtwo})`, backgroundSize: "50%"}}>
+                    <Row className = "content justify-content-center align-items-center" id="founders">
                         
                         <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Made By Artists, For Artists</h1>
                         <center style={{padding: "20px", fontSize: "30px"}}>
@@ -263,53 +267,53 @@ function Landing() {
                         
                     </Row>
                     <Row className = "justify-content-center align-items-center" id="livemint">
-                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Real-Life Experiences On-Chain</h1>
-                        <Carousel variant="dark" fade="true">
-                            <Carousel.Item>
-                                
-                                    <center style={{padding: "5px"}} >
-                                        <img src={livemint} height="500px" width="900px"></img>
-                                    </center>
-                               
-                            </Carousel.Item>
-                            <Carousel.Item>
-              
-                                    <center style={{padding: "5px"}} >
-                                        <img src={livemint} height="500px" width="900px"></img>
-                                    </center>
-                
-                            </Carousel.Item>
-                        </Carousel>
-
-                    </Row>
-                    <Row className = "justify-content-center align-items-center h-100" style={{paddingTop: "60px", paddingBottom: "60px"}} >
-                        <center className="bounce">
-                            <a href="#nftylooper">
-                                <img style={{width:"75px", height:"75px"}} src={downarrow}></img>
-                            </a>
-                        </center>
-                        
-                    </Row>
-                    
-                    <Row className = "justify-content-center align-items-center" id="livemint">
-                        <h1 className="text-dark display-6" style={{fontWeight: "1000", paddingBottom: "80px"}}>Try our Free NftyLooper</h1>
-                        <Carousel variant="dark" fade="true">
-                            <Carousel.Item>
-                                
-                                    <center style={{padding: "5px"}} >
-                                        <img src={livemint} height="500px" width="900px"></img>
-                                    </center>
-                               
-                            </Carousel.Item>
-                            <Carousel.Item>
-              
-                                    <center style={{padding: "5px"}} >
-                                        <img src={livemint} height="500px" width="900px"></img>
-                                    </center>
-                
-                            </Carousel.Item>
-                        </Carousel>
-
+            
+                        <Col>    
+                            <ProductListLayout>
+                                <Col xs={1} md={4} style={{paddingBottom:"75px"}}>
+                                    <Card className="border-0"
+                                        style={{ width: '22.5rem', height: '22.5rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
+                                            <CollectionImage output={LiveMintingLanding} height="130"/> 
+                                        <Card.Body>
+                                            <center style={{paddingTop:"8px"}}>
+                                                <Card.Title className="text-dark" style={{fontSize: 24}}>Live Minting</Card.Title>
+                                                <Card.Text style={{fontSize: 16, padding: "5px", color: "black"}}>An interactive, immersive, and innovative 
+                                                way to capture experiences on-chain. Whether you experience the moment IRL or via live stream - 
+                                                these moments now live forever.</Card.Text>
+                                            </center>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                                <Col xs={1} md={4} style={{paddingBottom:"20px"}}>
+                                    <Card className="border-0"
+                                        style={{ width: '22.5rem', height: '22.5rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
+                                            <CollectionImage output={NftyLoopsLanding} height="140"/> 
+                                        <Card.Body>
+                                            <center>
+                                                <Card.Title className="text-dark" style={{fontSize: 24}}>NftyLoops</Card.Title>
+                                                <Card.Text style={{fontSize: 16, padding: "5px", color: "black"}}>At NftyTunes, you are the creator. 
+                                                Made by artists, for artists, our platform allows you to build unique and personalized 
+                                                NFTs using your favorite art + music. </Card.Text>
+                                            </center>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                                <Col xs={1} md={4} style={{paddingBottom:"20px"}}>
+                                    <Card className="border-0"
+                                        style={{ width: '22.5rem', height: '22.5rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
+                                            <CollectionImage output={MarketplaceLanding} height="145"/> 
+                                        <Card.Body>
+                                            <center>
+                                                <Card.Title className="text-dark" style={{fontSize: 24}}>Marketplace</Card.Title>
+                                                <Card.Text style={{fontSize: 16, padding: "5px", color: "black"}}>Our marketplace is for artists, musicians, 
+                                                the crypto curious, and those looking to learn something new. Experience, buy, sell, create, repeat. </Card.Text>
+                                            </center>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            </ProductListLayout>   
+                        </Col> 
+                            
                     </Row>
                 
                     

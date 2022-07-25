@@ -7,10 +7,9 @@ import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappP
 
 
 
-export const BuyNFT = async(nft, marketAddress, marketContractABI) => {
+export const BuyNFT = async(nft, marketAddress, contractABIJson) => {
 
     
-  const contractABIJson = JSON.parse(marketContractABI);
   const web3Modal = new Web3Modal({})
   const connection = await web3Modal.connect()
   const provider = new ethers.providers.Web3Provider(connection)

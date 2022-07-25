@@ -28,7 +28,7 @@ function NFTTokenIds() {
   
   useEffect(async() => {
     try {
-    const tokenIds = await fetchTokenIds( marketAddress, marketContractABI, storageAddress, storageContractABI);
+    const tokenIds = await fetchTokenIds( marketAddress, marketContractABI, storageAddress, storageContractABI );
     setNFTs(tokenIds)
     fetchArtistPhoto();
     
@@ -61,6 +61,8 @@ function NFTTokenIds() {
                     artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
                     gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} 
                     price={nft.price} coverPhotoURL={nft.coverPhotoURL} nftyLazyFactoryAddress={nftyLazyFactoryAddress} 
+                    marketAddress={marketAddress} marketContractABIJson={contractABIJson}
+
                     />
                 )}
               ))

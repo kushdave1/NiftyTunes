@@ -311,13 +311,13 @@ export const mintAndRedeem = async(artistGalleryAddress, voucher, feeEth, nftyLa
       const transactionData = await redeemTx.wait();
 
       const eventTokenId = parseInt(transactionData.events[2]);
+      console.log(eventTokenId);
       const { transactionHash } = transactionData;
 
       const query = new Moralis.Query('ListedNFTs')
 
       query.equalTo('tokenURI', voucher.tokenUri)
       const object = await query.first() // just get 1 item, not array of items
-      console.log(object)
 
       object.set("isSold", true)
       object.addUnique("buyerAddress", redeemerAddress)

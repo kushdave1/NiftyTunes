@@ -18,7 +18,11 @@ import AccountButton from './AccountButton'
 import ConnectButton from './ConnectButton'
 import Search from '../nftymarketplace/Search'
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
-import live from "../../assets/images/liveTwo.png"
+// import live from "../../assets/images/liveTwo.png"
+import live from "../../assets/images/LiveButton.png"
+
+import explore from "../../assets/images/Explore.png"
+import loops from "../../assets/images/Nftyloops.png"
 
 const NavFormat = styled.div `
     font-weight : 200;
@@ -59,10 +63,10 @@ function Navigation() {
     }
 
     return (
-            <Navbar className="shadow-lg bottom" style={{ paddingBottom: 5 }} bg='white' expand="lg">
+            <Navbar className="shadow-lg bottom" style={{ padding: 10 }} bg='white' expand="lg">
                 <Container>   
                 <Navbar.Brand href="#" onClick={()=> navigate('/')}>
-                    <img src={img} width="75" height="65" className="d-inline-block align-top"
+                    <img src={img} width="50" height="42.5" className="d-inline-block align-top"
                     alt="React Bootstrap logo"></img>
                     </Navbar.Brand> 
                         <NavFormat className="ml-auto">  
@@ -105,9 +109,12 @@ function Navigation() {
                             {user?
                                 (
                                 <>
-                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/live')}><div style={{display: "inline-block"}}><img style={{display: "inline-block"}} src={live} height="15px" width="15px"></img> Live</div></Nav.Link>
-                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>Explore</Nav.Link>
-                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>NFT Looper</Nav.Link>
+                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/live')}>
+                                <img style={{display: "inline-block"}} src={live} height="30px" width="81px"></img></Nav.Link>
+                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>
+                                Explore</Nav.Link>
+                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>
+                                NftyLoops</Nav.Link>
                                 {/* <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/profile')}>My profile</Nav.Link> */}
                                 </>
                                 ):

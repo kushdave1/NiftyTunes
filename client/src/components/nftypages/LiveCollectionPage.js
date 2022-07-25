@@ -15,16 +15,10 @@ import ListGroup from 'react-bootstrap/ListGroup'
 import axios from 'axios';
 import xtype from 'xtypejs'
 
-//custom
-import NFTPlayerLarge from '../nftymix/NFTPlayerLarge'
-
-//Solidity Functions
-
-import BuyNFTButton from "../nftySolidityButtons/BuyNFTButton"
-import BuyLazyNFTButton from "../nftySolidityButtons/BuyLazyNFTButton"
-
 // Cloud Functions
 import { fetchArtistName, fetchArtistPhoto } from "../nftyFunctions/fetchCloudData"
+import Banner from '../../assets/images/bannerOne.jpeg';
+import DefaultProfilePicture from '../../assets/images/gorilla.png';
 
 //loading skeleton
 import Skeleton from "react-loading-skeleton";
@@ -37,8 +31,11 @@ import { BuyLazyNFT } from "../nftymarketplace/BuyLazyNFT"
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
 import img from "../../assets/images/ethereum.png"
 
-
-import ReactTwitchEmbedVideo from "react-twitch-embed-video"
+import YoutubeEmbed from "../nftymix/YoutubeEmbed"
+import ProductListLayout from "../nftylayouts/ProductListLayout"
+import LiveNFTTokenIds from "../nftymarketplace/LiveNFTTokenIds"
+import NFTPlayerLarge from "../nftymix/NFTPlayerLarge"
+import AuctionBoard from '../nftylayouts/AuctionBoardLayout'
 
 import { AwesomeButton } from "react-awesome-button";
 import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
@@ -54,7 +51,6 @@ import { APP_ID, SERVER_URL } from '../../index'
 const HeaderSection = styled.div `
     display:flex;
     flex:1;
-    overflow:hidden;
     background-color: white;
     min-height: 100vh;
     padding-top: 75px;
@@ -68,15 +64,19 @@ function LiveCollectionPage() {
   const { liveMintAddress, collectionName } = useParams();
   const { isInitialized, isAuthenticated, user } = useMoralis()
   const [auction, setAuction] = useState([{
-    price: "", 
-    tokenId: "",
-    owner: "",
-    gallery: "",
-    image: "",
-    name: "",
-    description: "",
-    tokenURI: "",
-    lazy: true
+    collectionName: "",
+    collectionSymbol: "",
+//   artist: object.get("signerAddress"),
+//   artistPhoto: artistPhoto,
+//   artistName: artistName,
+    createdAt: "",
+    Auction: "", 
+    mintAddress: "", 
+    stream: "",
+    mintNumber: "",
+    royalty: "",
+    coverArt: "",
+    collectionDescription: ""
   }]);
 
   const appId = APP_ID;
@@ -94,10 +94,10 @@ function LiveCollectionPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState();
 
-  useEffect(() => {
+  useEffect(async() => {
     
     
-    basicQuery();
+    await basicQuery();
     setIsLoading(false);
 
   }, [liveMintAddress, collectionName]);
@@ -108,24 +108,30 @@ function LiveCollectionPage() {
     console.log(object)
 
     // const artistPhoto = await fetchArtistPhoto(object.get("signerAddress"))
-    // const artistName = await fetchArtistName(object.get("signerAddress"))
+    const artistName = await fetchArtistName(object.get("signerAddress"))
     
-    setAuction((previousAuction) =>[{
+    setAuction(previousAuction =>[...previousAuction, {
       
       collectionName: object.get("CollectionName"),
       collectionSymbol: object.get("CollectionSymbol"),
     //   artist: object.get("signerAddress"),
     //   artistPhoto: artistPhoto,
-    //   artistName: artistName,
+      artistName: artistName,
       createdAt: object.get("createdAt").toUTCString(),
-      Auction: object.get("liveAuctionAddress"),
-      Mint: object.get("liveMintAddress"),
+      auctionAddress: object.get("liveAuctionAddress"), 
+      mintAddress: object.get("liveMintAddress"), 
       stream: object.get("streamLink"),
-      mintNumber: object.get("mintNumber"),
-      royalty: object.get("royalty")
+      mintNumber: parseInt(object.get("MintNumber")),
+      royalty: object.get("royalty"),
+      coverArt: object.get("CoverArtURL"),
+      bannerArt: object.get("bannerImageURL"),
+      collectionDescription: object.get("description"),
+      signerAddress: object.get("signerAddress")
       
 
-    }]);
+    }])
+
+    console.log(auction[1])
   };
 
   const singleQuery = () => {
@@ -136,55 +142,42 @@ function LiveCollectionPage() {
   return (
     <>
       {!isLoading && (
+        <>
+        {(auction[1].bannerArt) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={auction[1].bannerArt} height="250px" width="100%" style={{backgroundSize: "100%", zIndex: "1"}}></img>) :
+            (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="250px" width="100%" style={{backgroundSize: "100%", zIndex: "1"}}></img>)}
         <HeaderSection>
-            <Container fluid="sm">
             
-                <center>
-                    {/* <NFTPlayerLarge output={auction[0].stream}/> */}
-                    <ReactTwitchEmbedVideo
-                        channel="asmongold"
-                        crossOrigin='true'
-                        crossoriginresourcepolicy= 'false'
-                        crossoriginembedderpolicy= 'false'
-                    />
-                </center>
+            <Container fluid="sm">
+              <center>
+                {(auction[1].coverArt) ? 
+                                    (
+                                    <img crossOrigin='true' crossoriginresourcepolicy='false' src={auction[1].coverArt} height="150px" width="150px" 
+                                    style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-175px", zIndex: "2", borderRadius: "5.00rem"}}></img>) 
+                                    : (<img src={DefaultProfilePicture} height="150px" width="150px" 
+                                    style={{padding: "10px",border: "2px solid black", marginTop: "-175px",borderRadius: "5.00rem", zIndex: "2"}}></img>)}
+                                    <div className="pt-3" style={{fontSize: 20}}>{auction[1].collectionName}</div><br/><div style={{fontSize: 12}}>By {auction[1].artistName}</div>
+              </center>
                 <hr/>
-                {/* <Row class="d-flex" style={{paddingBottom: "5px"}}>
-                  <Col style={{fontWeight: "Bold"}}>Artist: {nft[0].artistPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img>} {nft[0].artistName}</Col>
-                 
-                  <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: {nft[0].ownerPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].ownerPhoto}></img>} {nft[0].ownerName}</Col>
-               
-                  
-                
+                <Row>
+                  <Col>
+                    <YoutubeEmbed embedId="sdfomsdo"/>
+                  </Col>
+                  <Col>
+                    <AuctionBoard auctionAddress={auction[1].auctionAddress} signerAddress={auction[1].signerAddress} />
+                  </Col>
                 </Row>
-                <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                    <Col>
-                        <div style={{fontWeight: "Bold", fontSize: 60, paddingTop: 40}}>{nft[0].name} {(nft[0].isSold) ? (<BuyNFTButton></BuyNFTButton>) : (<BuyLazyNFTButton nft={nft[0]}></BuyLazyNFTButton>)}</div>
+                <hr></hr>
+                <Row className="p-2">
+                
+                    <ProductListLayout>
+                        <LiveNFTTokenIds auction={auction[1]} />
+                    </ProductListLayout>    
                         
-                        <div style={{fontWeight: "Bold", fontSize: 16}}>Minted on: {nft[0].createdAt}</div>
-                        
-                        <div style={{fontWeight: "Bold", fontSize: 20, marginTop: 100, display: "flex"}}>List Price: <img src={img} height="30" width="30"></img>{nft[0].price}</div >
-                        <div style={{fontWeight: "Bold", fontSize: 30, paddingBottom: 20}}><hr/>Description</div>
-                        
-                        <ListGroup style={{paddingBottom: 50}}>
-                            
-                            <ListGroup.Item style={{fontSize: 16, paddingTop: 20, paddingBottom: 20}}>{nft[0].description}</ListGroup.Item>
-                            
-                        </ListGroup>
-                    </Col>
-                    
-                    <Col style={{marginLeft: "300px", paddingTop: 20}}>
-                        <div style={{fontWeight: "Bold", fontSize: 30, paddingTop: 20, paddingBottom: 20}}><hr/>Offers</div>
-                        <ListGroup style={{paddingTop: "10px"}}>
-                            <ListGroup.Item style={{fontWeight: "Bold"}}>
-                              Bid 1
-                            </ListGroup.Item>
-                        </ListGroup>
-                    </Col>
-                    
-                </Row> */}
+                </Row>
+                
             </Container>
         </HeaderSection>
+        </>
       )}
     </>
   );

@@ -157,7 +157,9 @@ function MyNFTs() {
         // }
 
         const dataMarkets = await getNFTBalances({ params: { chain: name } })
+        
         const results = dataMarkets.result
+        console.log(results)
         const items = []
         let image = ''
         let imageBon = ''
@@ -167,6 +169,15 @@ function MyNFTs() {
         for (const i in results) {
           
             const object = results[i];
+            if (!object.token_uri) {
+              const options = {
+                address: object.token_address,
+                token_id: object.token_id,
+                flag: "metadata",
+              };
+              const result = await Web3Api.token.reSyncMetadata(options);
+              console.log(result)
+            }
             if (object?.token_uri) {
               
               let meta = await axios.get(fixURL(object.token_uri))
