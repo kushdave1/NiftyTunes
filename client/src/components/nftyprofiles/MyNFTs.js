@@ -1,9 +1,10 @@
 import React, {useState, useEffect} from 'react';
+import { useMoralis, useNFTBalances, useERC20Balances } from "react-moralis"
+
 import CardGroup from 'react-bootstrap/CardGroup'
 import Card from 'react-bootstrap/Card'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
-import { useMoralis, useNFTBalances, useERC20Balances } from "react-moralis"
 import Container from 'react-bootstrap/Container'
 import Form from 'react-bootstrap/Form'
 import Button from 'react-bootstrap/Button'
@@ -16,8 +17,14 @@ import Alert from 'react-bootstrap/Alert'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
+
+import checkmark from "../../assets/images/checkmark.png"
+import error from "../../assets/images/error.png"
+
+
 import Moralis from 'moralis'
 import $ from "jquery"
+
 import { useNFTBalance } from "../../hooks/useNFTBalance";
 import { FileSearchOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider";
@@ -25,6 +32,7 @@ import { getExplorer } from "../../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 import { useIPFS } from "hooks/useIPFS";
+
 import nftyimg from '../../assets/images/NT_White_Isotype.png'
 
 import { ethers } from 'ethers'
@@ -36,6 +44,7 @@ import { useMoralisWeb3Api } from "react-moralis";
 import NFTPlayer from '../nftymix/NFTPlayer'
 import NFTImage from '../nftymix/NFTImage'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
+import { ConnectWallet } from '../nftyFunctions/ConnectWallet'
 import { fetchOwnedIds } from '../nftyFunctions/FetchTokenIds'
 
 import ProductSkeleton from '../nftyloader/ProductSkeleton'
@@ -72,7 +81,7 @@ const MarketPlaceSection = styled.div `
 function MyNFTs() {
   const { resolveLink } = useIPFS();
   const {isAuthenticated, user} = useMoralis();
-  const { getNFTBalances, data, error, isLoading, isFetching } = useNFTBalances();
+  const { getNFTBalances, data, error, isFetching } = useNFTBalances();
   const [address, setAddress] = useState();
   const [nftData, setNftData] = useState();
   const [nfts, setNFTs] = useState([{name: "",
@@ -97,13 +106,23 @@ function MyNFTs() {
 
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const handleShow = (nft) => {
+    setShow(true);
+    getApprovedStatus(nft)
+  }
+
+  const [approveLoading, setApproveLoading] = useState(false)
+  const [approveSuccess, setApproveSuccess] = useState(false)
+  const [approveError, setApproveError] = useState(false)
+  const [approvedStatus, setApprovedStatus] = useState(false)
 
   useEffect(async() => {
         if(!user) return null
         setAddress(user.get('ethAddress'));
 
         getNFT();
+        setApproveSuccess(false)
+        setApproveError(false)
 
         // const items = await fetchOwnedIds(marketAddress, marketContractABI, storageAddress, storageContractABI);
 
@@ -209,16 +228,97 @@ function MyNFTs() {
         }
       
     }
-  
-  const ApproveNFT = async(nft) => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+
+
+
+  const getApprovedStatus = async(nft) => {
+
+    const signer = await ConnectWallet()
     
     const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
-    let transactionApprove = await marketplaceContract.approve(marketAddress, nft.tokenId)
-    await transactionApprove.wait()
+
+    const tokenContract = new ethers.Contract(nft.tokenAddress, 
+    JSON.parse(`
+      [{
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getApproved",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "operator",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }]`), signer)
+    let marketApproved
+    try {
+      marketApproved = await tokenContract.getApproved(nft.tokenId)
+      console.log(marketApproved, "This market approved")
+    } catch (e) {
+      marketApproved = false
+    }
+    if (marketApproved === marketAddress) {
+      setApprovedStatus(true)
+    } else {
+      setApprovedStatus(false)
+    }
+
+
+    console.log('success for sure')
+  }
+
+
+  
+  const ApproveNFT = async(nft) => {
+
+    setApproveSuccess(false)
+    setApproveError(false)
+    
+    const signer = await ConnectWallet()
+    
+    const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
+    console.log(nft)
+    const tokenContract = new ethers.Contract(nft.tokenAddress, 
+    JSON.parse(`
+    [{
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }]`), signer)
+    let transactionApprove;
+    setApproveLoading(true)
+    try {
+      transactionApprove = await tokenContract.approve(marketAddress, nft.tokenId)
+      await transactionApprove.wait()
+      setApproveLoading(false)
+      setApproveSuccess(true)
+    } catch (e) {
+      console.log(e)
+      setApproveLoading(false)
+      setApproveError(true)
+    }
+    
     console.log('success for sure')
   }
 
@@ -226,14 +326,11 @@ function MyNFTs() {
 
 
   const ListNFT = async(nft, listPrice) => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    
+    const signer = await ConnectWallet()
     const price = ethers.utils.parseUnits(listPrice, 'ether')
     
     const marketplaceContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
-    console.log(nft.tokenId, nft.tokenAddress)
 
     let transaction = await marketplaceContract.resellToken(nft.tokenId, price, nft.tokenAddress)
     await transaction.wait()
@@ -257,12 +354,12 @@ function MyNFTs() {
                 nfts && nfts.map((nft, index) => {
                   if (nft.name !== "") { 
                     return(
-     
+      
                     <ProductCardsLayoutLazy pageFrom="MyNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
                     artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
                     gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price} 
-                    handleShow={handleShow} handleSellClick={handleSellClick}/>
-   
+                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress} tokenId={nft.tokenId}/>
+
 
                   )}}
               ))
@@ -280,7 +377,29 @@ function MyNFTs() {
         <Form style={{padding: "30px"}}>
             <Form.Group className="mb-3" controlId="formTwitter">
                 <Form.Label>Approve your NFT to be Listed on our Marketplace</Form.Label>
-                <Button variant = 'dark' style={{borderRadius: "2rem", marginTop: "5px"}} onClick={() => ApproveNFT(nftToSend)}>Approve</Button>
+                {(approvedStatus) ? (
+                  <Row>
+                    <Col md={6} >
+                      <div style={{border: "1px solid red", padding: "5px", borderRadius: '2rem', marginTop: "5px", display: "inline"}}>Approved for Listing</div>
+                    </Col>
+                </Row>
+                ) : 
+                (<Row>
+                  <Col md={3}>
+                    <Button variant = 'dark' style={{borderRadius: "2rem", marginTop: "5px", display: "inline"}} onClick={() => ApproveNFT(nftToSend)}>Approve {" "}</Button>
+                  </Col>
+                  <Col className="align-items-center d-flex" md={2}>
+     
+                    {approveLoading && 
+                    <Spinner animation="border" />}
+                    {approveSuccess && 
+                    <img height="30px" width="30px" src={checkmark}></img>}
+                    {approveError && 
+                    <img height="30px" width="30px" src={error}></img>}
+                  </Col>
+                  <Col md={7}>
+                  </Col>
+                </Row>)}
             </Form.Group>
             
             <Form.Group className="my-3" controlId="listPrice">
@@ -295,7 +414,7 @@ function MyNFTs() {
                   </Form.Text>
                   </Col>
                 </Row>
-                <Button variant = 'dark' style={{borderRadius: "2rem", float: "right"}} onClick={() => ListNFT(nftToSend, price)}>List your NFT!</Button>
+                <Button variant = 'dark' style={{borderRadius: "2rem", float: "right"}} onClick={() => ListNFT(nftToSend, price)}>List your NFT</Button>
                
             </Form.Group>
             

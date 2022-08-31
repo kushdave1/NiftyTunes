@@ -36,8 +36,7 @@ import { useState } from "react"
 import img from "../../assets/images/ethereum.png"
 import monkey from "../../assets/images/gorilla.png"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
+
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 
@@ -47,10 +46,9 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
  
 function LiveCollectionLayout({collection}) {
 
-  const [offerPrice, setOfferPrice] = useState(1);
 
   return (
-    <Col xs={1} md={4} style={{paddingBottom:"20px"}}>
+    <Col xs={1} md={4} style={{paddingBottom:"3rem",  display: "flex"}}>
       <Link to={`${collection.mintAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
         <Card className="bg-light shadow-md"
               style={{ width: '22.5rem', height: '20rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
@@ -65,21 +63,7 @@ function LiveCollectionLayout({collection}) {
                 </center>
                 
             </Card.Body>
-              {/* 
-              <br></br>
-              <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                    <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}>
-                        {(artistPhoto) ? (<img style={{display: "inline", borderRadius:'2.0rem'}} 
-                        src={artistPhoto} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>) :
-                        (<img style={{display: "inline", borderRadius:'2.0rem'}} 
-                        src={monkey} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>)} 
-                        @{artistName}</Card.Text>
-                    </Col>
-              </Row>
-
-            </Card.Body>
-            */}
+              
             <Card.Footer className="bg-dark text-light">
               <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
                 <Col>

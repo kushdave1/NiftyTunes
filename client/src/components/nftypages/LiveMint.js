@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {useNavigate} from 'react-router'
 import { ethers, utils } from 'ethers';
 import Web3Modal from 'web3modal';
@@ -7,8 +7,9 @@ import Web3Modal from 'web3modal';
 import LiveCollectionIds from '../nftymarketplace/LiveCollectionIds'
 
 //Layouts
-import ProductListLayout from '../nftylayouts/ProductListLayout'
+import CollectionListLayout from '../nftylayouts/CollectionListLayout'
 import ProductCardsLayout from '../nftylayouts/ProductCardsLayout'
+import ProductListLayout from '../nftylayouts/ProductListLayout'
 import FilterLayout from '../nftylayouts/FilterLayout'
 import LiveCollectionLayout from '../nftylayouts/LiveCollectionLayout'
 
@@ -22,15 +23,38 @@ import Modal from 'react-bootstrap/Modal'
 import Form from 'react-bootstrap/Form'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Alert from 'react-bootstrap/Alert'
+import Nav from 'react-bootstrap/Nav'
+import Table from 'react-bootstrap/Table'
+
+import {
+    BrowserRouter as Router,
+    Routes, 
+    Route, 
+    Link,
+    Outlet
+} from "react-router-dom"
 
 import nftyimg from "../../assets/images/NT_White_Isotype.png";
+import xicon from '../../assets/images/xicon.png'
 import live from "../../assets/images/liveTwo.png"
 import checkmark from "../../assets/images/checkmark.png"
 import error from '../../assets/images/error.png'
+import bunnies from "../../assets/images/livebunnies.gif"
+import liveButton from "../../assets/images/LiveButton.png"
+import pdfHowItWorks from "../../assets/images/pdfHowItWorks.png"
 
 //Moralis
 import { useMoralis, useMoralisFile } from 'react-moralis'
 import Moralis from 'moralis'
+
+// NFTY HOOKS
+import { fetchArtistName } from "../nftyFunctions/fetchCloudData"
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
+import NicknameModal from '../nftyModals/NicknameModal'
+import HowItWorksModal from '../nftyModals/HowItWorksModal'
+import ModalOne from '../nftyModals/createAuctionModals/ModalOne'
+import ModalTwo from '../nftyModals/createAuctionModals/ModalTwo'
+import ModalThree from '../nftyModals/createAuctionModals/ModalThree'
 
 //Contract ABIs and ByteCodes
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
@@ -49,12 +73,14 @@ const SearchAndFilterSection = styled.div``;
 const TrendingSection = styled.div``;
 
 function LiveMint() {
-
     const [mintErrMessage, setMintErrMessage] = useState("")
     const {isAuthenticated, user} = useMoralis();
     const { saveFile } = useMoralisFile();
+
     const [show, setShow] = useState(false);
     const [showTwo, setShowTwo] = useState(false);
+    const [showThree, setShowThree] = useState(false)
+
     const [stream, setStream] = useState("")
     const [mintNumber, setMintNumber] = useState("")
     const [royalty, setRoyalty] = useState()
@@ -64,8 +90,13 @@ function LiveMint() {
     const [endTime, setEndTime] = useState("")
     const [description, setDescription] = useState("")
     const [mintAddress, setMintAddress] = useState("")
+    const [auctionArray, setAuctionArray] = useState([])
 
+    const [nickname, setNickname] = useState("")
 
+    const [showPDF, setShowPDF] = useState(false)
+
+    
     const [showGenerating, setShowGenerating] = useState(false)
 
     const [loadingLiveMint, setLoadingLiveMint] = useState(true)
@@ -84,11 +115,44 @@ function LiveMint() {
     const [galleryName, setGalleryName] = useState("")
     const [gallerySymbol, setGallerySymbol] = useState("")
 
+    const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+
+    const handleCloseWelcomeModal = () => setShowWelcomeModal(false)
+
+    const handleShowPDF = () => setShowPDF(true)
+    const handleClosePDF = () => setShowPDF(false)
+
+    const [nftsPerAuction, setNFTsPerAuction] = useState([])
+
     const handleShow = () => setShow(true)
     const handleClose = () => {
         setShow(false)
         setMintErrMessage("")
     }
+
+    useEffect(async() => {
+        let username
+        try {
+            console.log(user.attributes.ethAddress, "this username guys")
+            username = await fetchArtistName(user.attributes.ethAddress)
+            console.log(username, "this puser guys")
+            if (username.length !== 25) {
+                handleCloseWelcomeModal()
+            } else {
+                setShowWelcomeModal(true)
+            }
+            if (username.length !== undefined) {
+                handleCloseWelcomeModal()
+            } else {
+                setShowWelcomeModal(true)
+            }
+        } catch {
+            setShowWelcomeModal(true)
+        }
+    }, [user])
+
+
+
     const handleNext = () => {
         if(!galleryName || !gallerySymbol){
             setMintErrMessage('Please enter a name and symbol to mint.');
@@ -103,6 +167,8 @@ function LiveMint() {
             setMintErrMessage('Mint Number amount must be an integer.')
         }
         else{
+            
+            
             setMintErrMessage('');
             setShow(false)
             handleShowTwo()
@@ -110,43 +176,52 @@ function LiveMint() {
     }
     const handleShowTwo = () => setShowTwo(true);
     const handleCloseTwo = () => {
+    
         setShowTwo(false);
         setMintErrMessage("")
+        
     }
 
-    const handleGenerate = () => {
+    const handleNextTwo = () => {
         
         if(!description) {
             setMintErrMessage("Please enter a description.")
         } 
         else if(!date || !startTime || !endTime) {
             setMintErrMessage("Please enter Time Specs for your auction")
+        } else if(parseInt(endTime.split(":")[0]) < parseInt(startTime.split(":")[0])) {
+            console.log("hii")
+            setMintErrMessage("End Time cannot be before Start Time")
+        } else if((parseInt(endTime.split(":")[0])  === parseInt(startTime.split(":")[0])) && (parseInt(endTime.split(":")[1]) < parseInt(startTime.split(":")[1]))) {
+            setMintErrMessage("End Time cannot be before Start Time")
         }
-        
         else {
+            setAuctionArray(Array.from(Array(parseInt(mintNumber)).keys()))
             setMintErrMessage("")
             setShowTwo(false);
-            handleShowGenerating()
-            DeployLiveContracts()
+            handleShowThree()
         }
     }
+
+    const handleGenerate = () => {
+        handleCloseThree()
+        handleShowGenerating()
+        DeployLiveContracts()
+    }
+
+    const handleShowThree = () => setShowThree(true);
+    const handleCloseThree = () => setShowThree(false);
+
     const handleShowGenerating = () => setShowGenerating(true);
     const handleCloseGenerating = () => setShowGenerating(false);
 
 
     const DeployLiveContracts = async() => {
 
-        
-
-        const web3Modal = new Web3Modal({})
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
+        const signer = await ConnectWallet()
         const signerAddress = await signer.getAddress()
         const liveMintFactoryContract = new ethers.ContractFactory(LiveMintFactory.abi, LiveMintFactory.bytecode, signer)
         const liveAuctionFactoryContract = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-        
 
         let liveMintContract = await liveMintFactoryContract.deploy(
                 galleryName,
@@ -155,10 +230,8 @@ function LiveMint() {
                 mintNumber,
                 royalty*100
             );
-
         
         try {
-            
             await liveMintContract.deployTransaction.wait();
             setLoadingLiveMint(false)
         } catch {
@@ -174,7 +247,6 @@ function LiveMint() {
             );
         
         try {
-            
             await liveAuctionContract.deployTransaction.wait(); 
             setLoadingLiveAuction(false)
         } catch {
@@ -182,11 +254,10 @@ function LiveMint() {
             return
         }
 
-        
+        let transaction = await liveMintContract.transferOwnership(liveAuctionContract.address);
 
         try {
-            await liveMintContract.transferOwnership(liveAuctionContract.address);
-            
+            await transaction.wait()
         } catch {
             setSaveDetailsError(true)
             return
@@ -206,6 +277,9 @@ function LiveMint() {
 
         setMintAddress(liveMintAddress)
 
+        const filteredEditions = nftsPerAuction.filter(function(auction) {return auction.editions != " "})
+
+
         liveMint.set("StreamLink", stream);
         liveMint.set("MintNumber", mintNumber);
         liveMint.set("CollectionName", galleryName);
@@ -215,7 +289,10 @@ function LiveMint() {
         liveMint.set("date", date);
         liveMint.set("startTime", startTime);
         liveMint.set("endTime", endTime);
-
+        liveMint.set("editionsPerAuction", filteredEditions)
+        liveMint.set("totalEditions", filteredEditions.reduce(function (x, y) {
+            return x + y;
+        }, 0))
         liveMint.set("liveMintAddress", liveMintAddress);
         liveMint.set("liveAuctionAddress", liveAuctionAddress);
         liveMint.set("signerAddress", signerAddress);
@@ -238,242 +315,95 @@ function LiveMint() {
         
     }
 
+    const updateNFTsPerAuction = (auction) => e => {
+        let newArr = [...nftsPerAuction]
+        newArr[auction] = e.target.value
+        console.log(newArr, 'hercules')
+
+        setNFTsPerAuction(newArr)
+        console.log(nftsPerAuction)
+    }
+
+    const submitName = async() => {
+        user.set("username", nickname)
+        await user.save();
+    }
+
+
+
+
+
     
 
     return (
     <>
+    
       <MarketPlaceSection>
         <Container fluid className="p-3" style={{fontSize: 24, fontWeight: "bold"}}>
            <Row>
-                <Col sm={10}>
-                    NftyTunes <div style={{display: "inline-block"}}><img style={{display: "inline-block"}} src={live} height="15px" width="15px"></img> Live</div>: Putting Your Experiences On-Chain
+           
+                
+                <Col style={{display: "flex", paddingBottom:"20px", justifyContent: "center", alignItems: "center"}}>
+                    NftyTunes Live
                 </Col>
-                <Col sm={2}>
-                    <Button variant="dark" style={{borderRadius: "5rem", float: "right"}} onClick={()=>handleShow()}>
-                        + Create a Live Collection
+            </Row>
+           <Row>
+                <Col >
+                    <Button variant="light" style={{borderRadius: "5rem", float: "left", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
+                        How it Works
                     </Button>
                 </Col>
-           </Row>
-        </Container>
-        <Container fluid className="p-0" style={{backgroundColor: "white"}}>
-            <hr></hr>
-            <Row className="p-2">
-                <Col>    
-                    <ProductListLayout>
-                        <LiveCollectionIds/>
-                    </ProductListLayout>   
-                </Col> 
-                    
+                <Col >
+                    <Button variant="light" style={{borderRadius: "5rem", float: "right", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShow()}>
+                        +Create Collection
+                    </Button>
+                </Col>
             </Row>
+            
+        </Container>
+        <Container fluid style={{backgroundColor: "white"}}>
+            <Nav className="justify-content-left nav-tabs">
+                <Nav.Item>
+                    <Nav.Link as={Link} className = "text-dark-3" to="onsale">Past</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={Link} className = "text-dark-3" to="sold">Live</Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                    <Nav.Link as={Link} className = "text-dark-3" to="owned">Upcoming</Nav.Link>
+                </Nav.Item>
+                
+            </Nav>
+
+                    <CollectionListLayout>
+                        <LiveCollectionIds/>
+                    </CollectionListLayout>   
+
+                    
+
         </Container>
       </MarketPlaceSection>
-        <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-            <Modal.Header style={{backgroundColor: "black"}} >
-                <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
-            </Modal.Header>
-            <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                Enter Details for your Live Mint!
-            </Modal.Title>
-            <Form style={{padding: "30px"}}>
-                <Form.Group className="mb-3" controlId="nft.galleryName">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Collection Name"
-                        
-                        className="mb-3"
-                    >
-                    <Form.Control 
-                        type="input"
-                        placeholder= 'Collection Name'
-                        value={galleryName}
-                        onChange={e => setGalleryName(e.target.value)}/>
-                    </FloatingLabel>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="nft.gallerySymbol">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Collection Symbol"
-                        className="mb-3"
-                    >
-                    <Form.Control 
-                        type="input"
-                        placeholder= 'Collection Symbol'
-                        value={gallerySymbol}
-                        onChange={e => setGallerySymbol(e.target.value)}/>
-                    </FloatingLabel>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="nft.stream">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Stream Link"
-                        className="mb-3"
-                    >
-                    <Form.Control 
-                        type="input"
-                        placeholder= 'Enter Live Stream Link'
-                        value={stream}
-                        onChange={e => setStream(e.target.value)}/>
-                    </FloatingLabel>
-                </Form.Group>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="nft.royalty">
-                            <FloatingLabel
-                                controlId="floatingInput"
-                                label="Royalty %"
-                                className="mb-3"
-                            >
-                            <Form.Control 
-                                type="input"
-                                placeholder= 'Enter Royalty %'
-                                value={royalty}
-                                onChange={e => setRoyalty(e.target.value)}/>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="nft.mintNumber">
-                            <FloatingLabel
-                                controlId="floatingInput"
-                                label="# of NFTs to mint"
-                                className="mb-3"
-                            >
-                            <Form.Control 
-                                type="input"
-                                placeholder= '# of NFTs to Mint'
-                                value={mintNumber}
-                                onChange={e => setMintNumber(e.target.value)}/>
-                            </FloatingLabel>
-                        </Form.Group>
-                    </Col>
-                </Row>
-                <div className='d-flex justify-content-center m-1'>
-                    <small className='text-dark'>Cover Art (Shown before NFT Metadata is Inserted)</small>
-                </div>
-                <div className='d-flex justify-content-center p-2'>
-                    <Form.Group controlId = "uploadPhotoFile" style={{width: 275}}>
-                        <Form.Control 
-                            type="file" 
-                            placeholder="Upload Cover Art" 
-                            onChange={(e) => {
-                                try {
-                                    setCoverArt(e.target.files?.item(0))
-                                } catch {
-                                    setMintErrMessage("Please submit .png .gif files only")
-                                }
-                            }}
 
-                        />
-                    </Form.Group>
+        <NicknameModal showWelcomeModal={showWelcomeModal} handleCloseWelcomeModal={handleCloseWelcomeModal} 
+        setNickname={setNickname} nickname={nickname} submitName={submitName}/>
+        
+        <HowItWorksModal showPDF={showPDF} handleClosePDF={handleClosePDF} pdfHowItWorks={pdfHowItWorks} />
 
-                </div>
-                <div className='d-flex justify-content-center m-1'>
-                    <small className='text-dark'>Banner Image</small>
-                </div>
-                <div className='d-flex justify-content-center p-2'>
-                    <Form.Group controlId = "uploadPhotoFile" style={{width: 275}}>
-                        <Form.Control 
-                            type="file" 
-                            placeholder="Upload Banner Image" 
-                            onChange={(e) => {
-                                try {
-                                    setBannerImage(e.target.files?.item(0))
-                                } catch {
-                                    setMintErrMessage("Please submit .png .gif files only")
-                                }
-                                }}
-                        />
-                    </Form.Group>
+        <ModalOne show={show} handleClose={handleClose} galleryName={galleryName} setGalleryName={setGalleryName} 
+        gallerySymbol={gallerySymbol} setGallerySymbol={setGallerySymbol} stream={stream} setStream={setStream}
+        royalty={royalty} setRoyalty={setRoyalty} mintNumber={mintNumber} setMintNumber={setMintNumber} 
+        coverArt={coverArt} setCoverArt={setCoverArt} bannerImage={bannerImage} setBannerImage={setBannerImage}
+        handleNext={handleNext} mintErrMessage={mintErrMessage} setMintErrMessage={setMintErrMessage}/>
 
-                </div>
-                {mintErrMessage &&
-                        <Alert variant='danger'>
-                        <i class="bi bi-radioactive"></i>
-                        {'  '}{mintErrMessage}    
-                    </Alert>
-                }
-                <Button variant="dark" style={{borderRadius: "2rem", float: "right"}} onClick={()=>{handleNext();}}>
-                    Next
-                </Button>
+        <ModalTwo showTwo={showTwo} handleCloseTwo={handleCloseTwo} description={description} setDescription={setDescription}
+        date={date} setDate={setDate} endTime={endTime} setEndTime={setEndTime} startTime={startTime} setStartTime={setStartTime}
+        mintErrMessage={mintErrMessage} handleShow={handleShow} handleCloseTwo={handleCloseTwo} handleNextTwo={handleNextTwo} />
 
-            </Form>       
-        </Modal>
+        <ModalThree showThree={showThree} handleCloseThree={handleCloseThree} auctionArray={auctionArray} handleShowTwo={handleShowTwo}
+        handleGenerate={handleGenerate} mintErrMessage={mintErrMessage} updateNFTsPerAuction={updateNFTsPerAuction}/>
 
-        <Modal show={showTwo} onHide={handleCloseTwo} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-            <Modal.Header style={{backgroundColor: "black"}} >
-                <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
-            </Modal.Header>
-            <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                Almost Done!
-            </Modal.Title>
-            <Form style={{padding: "30px"}}>
-                <Form.Group className="mb-3" controlId="nft.description">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Collection Description"
-                        className="mb-3"
-                        rows={5}
-                    >
-                    <Form.Control 
-                        type="input"
-                        placeholder= 'Collection Description'
-                        value={description}
-                        onChange={e => setDescription(e.target.value)}/>
-                    </FloatingLabel>
-                </Form.Group>
-                <Form.Group className="mb-3" controlId="nft.Date">
-                    <div style={{fontSize: 12}}>Concert Date</div>
-                    <input
-                        type="date"
-                        name="from"
-                        id="startdate"
-                        value={date}
-                        onChange={e => setDate(e.target.value)}
-                        className="form-control datepicker"
-                        style={{ width: "150px" }}
-                    />
-                </Form.Group>
-                <Row>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="nft.startTime" >
-                            <div style={{fontSize: 12}}>Start Time</div>
-                            <input
-                                type="time"
-                                name="from"
-                                id="starttime"
-                                value={startTime}
-                                onChange={e => setStartTime(e.target.value)}
-                                className="form-control timepicker"
-                                style={{ width: "150px" }}
-                            />
-                        </Form.Group>
-                    </Col>
-                    <Col>
-                        <Form.Group className="mb-3" controlId="nft.startTime" >
-                            <div style={{fontSize: 12}}>End Time</div>
-                            <input
-                                type="time"
-                                name="from"
-                                id="endtime"
-                                value={endTime}
-                                onChange={e => setEndTime(e.target.value)}
-                                className="form-control timepicker"
-                                style={{ width: "150px" }}
-                            />
-                        </Form.Group>
-                    </Col>
-                </Row>
- 
-                <Button variant="dark" style={{borderRadius: "2rem", float: "left"}} onClick={()=>{handleShow();handleCloseTwo()}}>
-                    Back
-                </Button>
-                
-                <Button variant="dark" style={{borderRadius: "2rem", float: "right"}} onClick={()=>handleGenerate()}>
-                    Generate Contracts
-                </Button>
-     
-            </Form>       
-        </Modal>
+
+        
 
         <Modal show={showGenerating} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
             <Modal.Header style={{backgroundColor: "black"}} >

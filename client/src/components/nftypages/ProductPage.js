@@ -37,8 +37,6 @@ import { BuyLazyNFT } from "../nftymarketplace/BuyLazyNFT"
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
 import img from "../../assets/images/ethereum.png"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 
@@ -148,9 +146,12 @@ function ProductPage() {
                 </center>
                 <hr/>
                 <Row class="d-flex" style={{paddingBottom: "5px"}}>
-                  <Col style={{fontWeight: "Bold"}}>Artist: {nft[0].artistPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img>} {nft[0].artistName}</Col>
+                  <Col style={{fontWeight: "Bold"}}>Artist: {nft[0].artistPhoto && <img height="25" width="25" crossOrigin='true' 
+                  crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].artistPhoto}></img>} {nft[0].artistName}</Col>
                  
-                  <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: {nft[0].ownerPhoto && <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} src={nft[0].ownerPhoto}></img>} {nft[0].ownerName}</Col>
+                  <Col className="d-flex justify-content-end" style={{fontWeight: "Bold"}}>Owner: {nft[0].ownerPhoto && 
+                  <img height="25" width="25" crossOrigin='true' crossoriginresourcepolicy='false' style={{borderRadius: "2rem", display: "inline"}} 
+                  src={nft[0].ownerPhoto}></img>} {nft[0].ownerName}</Col>
                
                   
                 

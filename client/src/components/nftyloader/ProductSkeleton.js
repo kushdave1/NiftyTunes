@@ -14,7 +14,7 @@ function ProductSkeleton() {
   return (
     <SkeletonTheme baseColor='#e8e8e8' highlightColor='#f8f8f8' duration={1} enableAnimation='true'>
     <Col xs={1} md={4}>
-      <Card className="bg-dark shadow-sm" 
+      <Card className="bg-grey shadow-sm" 
             border="light" 
             style={{ width: '20rem', height: '30rem', borderRadius:'.25rem'}} >
                 <Container>

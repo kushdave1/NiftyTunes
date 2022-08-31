@@ -16,7 +16,7 @@ function CollectionImage({output, height}) {
               height={height}
               src={output}
               style={{
-                  borderRadius: "5rem",
+                  borderRadius: "1rem",
                   marginTop: "20px"
               }}
               >

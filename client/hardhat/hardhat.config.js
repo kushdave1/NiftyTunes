@@ -24,7 +24,7 @@ console.log(API_URL, PRIVATE_KEY);
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  //defaultNetwork: "rinkeby",
+  defaultNetwork: "goerli",
   solidity: "0.8.4",
   networks: {
     hardhat: {
@@ -37,6 +37,11 @@ module.exports = {
     rinkeby: {
       url: API_URL,
       chainId: 4,
+      accounts: [`0x${PRIVATE_KEY}`],
+    },
+    goerli: {
+      url: API_URL,
+      chainId: 5,
       accounts: [`0x${PRIVATE_KEY}`],
     }
   }

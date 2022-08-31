@@ -79,6 +79,17 @@ a { color: black; text-decoration: none; text-align: "center"}
   animation: spinner 1.5s linear infinite;
 }
 
+@media only screen and (min-width: 1024px) {
+  .mobile-nfts {
+
+  }
+}
+
+.listRight {
+  left: auto !important;
+  right: 0 !important;
+}
+
 
 
 @import "~bootstrap/scss/bootstrap";

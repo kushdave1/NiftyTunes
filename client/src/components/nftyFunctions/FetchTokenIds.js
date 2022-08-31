@@ -8,6 +8,8 @@ import axios from 'axios';
 import { fixURL, fixImageURL } from './fixURL'
 import { useIPFS } from "hooks/useIPFS";
 import { APP_ID, SERVER_URL } from "../../index"
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
+import { checkFileType } from "../nftyFunctions/checkFileType"
  
 
 export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddress, storageContractABI) => {
@@ -18,24 +20,26 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
 
     Moralis.start({ serverUrl, appId});
 
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    const signer = await ConnectWallet()
 
     const signerAddress = await signer.getAddress();
+
     const ListedNFTs = await Moralis.Object.extend("ListedNFTs");
 
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
     const storageContract = new ethers.Contract(storageAddress, storageContractABIJson, signer)
-    const dataStorage = await storageContract.fetchMarketItems()
+    
 
     const query = new Moralis.Query(ListedNFTs);
+    query.equalTo("isSold", false)
     const data = await query.find();
+    console.log(data, "this data")
     const items = []
 
     let image = ''
     let imageLink = ''
+
+    
 
     for (const i in data) {
       const object = data[i];
@@ -45,13 +49,16 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
             imageLink = meta.data[j]
         }
       }
+      const fileType = await checkFileType(imageLink)
       let item = {
         price: object.get("price"), 
+        fileType: fileType,
         tokenId: object.get("tokenId"),
         artist: object.get("signerAddress"),
+        owner: object.get("signerAddress"),
         artistPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         artistName: await fetchArtistName(object.get("signerAddress")),
-        owner: object.get("signerAddress"),
+       
         ownerPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         ownerName: await fetchArtistName(object.get("signerAddress")),
         coverPhotoURL: object.get("coverPhotoURL"),
@@ -62,7 +69,8 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
-        isSold: object.get("isSold")
+        isSold: object.get("isSold"),
+        tokenAddress: false
       }
       if (item.isSold === false) {
         console.log(item)
@@ -70,7 +78,7 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
       }
     }
 
-    
+    const dataStorage = await storageContract.fetchMarketItems()
 
     await Promise.all(dataStorage.map(async i => {
       if (i.tokenId.toString() === '0') {
@@ -84,23 +92,35 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
             imageLink = meta.data[j]
         }
       }
-      
+
+      const fileType = await checkFileType(imageLink)
+
+      console.log(fileType, "THIS FILETYPe")
+
+      let artistPhoto = await fetchArtistPhoto(i.publisher)
+      let artistName = await fetchArtistName(i.publisher)
+      let ownerPhoto = await fetchArtistPhoto(i.owner)
+      let ownerName = await fetchArtistName(i.owner)
+
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
+        fileType: fileType,
         tokenId: i.tokenId.toNumber(),
         owner: i.owner,
         seller: i.seller,
         artist: i.publisher,
-        artistPhoto: await fetchArtistPhoto(i.publisher),
-        artistName: await fetchArtistName(i.publisher),
-        ownerPhoto: await fetchArtistPhoto(i.owner),
-        ownerName: await fetchArtistName(i.owner),
+        artistPhoto: artistPhoto,
+        artistName: artistName,
+        ownerPhoto: ownerPhoto,
+        ownerName: ownerName,
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
-        lazy: false
+        lazy: false,
+        tokenAddress: i.tokenAddress,
+
       }
       console.log(item)
       items.push(item)
@@ -118,10 +138,8 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
 
     Moralis.start({ serverUrl, appId});
 
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+  
+    const signer = await ConnectWallet()
 
     const signerAddress = await signer.getAddress();
     const ListedNFTs = await Moralis.Object.extend("ListedNFTs");
@@ -147,8 +165,10 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
             imageLink = meta.data[j]
         }
       }
+      const fileType = await checkFileType(imageLink)
       let item = {
         price: object.get("price"), 
+        fileType: fileType,
         tokenId: object.get("tokenId"),
         artist: object.get("signerAddress"),
         artistPhoto: await fetchArtistPhoto(object.get("signerAddress")),
@@ -164,7 +184,8 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
-        isSold: object.get("isSold")
+        isSold: object.get("isSold"),
+        tokenAddress: false
       }
       console.log(item.isSold, "This item is stated as this")
       if (item.isSold === false) {
@@ -176,7 +197,7 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
     
 
     await Promise.all(dataStorage.map(async i => {
-      console.log(i)
+      console.log(i, "datastore")
       if (i.tokenId.toString() === '0') {
         return;
       }
@@ -188,10 +209,11 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
             imageLink = meta.data[j]
         }
       }
-      
+      const fileType = await checkFileType(imageLink)
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
+        fileType: fileType,
         tokenId: i.tokenId.toNumber(),
         owner: i.owner,
         seller: i.seller,
@@ -204,7 +226,8 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
-        lazy: false
+        lazy: false,
+        tokenAddress: i.tokenAddress
       }
       items.push(item)
       console.log(item)
@@ -222,10 +245,8 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
 
     Moralis.start({ serverUrl, appId});
 
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    
+    const signer = await ConnectWallet()
 
     const signerAddress = await signer.getAddress();
 
@@ -238,7 +259,6 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
     
     await Promise.all(dataStorage.map(async i => {
       if (i.tokenId.toString() === '0') {
-        console.log('mothafucka')
         return;
       }
       const tokenURI = await marketplaceContract.tokenURI(i.tokenId)
@@ -249,10 +269,11 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
             imageLink = meta.data[j]
         }
       }
-      
+      const fileType = await checkFileType(imageLink)
       let price = ethers.utils.formatUnits(i.price.toString(), 'ether')
       let item = {
         price,
+        fileType: fileType,
         tokenId: i.tokenId.toNumber(),
         owner: i.owner,
         seller: i.seller,
@@ -266,7 +287,8 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
-        lazy: false
+        lazy: false,
+        tokenAddress: i.tokenAddress
       }
       items.push(item)
     }))

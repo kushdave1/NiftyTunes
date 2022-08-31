@@ -15,6 +15,7 @@ import styled from 'styled-components'
 import {useMoralis} from 'react-moralis'
 import img from "../../assets/images/NT_Black_2.png";
 import AccountButton from './AccountButton'
+import AccountMobileButton from './AccountMobileButton'
 import ConnectButton from './ConnectButton'
 import Search from '../nftymarketplace/Search'
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
@@ -31,6 +32,7 @@ const NavFormat = styled.div `
 function Navigation() {
     const {isAuthenticated, user} = useMoralis();
     const [search, setSearch] = useState("");
+    const [width, setWindowWidth] = useState();
     const [data, setData] = useState([{
         name: "",
         owner: "",
@@ -39,10 +41,29 @@ function Navigation() {
     let navigate = useNavigate();
 
     useEffect(() => {
+        updateDimensions();
         if(!user) return null;
         fetchTokenIds();
         console.log(data);
+
+        
+
+        window.addEventListener("resize", updateDimensions);
+        console.log(width, responsive.showTopNavMenu, "asfinaifn")
+
+        return () => window.removeEventListener("resize",updateDimensions);
+
     }, [user]);
+
+    const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+    const responsive = {
+        showTopNavMenu: width > 1023
+    }
+
 
 
     const fetchTokenIds = async() => {
@@ -63,6 +84,8 @@ function Navigation() {
     }
 
     return (
+        <>
+        {(responsive.showTopNavMenu) ? (
             <Navbar className="shadow-lg bottom" style={{ padding: 10 }} bg='white' expand="lg">
                 <Container>   
                 <Navbar.Brand href="#" onClick={()=> navigate('/')}>
@@ -105,20 +128,20 @@ function Navigation() {
                             
                             
                             
-                            <ConnectButton />
+                            
                             {user?
                                 (
                                 <>
-                                <Nav.Link className="text-primary" style={{fontWeight:"500"}} onClick={()=> navigate('/live')}>
+                                <Nav.Link className="text-primary" style={{fontWeight:"500", paddingLeft: "0.5rem", paddingRight: "1.5rem"}} onClick={()=> navigate('/live')}>
                                 <img style={{display: "inline-block"}} src={live} height="30px" width="81px"></img></Nav.Link>
-                                <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/marketplace')}>
+                                <Nav.Link className="text-dark-2" style={{fontWeight:"500", paddingRight: "1.5rem"}} onClick={()=> navigate('/marketplace')}>
                                 Explore</Nav.Link>
                                 <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/createnft')}>
                                 NftyLoops</Nav.Link>
                                 {/* <Nav.Link className="text-dark-2" style={{fontWeight:"500"}} onClick={()=> navigate('/profile')}>My profile</Nav.Link> */}
                                 </>
                                 ):
-                                (<></>)
+                                (<ConnectButton />)
                             }
 
                             
@@ -130,6 +153,22 @@ function Navigation() {
                                 </Navbar.Collapse>
                     </Container>
             </Navbar>
+        ) : (
+            <Navbar className="shadow-lg bottom" bg='white' expand="lg">
+                <Container>   
+                <Navbar.Brand href="#" onClick={()=> navigate('/')}>
+                    <img src={img} width="47" height="40" className="d-inline-block align-top"
+                    alt="React Bootstrap logo"></img>
+                    </Navbar.Brand> 
+                       
+                                
+                    {(user) ? (<AccountMobileButton />) : (<ConnectButton/>)}
+                    
+                    
+                    </Container>
+            </Navbar>
+        )}
+        </>
     )
 }
 

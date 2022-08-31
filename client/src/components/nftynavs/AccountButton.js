@@ -45,10 +45,11 @@ function AccountButton() {
                 className="mt-2 fixed"
             >
                 <Dropdown.Item href="/profile"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
-                <Dropdown.Item href="/wethbalance"><i class="bi bi-gear-fill"></i> WETH Balance</Dropdown.Item>
+                <Dropdown.Item href="/live">🤳🏻 Live Mints</Dropdown.Item>
+                {/* <Dropdown.Item href="/wethbalance"><i class="bi bi-gear-fill"></i> WETH Balance</Dropdown.Item>
                 <Dropdown.Item href="/collections">🐇 Mint a Bunny</Dropdown.Item>
                 <Dropdown.Item href="/staking">🥩 Stake a Bunny</Dropdown.Item>
-                
+                 */}
                 <Dropdown.Divider />
                 <Dropdown.Item onClick={handleDisconnect}><i class="bi bi-box-arrow-left"></i> Logout</Dropdown.Item>
             </DropdownButton>

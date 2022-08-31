@@ -41,6 +41,7 @@ import ProductSkeleton from '../nftyloader/ProductSkeleton'
 import ProductCardsLayoutLazy from '../nftylayouts/ProductCardsLayoutLazy'
 import ProductListLayout from '../nftylayouts/ProductListLayout'
 import styled from 'styled-components'
+import { ConnectWallet } from '../nftyFunctions/ConnectWallet'
 
 
 const { Meta } = Card;
@@ -112,10 +113,8 @@ function MyListedNFTs() {
 
 
   const deListNFT = async(nft) => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    
+    const signer = ConnectWallet()
     
     const marketplaceContract = new ethers.Contract(marketAddress, contractABIJson, signer)
     let transaction = await marketplaceContract.delistToken(nft.tokenId)
@@ -124,20 +123,6 @@ function MyListedNFTs() {
     console.log('success for sure')
 
   }
-
-
-  const acceptBid = async(nft) =>  {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
-
-    const marketContract = new ethers.Contract(marketAddress, contractABIJson, signer)
-
-    let transaction = await marketContract.acceptBid(nft.tokenId)
-    transaction.wait();
-  }  
-
 
   return (
     
@@ -156,12 +141,11 @@ function MyListedNFTs() {
                 nfts && nfts.map((nft, index) => {
                   if (nft.name !== "") { 
                     return(
-                    <Col>
-                    <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
-                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
-                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price}
-                    handleShow={handleShow} handleSellClick={handleSellClick} coverPhotoURL={nft.coverPhotoURL}/>
-                    </Col>
+                    <ProductListLayout>
+                    <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} nft={nft} 
+                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress}
+                    tokenId={nft.tokenId}/>
+                    </ProductListLayout>
 
                   )}}
               ))

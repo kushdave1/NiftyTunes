@@ -36,6 +36,7 @@ import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 import { signMyItem, deployMyGallery } from "../nftyFunctions/LazyFactoryAction";
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
 
 function NFTModalNftyLive(props) {
@@ -93,15 +94,11 @@ function NFTModalNftyLive(props) {
     // Extraneous moralis functions -- ended up going with ethers for contract interaction 
 
     const SetAuctionTokenURI = async(tokenURI) => {
-        const web3Modal = new Web3Modal({})
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
+
+        const signer = await ConnectWallet()
 
         const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
         const liveAuctionFactoryContract = liveAuctionFactory.attach(props.auctionAddress);
-    
         await liveAuctionFactoryContract.end(tokenURI)
   
     }

@@ -16,7 +16,7 @@ import Alert from 'react-bootstrap/Alert'
 import live from "../../assets/images/liveTwo.png"
 import checkmark from "../../assets/images/checkmark.png"
 import error from '../../assets/images/error.png'
-
+import xicon from '../../assets/images/xicon.png'
 //custom
 import NFTPlayer from '../nftymix/NFTPlayer'
 import NFTImage from '../nftymix/NFTImage'
@@ -24,6 +24,9 @@ import NFTAudioPlayer from '../nftymix/NFTAudioPlayer'
 
 //Modals
 import NFTModalNftyLive from '../nftyForms/NFTModalNftyLive'
+import BidAcceptModal from '../nftyModals/BidModals/BidAcceptModal'
+import BidLoadingModal from '../nftyModals/BidModals/BidLoadingModal'
+import WithdrawLoadingModal from '../nftyModals/BidModals/WithdrawLoadingModal'
 
 // functions
 import StartAuction from '../nftymarketplace/StartAuction'
@@ -51,9 +54,8 @@ import { useState, useEffect } from "react"
 import img from "../../assets/images/ethereum.png"
 import monkey from "../../assets/images/gorilla.png"
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 import Countdown from "../nftyFunctions/CountdownTimer"
@@ -62,12 +64,14 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
  
-function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artist, artistPhoto, collection, image, coverArt, name, description, nft, auctionAddress}) {
+function ProductCardsLayoutLive({index, owner, ownerName, artistName, artist, 
+artistPhoto, collection, image, coverArt, name, description, nft, auctionAddress, 
+editionsPerAuction, sold, fileType}) {
 
   const defaultRemainingTime = {
     seconds: '00',
-    minutes: '00'
-    //hours: '00'
+    minutes: '00',
+    hours: '00'
   }
 
   const [showBidModal, setShowBidModal] = useState(false)
@@ -108,6 +112,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
   
 
   useEffect(async() => {
+      console.log(fileType, "BIGSHTUFF")
       const timeLeftIn = await getStarted()
 
       const intervalId = setInterval(() => {
@@ -122,7 +127,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
   const updateRemainingTime = async(countdown) => {
 
-
+      
       const secondsLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000)
 
 
@@ -130,12 +135,11 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
       const minutesLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60)
       const minutesLeft = minutesLeftInAuction % 60
 
-      const hoursLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60/24)
-      const hoursLeft = hoursLeftInAuction % 24
+      const hoursLeft = Math.floor((new Date(countdown*1000) - new Date())/1000/60/60)
       const remaintime = {
         seconds: secondsLeft.toString(),
         minutes: minutesLeft.toString(),
-        //hours: hoursLeft.toString()
+        hours: hoursLeft.toString()
       }
       setRemainingTime({
         seconds: secondsLeft.toString(),
@@ -151,16 +155,14 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
 
   const getStarted = async() => {
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
+      
+      const signer = await ConnectWallet()
 
       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
 
       let isStarted = await liveAuctionFactoryContract.isStarted()
-      
+
       let currentTokenId = await liveAuctionFactoryContract.getCurrentItem()
 
       if (currentTokenId > index) {
@@ -169,7 +171,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
       }
 
       try {
-        let cBid = await liveAuctionFactoryContract.getBid(index)
+        let cBid = await liveAuctionFactoryContract.getBid()
         console.log(cBid)
         let res = utils.formatEther(cBid);
         res = Math.round(res * 1e5) / 1e5;
@@ -205,19 +207,42 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
 
   const PlaceBid = async() => {
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
+      setBidLoading(true)
+      setBidError(false)
+      setBidSuccess(false)
+      
+      const signer = await ConnectWallet()
 
       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
 
       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-      const price = ethers.utils.parseUnits(bidAmount, 'ether')
+
+      let lastBid = 0;
+      try {
+        lastBid = await liveAuctionFactoryContract.getBid()
+        lastBid = lastBid.toNumber()
+      } catch (e) {
+        console.log(e)  
+      }
       
+      console.log(lastBid, "lastbid")
 
       try {
-          await liveAuctionFactoryContract.bid({value: price})
+      let currentBid = ethers.utils.parseUnits(bidAmount.toString(), 'ether')
+      } catch {
+          let currentBid = 0
+          setBidLoading(false)
+          setBidError(true)
+      }
+      console.log(currentBid, "currentbid")
+      
+      
+      let transaction; 
+
+      try {
+          let price = currentBid.sub(lastBid)
+          transaction = await liveAuctionFactoryContract.bid({value: price})
+          await transaction.wait()
           setBidLoading(false)
          
       } catch (error) {
@@ -231,18 +256,21 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
   }
 
   const WithdrawFunds = async() => {
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
+      setWithdrawError(false)
+      setWithdrawSuccess(false)
+      setWithdrawLoading(true)
+      
+      const signer = await ConnectWallet()
 
       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
 
       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
       
+      let transaction 
 
       try {
-          await liveAuctionFactoryContract.withdraw()
+          transaction = await liveAuctionFactoryContract.withdraw()
+          await transaction.wait()
           setWithdrawLoading(false)
          
       } catch (error) {
@@ -257,11 +285,11 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
   return (
     <>
-    <Col xs={1} md={4} style={{paddingBottom:"20px"}}>
-      <Link to={`/${artist}/${name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+    <Col xs={1} md={4} style={{paddingBottom:"20px",  display: "flex", alignItems: "center", justifyContent: "center"}}>
         <Card className="bg-light shadow-sm"
               style={{ width: '23rem', height: '33rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
-              { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImage output={image}/>) : 
+              { (fileType.toString().includes('png') || fileType.toString().includes('gif') || fileType.toString().includes('jpg') || 
+              fileType.toString().includes('jpeg') || fileType.toString().includes('usemoralis')) ? (<NFTImage output={image}/>) : 
               (<NFTPlayer output={image}/>) }
             
             <Card.Body>
@@ -271,7 +299,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                     </Col>
                     <Col sm={4}>
                         <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>
-                        {(started && !ended) ? (<Card.Text> {remainingTime.minutes} : {remainingTime.seconds}</Card.Text>) :
+                        {(started && !ended) ? (<Card.Text> {remainingTime.hours} : {remainingTime.minutes} : {remainingTime.seconds}</Card.Text>) :
                           (started && ended) ? (<Card.Text>Ended</Card.Text>) :
                          (<Card.Text>Not Started</Card.Text>)}</Card.Title>
                     </Col>
@@ -286,24 +314,46 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                         src={monkey} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>)} 
                         @{artist}</Card.Text>
                     </Col> */}
+                    {(sold) ? (
+                      <Col>
+                        <Card.Text className="text-dark" style={{fontSize: 12}}>
+                        Sold to: {(ownerName) ? (ownerName) : ("...".concat(owner.slice(25,43)))}
+                        </Card.Text>
+                      </Col>
+                    ) : (
+                    <>
                     <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 10}}>
-                        Your Current Bid: {currentBid}<img style={{display: "inline"}} src={img} height="20" width="20"/>
+                        <Card.Text className="text-dark" style={{fontSize: 12}}>
+                        Your Bid: {(currentBid) ? (currentBid) : (0)}<img style={{display: "inline"}} src={img} height="20" width="20"/>
                         </Card.Text>
                     </Col>
+                    <Col>
+                      <Card.Text className="text-dark" style={{fontSize: 12, float:"right"}}>
+                        {editionsPerAuction[0]} Editions
+                      </Card.Text>
+                    </Col>
+                    </>
+                    )
+                    }
+                    
 
               </Row>
 
             </Card.Body>
             <Card.Footer className="bg-dark text-muted">
-              <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
+            <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
+                <Col style={{float: "right"}}>
+                  <img style={{float: "right"}} src={nftyimg} width="35px" height="40px"/>
+                </Col>
+              </Row>
+              {/* <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
                 <Col>
                   {(started && ended) ? (<></>) : (started) ? (<Button className="button-hover" variant="secondary" 
                   style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem" }} 
                   onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
                   onClick={(e) => {handleShowBidModal(); e.preventDefault()}}>Place Bid</Button>) : (<></>)}
                    
-                  {/* <StartAuctionButton setStarted={setStarted}/> */}
+
                 </Col>
                 <Col style={{justifyContent: 'right', display: "flex"}}>
                   <Button className="button-hover" variant="secondary" 
@@ -311,132 +361,20 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                   onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
                   onClick={(e) => {WithdrawFunds();handleShowWithdrawLoadingModal(); e.preventDefault()}}>Withdraw</Button>
                 </Col>
-              </Row>
+              </Row> */}
             </Card.Footer>
         </Card>
-      </Link>
+    
     </Col>
 
-    <Modal show={showBidModal} onHide={handleCloseBidModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-        <Modal.Header style={{backgroundColor: "black"}} >
-            <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
-        </Modal.Header>
-        <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-            How much would you like to bid on this NFT for?
-        </Modal.Title>
-        <Form style={{padding: "30px"}}>
-            <Form.Group className="mb-3" controlId="nft.bidAmount">
-                <FloatingLabel
-                    controlId="floatingInput"
-                    label="Price (ETH)"
-                    style={{width: "150px"}}
-                    className="mb-3"
-                >
-                <Form.Control 
-                    type="input"
-                    placeholder= 'Auction Time (Minutes)'
-                    
-                    value={bidAmount}
-                    onChange={e => setBidAmount(e.target.value)}/>
-                    
-                </FloatingLabel>
-            </Form.Group>
-            <Button variant="dark" style={{borderRadius: "2rem", float: "right", width: "100px"}} 
-            onClick={()=>{handleCloseBidModal();handleShowBidLoadingModal();PlaceBid()}}>
-                Place Bid
-            </Button>
-        </Form>      
-    </Modal>
-
-    <Modal show={showBidLoadingModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
-            <Modal.Header style={{backgroundColor: "black"}} >
-                <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
-            </Modal.Header>
-            <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                Placing your Bid!
-            </Modal.Title>
-            <Row style={{padding: "30px 30px 30px 30px"}}>
-                <Col sm={7} className="align-self-center">
-                    <div>
-                    <h4 className="text-start fw-bold mb-0">Placing the <span className="text-primary">Live </span><br/>Bid</h4>
-                    <small className='text-muted'>This should only take a minute</small>
-                    </div>
-                </Col>
-                <Col sm={5} className="align-self-center">
-                    
-                    {(bidLoading) ? (<center className="spinner-container">
-                        <div className="loading-spinner">
-                        </div>
-                    </center>) : (bidError) ? (<center>
-                        <img src={error} width="50px" height="50px"></img>
-                    </center>) : (<center>
-                        <img src={checkmark} width="50px" height="50px"></img>
-                    </center>)}
-                   
-                </Col>
-                
-            </Row>
-            {bidSuccess &&
-                <Alert variant='success' className="py-1">
-                <i class="bi bi-check-circle-fill"></i>
-                {' '} Congratulations! Your bid has been placed!
-                <Alert.Link onClick={() => handleCloseBidLoadingModal()}>Go back to Auction Console</Alert.Link>
-                </Alert>
-            }
-            {bidError && 
-              <Alert variant='danger' >
-                <i class="bi bi-check-circle-fill"></i>
-                {' '} Your transaction failed
-                <Alert.Link onClick={() => handleCloseBidLoadingModal()}><br />Go back to Auction Console</Alert.Link>
-                </Alert>
-
-            }
-      </Modal>
-
-      <Modal show={showWithdrawLoadingModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
-            <Modal.Header style={{backgroundColor: "black"}} >
-                <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
-            </Modal.Header>
-            <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                Placing your Bid!
-            </Modal.Title>
-            <Row style={{padding: "30px 30px 30px 30px"}}>
-                <Col sm={7} className="align-self-center">
-                    <div>
-                    <h4 className="text-start fw-bold mb-0">Withdrawing the <span className="text-primary">Live </span>Bid</h4>
-                    <small className='text-muted'>This should only take a minute</small>
-                    </div>
-                </Col>
-                <Col sm={5} className="align-self-center">
-                    
-                    {(withdrawLoading) ? (<center className="spinner-container">
-                        <div className="loading-spinner">
-                        </div>
-                    </center>) : (withdrawError) ? (<center>
-                        <img src={error} width="50px" height="50px"></img>
-                    </center>) : (<center>
-                        <img src={checkmark} width="50px" height="50px"></img>
-                    </center>)}
-                   
-                </Col>
-                
-            </Row>
-            {withdrawSuccess &&
-                <Alert variant='success' className="py-1">
-                <i class="bi bi-check-circle-fill"></i>
-                {' '} Congratulations! Your Withdrawal has been successful!
-                <Alert.Link onClick={() => handleCloseWithdrawLoadingModal()}>Go back to Auction Console</Alert.Link>
-                </Alert>
-            }
-            {withdrawError && 
-              <Alert variant='danger' >
-                <i class="bi bi-check-circle-fill"></i>
-                {' '} Your transaction failed
-                <Alert.Link onClick={() => handleCloseWithdrawLoadingModal()}><br />Go back to Auction Console</Alert.Link>
-                </Alert>
-
-            }
-      </Modal>
+    <BidAcceptModal showBidModal={showBidModal} handleCloseBidModal={handleCloseBidModal} currentBid={currentBid}
+     handleShowBidLoadingModal={handleShowBidLoadingModal} auctionAddress={auctionAddress}/>
+    
+    <BidLoadingModal showBidLoadingModal={showBidLoadingModal} bidLoading={bidLoading} bidError={bidError} bidSuccess={bidSuccess} 
+    handleCloseBidLoadingModal={handleCloseBidLoadingModal} auctionAddress={auctionAddress}/>
+    
+    <WithdrawLoadingModal showWithdrawLoadingModal={showWithdrawLoadingModal} withdrawLoading={withdrawLoading} withdrawError={withdrawError} 
+    withdrawSuccess={withdrawSuccess} handleCloseWithdrawLoadingModal={handleCloseWithdrawLoadingModal} />
    
         
       
@@ -444,4 +382,4 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
   )
 }
 
-export default ProductCardsLayoutLiveAdmin
+export default ProductCardsLayoutLive
