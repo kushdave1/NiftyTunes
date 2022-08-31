@@ -1,0 +1,23 @@
+Metadata-Version: 1.1
+Name: slither
+Version: 0.3.0
+Summary: A Python module that uses PyGame to bring Scratch-like features to Python
+Home-page: https://github.com/PySlither/Slither
+Author: The PySlither Devs
+Author-email: none
+License: MIT
+Description: A Python module that uses PyGame to bring Scratch-like features to Python. PyGame IS required for this module to work.
+Keywords: scratch pygame
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Other Audience
+Classifier: Topic :: Games/Entertainment
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 2
+Classifier: Programming Language :: Python :: 2.6
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.2
+Classifier: Programming Language :: Python :: 3.3
+Classifier: Programming Language :: Python :: 3.4
+Classifier: Programming Language :: Python :: 3.5

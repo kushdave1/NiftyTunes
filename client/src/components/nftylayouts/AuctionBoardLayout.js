@@ -7,14 +7,17 @@ import { fetchArtistName, fetchArtistPhoto } from "../nftyFunctions/fetchCloudDa
 
 import { ethers, utils } from 'ethers'
 import Web3Modal from 'web3modal';
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
+import Row from 'react-bootstrap/Row'
+import Col from 'react-bootstrap/Col'
 
 import goTo from '../../assets/images/linkGoTo.jpeg'
 
 
-function AuctionBoard({auctionAddress, signerAddress}) {
+function AuctionBoard({auctionAddress, signerAddress, responsive, mintNumber}) {
 
     const [events, setEvents] = useState([{
         tokenId: "",
@@ -27,11 +30,8 @@ function AuctionBoard({auctionAddress, signerAddress}) {
 
 
     const getContract = async() => {
-
-        const web3Modal = new Web3Modal({})
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
+        
+        const signer = await ConnectWallet()
 
         const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
         const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
@@ -40,24 +40,23 @@ function AuctionBoard({auctionAddress, signerAddress}) {
 
     }
 
-    const handleStart = async(tokenId, highestBid) => {
+    const handleStart = async(highestBid, timestamp) => {
+        
         let bid = ethers.utils.formatUnits(highestBid.toString(), 'ether')
         let user = await fetchArtistName(signerAddress)
         let ellipsis = "..."
+        let date = new Date(timestamp.toNumber()*1000)
+        
+        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
+        
         if (user.length === 25) {
             user = ellipsis.concat(signerAddress.slice(33,43))
         } 
 
-        let item = {
-            tokenId: tokenId.toNumber(),
-            username: user,
-            address: signerAddress,
-            event: "Auction Started",
-            bid: bid
-        }
         
         setEvents(previousEvents => [...previousEvents, {
-            tokenId: tokenId.toNumber(),
+            date: time,
+            timestamp: timestamp.toNumber(),
             username: user,
             address: signerAddress,
             event: "Auction Started",
@@ -66,39 +65,57 @@ function AuctionBoard({auctionAddress, signerAddress}) {
         
     }
 
-    const handleBid = async(sender, amount, tokenId) => {
+    const handleBid = async(sender, amount, timestamp) => {
         
         let bid = ethers.utils.formatUnits(amount.toString(), 'ether')
         let user = await fetchArtistName(sender)
-        let ellipsis = "..."
+        let ellipsis = "..." 
+        if (user===undefined) {
+            user = ellipsis.concat(sender.slice(33,43))
+        }
         if (user.length === 25) {
             user = ellipsis.concat(sender.slice(33,43))
         } 
 
+        let date = new Date(timestamp.toNumber()*1000)
+        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
+
         setEvents(previousEvents => [...previousEvents, {
-            tokenId: tokenId.toNumber(),
+    
+            date: time,
+            timestamp: timestamp.toNumber(),
             username: user,
             address: sender,
             event: "Bid Placed",
             bid: bid
         }])
+
+
         
     }
 
-    const handleEnd = async(highestBidder, highestBid, tokenId) => {
-        let bid = ethers.utils.formatUnits(highestBid.toString(), 'ether')
-        let user = await fetchArtistName(highestBidder)
-        if (user.length === 25) {
-            user = ("...").concat(highestBidder.slice(33,43))
-        } 
+    const handleEnd = async(highestBidder, timestamp) => {
+        const users = []
+        for (const i in highestBidder) {
+            let user = await fetchArtistName(highestBidder[i])
+            if (user.length === 25) {
+                user = ("...").concat(highestBidder[i].slice(33,43))
+            } 
+            users.push(user)
+        }
 
-      
+        let date = new Date(timestamp.toNumber()*1000)
+        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
+        
+        console.log(highestBidder, timestamp, "END AUCTION")
         setEvents(previousEvents => [...previousEvents, {
-            tokenId: tokenId.toNumber(),
-            username: user,
+  
+            date: time,
+            timestamp: timestamp.toNumber(),
+            username: users.join(","),
             address: highestBidder,
             event: "Auction Ended",
-            bid: bid
+            bid: 0
         }])
         
     }
@@ -106,24 +123,87 @@ function AuctionBoard({auctionAddress, signerAddress}) {
     const handlePastEvents = async(contract) => {
         const filterStart = contract.filters.Start(null, null)
         const startItems = await contract.queryFilter(filterStart)
+
         for (const i in startItems) {
-            handleStart(startItems[i]["args"]["tokenId"],startItems[i]["args"]["highestBid"])
+  
+            handleStart(startItems[i]["args"]["highestBid"], startItems[i]["args"]["timestamp"])
             //handleStart(item.tokenId, item.highestBid)
         }
 
         const filterBid = contract.filters.Bid(null, null, null)
         const bidItems = await contract.queryFilter(filterBid)
         for (const i in bidItems) {
-            handleBid(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"],bidItems[i]["args"]["tokenId"])
+            handleBid(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"],bidItems[i]["args"]["timestamp"])
+            console.log(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"], "THESE ARE THE BIDS")
         }
 
-        const filterEnd = contract.filters.End(null, null, null)
+        const filterEnd = contract.filters.End(null, null)
         const endItems = await contract.queryFilter(filterEnd)
         for (const i in endItems) {
-            handleEnd(endItems[i]["args"]["highestBidder"],endItems[i]["args"]["highestBid"],endItems[i]["args"]["tokenId"])
+            handleEnd(endItems[i]["args"]["winningBidders"],endItems[i]["args"]["timestamp"])
         }
 
     }
+
+    const filterEvents = async(currEvents) => {
+        currEvents.forEach(function (event, indexI) {
+            currEvents.forEach(function(eventTwo, indexJ) {
+                if (indexI!==indexJ) {
+                    if (event.username===eventTwo.username) {
+                        currEvents.splice(indexJ, 1)
+                    }
+                }
+            })
+        })
+        return currEvents
+    }
+
+    const sortEvents = () => {
+        let currEvents = events
+        
+        currEvents.sort((a,b) => {
+            if (a.bid !== "" || b.bid !== "") {
+                return b.bid-a.bid
+            }
+        } 
+        )
+
+        currEvents.forEach(function (event, i) {
+            currEvents.forEach(function (eventTwo, j) {
+                if (event.username === eventTwo.username && i !== j && event.bid >= eventTwo.bid) {
+
+                    currEvents.splice(j,1)
+                        
+                }
+            })
+        })
+
+        currEvents.forEach(function (event, i) {
+            currEvents.forEach(function (eventTwo, j) {
+                if (event.username === eventTwo.username && i !== j) {
+
+                    currEvents.splice(j,1)
+                        
+                }
+            })
+        })
+
+        setEvents(currEvents.slice(0,parseInt(mintNumber)))
+        
+    }
+        // for(let i = 0; i < events.length; i++) {
+        //     for(let j = 0; j < events.length; i++) {
+        //         if (i!==j) {
+        //             console.log(events[1], j)
+
+        //             if (events[i]['date']=== events[j]['date']) {
+        //                 setEvents(events.splice(j, 1))
+        //             }
+        //         }
+        //     i++
+        //     } 
+        // 
+
 
     const sendToEtherscan = async(address) => {
         window.location.href = "http://www.etherscan.io/address/"+address;
@@ -132,28 +212,38 @@ function AuctionBoard({auctionAddress, signerAddress}) {
 
     useEffect(async() => {
 
+
         const contract = await getContract();
-        await handlePastEvents(contract)
+        
 
         // contract.on("Start", await handleStart)
         // contract.on("Bid", await handleBid)
         // contract.on("End", await handleEnd)
-        
 
+        await handlePastEvents(contract)
+        
         return () => {
             contract.removeAllListeners("Start")
             contract.removeAllListeners("Bid")
             contract.removeAllListeners("End")
         }
+
+        
     }, [])
 
     
 
     return (
-    <Table striped bordered hover>
+    
+    (responsive) ? (
+        <>
+        <Button onClick={()=>sortEvents()} style={{borderRadius: "2rem", 
+        borderColor: "black", backgroundColor: "white", color: "black"}}>Refresh Table</Button>
+    <Table striped bordered hover responsive>
+      
       <thead>
         <tr style={{backgroundColor: "black", color: "white"}}>
-          <th>NFT #</th>
+          
           <th>User/Address</th>
           <th>Event</th>
           <th>Bid (Eth)</th>
@@ -162,13 +252,14 @@ function AuctionBoard({auctionAddress, signerAddress}) {
       <tbody>
         {events && events.map((event, index) => {
             return (
-                (event.tokenId !== "") ? (
+                (event.date !== "") ? (
                     <tr>
-                        <td>{event.tokenId}</td>
                         
-                        <td><a href={`http://www.etherscan.io/address/${event.address}`} target="_blank" style={{textDecoration: "none", display: "inline"}}>
-                        {event.username}<img src={goTo} height="20px" width="20px" style={{display: "inline"}}/></a></td>
-                        
+                        {(event.username.includes(",")) ? (<td>
+                        {event.username}</td>) : (
+                        <td>
+                        {event.username}</td>)}
+                    
                         <td>{event.event}</td>
                         <td>{event.bid}</td>
                     </tr>
@@ -179,6 +270,49 @@ function AuctionBoard({auctionAddress, signerAddress}) {
         
       </tbody>
     </Table>
+    </>
+    ) : (
+        <>
+        <Row className="py-2">
+            <Col style={{float: 'right'}}>
+                <Button onClick={()=>sortEvents()} width='5rem' 
+                style={{borderRadius: "2rem", borderColor: "black", 
+                backgroundColor: "white", color: "black"}}>Get Top Bids</Button>
+            </Col>
+        </Row>
+    <Table striped bordered hover responsive style={{fontSize: 10}}>
+        
+      <thead>
+        <tr style={{backgroundColor: "black", color: "white"}}>
+          
+          <th>User/Address</th>
+          <th>Event</th>
+          <th>Bid (Eth)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {events && events.map((event, index) => {
+            return (
+                (event.tokenId !== "") ? (
+                    <tr>
+                        
+                        {(event.username.includes(",")) ? (<td>
+                        {event.username}</td>) : (
+                        <td>
+                        {event.username}</td>)}
+                    
+                        <td>{event.event}</td>
+                        <td>{event.bid}</td>
+                    </tr>
+                ) : (<></>)
+                
+            )
+        })}
+        
+      </tbody>
+    </Table>
+    </>
+    )
   );
 }
 

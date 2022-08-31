@@ -27,8 +27,7 @@ import { BuyNFT } from "../nftymarketplace/BuyNFT"
 import { useState } from "react"
 import img from "../../assets/images/ethereum.png"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
+
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 import nftyimg from "../../assets/images/NT_White_Isotype.png";

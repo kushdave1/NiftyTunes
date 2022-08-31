@@ -6,6 +6,7 @@ import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
 import LiveCollectionLayout from "components/nftylayouts/LiveCollectionLayout";
+import LiveCollectionLayoutMobile from "components/nftylayouts/LiveCollectionLayoutMobile";
 import ProductSkeleton from "components/nftyloader/ProductSkeleton";
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 import { useIPFS } from "hooks/useIPFS";
@@ -17,6 +18,7 @@ import { APP_ID, SERVER_URL } from "../../index"
 function LiveCollectionIds() {
 
   const { resolveLink } = useIPFS();
+  const [width, setWindowWidth] = useState()
   const {isAuthenticated, user} = useMoralis();
   const [collections, setCollections] = useState([]);
   const { chainId, marketAddress, marketContractABI, storageAddress, storageContractABI, nftyLazyFactoryAddress } = useMoralisDapp();
@@ -28,6 +30,8 @@ function LiveCollectionIds() {
   const [loading, setLoading] = useState(true);
   
   useEffect(async() => {
+    updateDimensions();
+    window.addEventListener("resize", updateDimensions);
     try {
         let collectionIds = await GetCollections()
         console.log(collectionIds)
@@ -36,14 +40,23 @@ function LiveCollectionIds() {
     } catch (error) {
         console.log(error)
         setCollections([])
-        console.log("You fuck")
+
     }
-    
-    
+
     setTimeout(() => {
       setLoading(false)
     }, 500);
+    return () => window.removeEventListener("resize",updateDimensions);
   }, []);
+
+  const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+  const responsive = {
+    showTopNavMenu: width > 1023
+  }
 
 
     const GetCollections = async() => {
@@ -89,8 +102,10 @@ function LiveCollectionIds() {
                 return(
                     <ProductSkeleton key={index} />
                 )
-              })):
-              //render nfts when finished loading
+              })) : 
+
+              (responsive.showTopNavMenu) ? (
+
             (collections &&
               collections.map((nft, index) => {
                 return (
@@ -98,6 +113,15 @@ function LiveCollectionIds() {
                     />
                 )}
               ))
+              ) : (
+              (collections &&
+              collections.map((nft, index) => {
+                return (
+                    <LiveCollectionLayoutMobile collection={nft}
+                    />
+                )}
+              ))
+              )
           }
     </React.Fragment>
   );

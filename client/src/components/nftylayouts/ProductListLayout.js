@@ -8,11 +8,15 @@ import Col from 'react-bootstrap/Col'
 
 function ProductListLayout({children}) {
   return (
-        <Container>
-            <Row xs={1} md={3} >
+        
+        <Container className="py-4">
+          
+            <Row xs={1} md={4} style={{display: "flex"}}>
                   {children}
             </Row>
+        
         </Container>
+       
   )
 }
 

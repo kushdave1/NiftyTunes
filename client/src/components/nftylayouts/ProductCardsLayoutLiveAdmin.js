@@ -50,9 +50,9 @@ import { useState, useEffect } from "react"
 import img from "../../assets/images/ethereum.png"
 import monkey from "../../assets/images/gorilla.png"
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
+
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 import Countdown from "../nftyFunctions/CountdownTimer"
@@ -61,12 +61,13 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
  
-function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artist, artistPhoto, collection, image, coverArt, name, description, nft, auctionAddress}) {
+function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artist, artistPhoto, collection, image, 
+coverArt, name, description, nft, auctionAddress, editionsPerAuction, fileType}) {
 
   const defaultRemainingTime = {
     seconds: '00',
-    minutes: '00'
-    //hours: '00'
+    minutes: '00',
+    hours: '00'
   }
 
   const [showStartModal, setShowStartModal] = useState(false)
@@ -77,6 +78,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
   const [auctionTime, setAuctionTime] = useState()
   const [minBid, setMinBid] = useState()
+  const [nftEditions, setNFTEditions] = useState()
   const [showGenerating, setShowGenerating] = useState(false)
 
   const [auctionStarted, setAuctionStarted] = useState(false)
@@ -126,8 +128,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
       const minutesLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60)
       const minutesLeft = minutesLeftInAuction % 60
 
-      const hoursLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60/24)
-      const hoursLeft = hoursLeftInAuction % 24
+      const hoursLeft = Math.floor((new Date(countdown*1000) - new Date())/1000/60/60)
       const remaintime = {
         seconds: secondsLeft.toString(),
         minutes: minutesLeft.toString(),
@@ -144,6 +145,9 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
   }
 
   const WithdrawFunds = async() => {
+      setWithdrawError(false)
+      setWithdrawSuccess(false)
+      setWithdrawLoading(true)
       const web3Modal = new Web3Modal({})
       const connection = await web3Modal.connect()
       const provider = new ethers.providers.Web3Provider(connection)
@@ -176,7 +180,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
       let currentTokenId = await liveAuctionFactoryContract.getCurrentItem()
       console.log(currentTokenId.toNumber(), index, "This is the current item and index")
 
-      if (currentTokenId.toNumber() > index) {
+      if (currentTokenId.toNumber() > 0) {
       
         setStarted(true)
         setEnded(true)
@@ -185,7 +189,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
       if (isStarted) {
         let currentTokenId = await liveAuctionFactoryContract.getCurrentItem()
         currentTokenId = currentTokenId.toNumber()
-        if (currentTokenId === index) {
+        if (currentTokenId === 0) {
           setStarted(true)
           const endAt = await liveAuctionFactoryContract.getEndAt()
           const secondsLeftInAuction = Math.floor((new Date(endAt.toNumber()*1000) - new Date())/1000)
@@ -207,19 +211,19 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
 
   const StartAuction = async() => {
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
+      
+      const signer = await ConnectWallet()
 
       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
 
       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
 
       const price = ethers.utils.parseUnits(minBid, 'ether')
+      let transaction = await liveAuctionFactoryContract.start(auctionTime, price, nftEditions)
 
       try {
-          await liveAuctionFactoryContract.start(auctionTime, price)
+          await transaction.wait()
+          
           setAuctionLoading(false)
          
       } catch (error) {
@@ -234,11 +238,11 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
 
   return (
     <>
-    <Col xs={1} md={4} style={{paddingBottom:"20px"}}>
+    <Col xs={1} md={4} style={{paddingBottom:"20px", display: "flex", alignItems: "center", justifyContent: "center"}}>
       <Link to={`/${artist}/${name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
         <Card className="bg-light shadow-sm"
               style={{ width: '23rem', height: '33rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
-              { (image.toString().includes('png') || image.toString().includes('gif')) ? (<NFTImage output={image}/>) : 
+              { (fileType.toString().includes('png') || fileType.toString().includes('gif')) ? (<NFTImage output={image}/>) : 
               (<NFTPlayer output={image}/>) }
             
             <Card.Body>
@@ -248,7 +252,7 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                     </Col>
                     <Col sm={4}>
                         <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>
-                        {(started && !ended) ? (<Card.Text> {remainingTime.minutes} : {remainingTime.seconds}</Card.Text>) :
+                        {(started && !ended) ? (<Card.Text> {remainingTime.hours} : {remainingTime.minutes} : {remainingTime.seconds}</Card.Text>) :
                           (started && ended) ? (<Card.Text>Ended</Card.Text>) :
                          (<Card.Text>Not Started</Card.Text>)}</Card.Title>
                     </Col>
@@ -256,12 +260,17 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
               <br></br>
               <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
                     <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}>
+                        {/* <Card.Text className="text-dark" style={{fontSize: 12}}>
                         {(artistPhoto) ? (<img style={{display: "inline", borderRadius:'2.0rem'}} 
                         src={artistPhoto} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>) :
                         (<img style={{display: "inline", borderRadius:'2.0rem'}} 
                         src={monkey} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>)} 
-                        @{artist}</Card.Text>
+                        {artist}</Card.Text> */}
+                    </Col>
+                    <Col>
+                      <Card.Text className="text-dark" style={{fontSize: 12, float:"right"}}>
+                        {editionsPerAuction[0]} Editions
+                      </Card.Text>
                     </Col>
               </Row>
 
@@ -276,10 +285,10 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                   {/* <StartAuctionButton setStarted={setStarted}/> */}
                 </Col>
                 <Col style={{justifyContent: 'right', display: "flex"}}>
-                  {(started && ended) ? (<Button className="button-hover" variant="secondary" 
+                  {(started) ? (<Button className="button-hover" variant="secondary" 
                   style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem", width: "500px" }} 
                   onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
-                  onClick={(e) => {setShowMetaModal(true); e.preventDefault();console.log(showMetaModal);}}>Withdraw Funds/📁 Metadata</Button>) : (started) ? (<img src={nftyimg} height="35" width="40"></img>) :(<StartAuctionButton setShowStartModal={setShowStartModal}/>)}
+                  onClick={(e) => {setShowMetaModal(true); e.preventDefault();console.log(showMetaModal);}}>Withdraw Funds/📁 Metadata</Button>) : (<StartAuctionButton setShowStartModal={setShowStartModal}/>)}
                 </Col>
               </Row>
             </Card.Footer>
@@ -326,6 +335,22 @@ function ProductCardsLayoutLiveAdmin({index, owner, ownerName, artistName, artis
                     
                     value={minBid}
                     onChange={e => setMinBid(e.target.value)}/>
+                    
+                </FloatingLabel>
+            </Form.Group>
+            <Form.Group className="mb-3" controlId="nft.nftEditions">
+                <FloatingLabel
+                    controlId="floatingInput"
+                    label='NFT Editions'
+                    style={{width: "150px"}}
+                    className="mb-3"
+                >
+                <Form.Control 
+                    type="input"
+                    placeholder= 'Number of Editions'
+                    
+                    value={nftEditions}
+                    onChange={e => setNFTEditions(e.target.value)}/>
                     
                 </FloatingLabel>
             </Form.Group>

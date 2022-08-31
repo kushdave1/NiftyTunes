@@ -513,148 +513,6 @@ contract NFTMarketplaceStorage is Ownable {
 }
 
 
-// contract LiveMintFactory is ERC721URIStorage, Ownable, ERC2981, AccessControl, ReentrancyGuard {
-
-//     using Counters for Counters.Counter;
-//     Counters.Counter private _amountMinted;
-
-//     address payable owner; 
-//     uint256 mintAmount;
-//     bytes32 public constant SIGNER_ROLE = keccak256("SIGNER_ROLE");
-    
-//     constructor(
-//         address payable marketplaceAddress,
-//         string memory name,
-//         string memory symbol,
-//         address payable artist,
-//         uint256 _mintAmount
-//     ) ERC721(name, symbol) {
-//         owner = msg.sender
-//         theMarketPlace = marketplaceAddress;
-//         theArtist = artist;
-//         mintAmount = _mintAmount;
-//     })
-
-//     function supportsInterface(bytes4 interfaceId)
-//         public
-//         view
-//         override(ERC721, ERC2981)
-//         returns (bool)
-//     {
-//         return super.supportsInterface(interfaceId);
-//     }
-
-//     function mint() public nonReentrant {
-
-//       require(hasRole(SIGNER_ROLE, msg.sender), "Invalid Signature");
-//       _amountMinted.increment();
-//       require(_amountMinted < mintAmount, "Mint Amount Exceeded");
-      
-//       _mint(msg.sender, 1);
-
-//       return _amountMinted.current();
-
-//     }
-
-//     function setTokenURI(uint256 tokenId, string memory tokenURI) public onlyOwner {
-//       require(owner == msg.sender, "Only the owner can change metadata");
-//       _setTokenURI(tokenId, tokenURI);
-//     }
-    
-// }
-
-
-
-// contract LiveMintAuction {
-
-//   event Start();
-//   event End(address highestBidder, uint highestBid);
-//   event Bid(address indexed sender, uint amount);
-//   event Withdraw(address indexed bidder, uint amount);
-
-//   address payable public seller;
-
-//   bool public started;
-//   bool public ended;
-//   uint public endAt;
-//   address public highestBidder;
-//   uint public highestBid;
-//   uint timeOfAuction
-
-//   IERC721 public nft;
-//   IAccessControl public nftAccess;
-//   uint public nftId;
-
-//   mapping(address => uint) public bids;
-
-//   constructor(uint _timeOfAuction, IERC721 tokenContract, IAccessControl accessContract) {
-//     seller = payable(msg.sender);
-//     timeOfAuction = _timeOfAuction;
-//     nft = tokenContract;
-//     nftAccess = accessContract;
-//     nftAccess.grantRole(SIGNER_ROLE, address(this));
-
-//   }
-
-//   function start() external {
-//     require(!started, "Already Started!");
-//     require(msg.sender == seller, "You are not the contract owner");
-
-//     uint tokenId = nft.mint();
-
-//     nftId = tokenId;
-
-//     started = true;
-//     endAt = block.timestamp + timeOfAuction seconds;
-
-//     emit Start();
-
-//   }
-
-//   function bid() external payable {
-//         require(started, "Not started.");
-//         require(block.timestamp < endAt, "Ended!");
-//         require(msg.value > highestBid);
-
-//         if (highestBidder != address(0)) {
-//             bids[highestBidder] += highestBid;
-//         }
-
-//         highestBid = msg.value;
-//         highestBidder = msg.sender;
-
-//         emit Bid(highestBidder, highestBid);
-//   }
-
-//    function withdraw() external payable {
-//         uint bal = bids[msg.sender];
-//         bids[msg.sender] = 0;
-//         (bool sent, bytes memory data) = payable(msg.sender).call{value: bal}("");
-//         require(sent, "Could not withdraw");
-
-//         emit Withdraw(msg.sender, bal);
-//     }
-
-//   function end() external {
-//     require(started, "The Auction hasn't started yet.");
-//     require(block.timestamp >= endAt, "Auction is still ongoing!");
-//     require(!ended, "Auction already ended!");
-//     require(msg.sender == seller, "Only the seller can end the auction");
-
-//     if (highestBidder != address(0)) {
-//         nft.transfer(highestBidder, nftId);
-//         (bool sent, bytes memory data) = seller.call{value: highestBid}("");
-//         require(sent, "Could not pay seller!");
-//     } else {
-//         nft.transfer(seller, nftId);
-//     }
-
-//     ended = true;
-//     emit End(highestBidder, highestBid);
-//   }
-
-// }
-
 contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
   
     uint256 nftySecondaryFee = 5;
@@ -699,6 +557,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     function setSignerRole(address nftyLazyFactory) public {
       
       IAccessControl(nftyLazyFactory).grantRole(SIGNER_ROLE, msg.sender);
+
     }
 
     //                                         //
@@ -734,20 +593,18 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     function resellToken(uint256 tokenId, uint256 price, address nftContract) public payable {
 
       require(IERC721(nftContract).ownerOf(tokenId) == msg.sender, "You do not own this token");
-      require(price > 0, "Cannot have a non-zero price");
+      require(price > 0, "Cannot have zero price");
 
       NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
       
       if (storageContract.checkIfItemExists(nftContract, tokenId)) {
 
         storageContract.storeResellData(tokenId, msg.sender, price);
-        IERC721(nftContract).approve(address(this), tokenId);
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);    
 
       } else {
 
         (address royaltyAddress, uint256 royaltyAmount) = IERC2981(nftContract).royaltyInfo(tokenId, uint256(price));
-        IERC721(nftContract).approve(address(this), tokenId);
         storageContract.storeMarketItem(tokenId, msg.sender, royaltyAddress, royaltyAmount, price, nftContract);
         IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId); 
       }
@@ -856,9 +713,7 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
         storageContract.storeLockedItem(tokenIdTwo, msg.sender, publisherTwo, royaltyAmountTwo, tokenIdTwoContract);
       }
 
-      IERC721(tokenIdOneContract).approve(address(this), tokenIdOne);
       IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdOne);
-      IERC721(tokenIdTwoContract).approve(address(this), tokenIdTwo);
       IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdTwo);
 
      
@@ -883,31 +738,31 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
 
     }
 
-    function unBreedToken(
-      uint256 marketItemId
-    ) public payable returns (uint, uint) {
+    // function unBreedToken(
+    //   uint256 marketItemId
+    // ) public payable returns (uint, uint) {
 
-      NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
-      address owner = storageContract.getItemOwner(marketItemId);
-      bool bred = storageContract.getItemBred(marketItemId);
+    //   NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
+    //   address owner = storageContract.getItemOwner(marketItemId);
+    //   bool bred = storageContract.getItemBred(marketItemId);
 
-      require(owner == msg.sender, "You do not own this token");
-      require(bred, "This is not a NftyTunes bred token");
+    //   require(owner == msg.sender, "You do not own this token");
+    //   require(bred, "This is not a NftyTunes bred token");
 
-      uint256 tokenIdOne = storageContract.getTokenIdOne(marketItemId);
-      uint256 tokenIdTwo = storageContract.getTokenIdTwo(marketItemId);
-      address tokenIdOneAddress = storageContract.getTokenIdOneAddress(marketItemId);
-      address tokenIdTwoAddress = storageContract.getTokenIdTwoAddress(marketItemId);
+    //   uint256 tokenIdOne = storageContract.getTokenIdOne(marketItemId);
+    //   uint256 tokenIdTwo = storageContract.getTokenIdTwo(marketItemId);
+    //   address tokenIdOneAddress = storageContract.getTokenIdOneAddress(marketItemId);
+    //   address tokenIdTwoAddress = storageContract.getTokenIdTwoAddress(marketItemId);
 
-      storageContract.getItemId(tokenIdOneAddress, tokenIdOne);
+    //   storageContract.getItemId(tokenIdOneAddress, tokenIdOne);
 
-      _transfer(address(this), msg.sender, tokenIdOne);
-      _transfer(address(this), msg.sender, tokenIdTwo);
+    //   _transfer(address(this), msg.sender, tokenIdOne);
+    //   _transfer(address(this), msg.sender, tokenIdTwo);
 
-      _transfer(msg.sender, address(0), marketItemId);
+    //   _transfer(msg.sender, address(0), marketItemId);
 
-      return (tokenIdOne, tokenIdTwo);
-    }
+    //   return (tokenIdOne, tokenIdTwo);
+    // }
 
     //                                                                                  //
     //                                                                                  //
@@ -1518,43 +1373,6 @@ contract TUNES is ERC20, ERC20Burnable, Ownable {
 
 
 
-abstract contract ERC20Token {
-    function name() virtual public view returns (string memory);
-    function symbol() virtual public view returns (string memory);
-    function decimals() virtual public view returns (uint8);
-    function totalSupply() virtual public view returns (uint256);
-    function balanceOf(address _owner) virtual public view returns (uint256 balance);
-    function transfer(address _to, uint256 _value) virtual public returns (bool success);
-    function transferFrom(address _from, address _to, uint256 _value) virtual public returns (bool success);
-    function approve(address _spender, uint256 _value) virtual public returns (bool success);
-    function allowance(address _owner, address _spender) virtual public view returns (uint256 remaining);
-
-    event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
-}
-
-contract Owned {
-    address public owner;
-    address public newOwner;
-
-    event OwnershipTransferred(address indexed _from, address indexed _to);
-
-    constructor() {
-        owner = msg.sender;
-    }
-
-    function transferOwnership(address _to) public {
-        require(msg.sender == owner);
-        newOwner = _to;
-    }
-
-    function acceptOwnership() public {
-        require(msg.sender == newOwner);
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-        newOwner = address(0);
-    }
-}
 
 
 

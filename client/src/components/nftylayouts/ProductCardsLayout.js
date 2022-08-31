@@ -27,8 +27,7 @@ import { BuyNFT } from "../nftymarketplace/BuyNFT"
 import { useState } from "react"
 import img from "../../assets/images/ethereum.png"
 
-import { AwesomeButton } from "react-awesome-button";
-import AwesomeButtonStyles from "react-awesome-button/src/styles/styles.scss";
+
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 import nftyimg from "../../assets/images/NT_White_Isotype.png";
@@ -66,7 +65,7 @@ function ProductCardsLayout({image, name, description, price, nft, owner}) {
   }
 
   return (
-    <Col xs={1} md={4}>
+    <Col xs={1} md={4} style={{paddingBottom:"20px",  display: "flex", alignItems: "center", justifyContent: "center"}}>
     <Link to={`/${owner}/${name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
       <Card className="bg-light shadow-sm p-2" onClick={() => console.log('clicked')}
             style={{ width: '20rem', height: '27.5rem', borderRadius:'.50rem', cursor: "pointer"}} >

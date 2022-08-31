@@ -11,7 +11,7 @@ function ListNFTButton({nft, handleShow, handleSellClick}) {
     <Button className="button-hover" variant="secondary" 
                   style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem" }} 
                   onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
-                  onClick={(e) => {handleShow(); handleSellClick(nft); e.preventDefault();}}>List</Button>
+                  onClick={(e) => {handleShow(nft); handleSellClick(nft); e.preventDefault();}}>List</Button>
   )
 }
 

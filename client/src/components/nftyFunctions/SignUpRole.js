@@ -7,13 +7,11 @@ import { ethers, utils } from 'ethers';
 import Web3Modal from 'web3modal';
 import { useNFTBalances, useERC20Balances } from "react-moralis";
 import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider";
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
 
 export const CheckUserRole = async(nftyLazyFactoryAddress, nftyLazyContractABIJson) => {
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    const signer = await ConnectWallet()
     const signerAddress = signer.getAddress()
     const nftyLazyContract = new ethers.Contract(nftyLazyFactoryAddress, nftyLazyContractABIJson, signer)
 
@@ -27,20 +25,14 @@ export const CheckUserRole = async(nftyLazyFactoryAddress, nftyLazyContractABIJs
 
 export const SignUpUser = async(marketAddress, marketContractABIJson, nftyLazyFactoryAddress) => {
 
-    const web3Modal = new Web3Modal({})
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const signer = provider.getSigner()
+    const signer = await ConnectWallet()
     const signerAddress = signer.getAddress()
     const marketContract = new ethers.Contract(marketAddress, marketContractABIJson, signer)
 
-
     const signerRole = utils.keccak256(utils.toUtf8Bytes("SIGNER_ROLE"))
-
 
     let transaction = await marketContract.setSignerRole(nftyLazyFactoryAddress)
     transaction.wait()
-    console.log('success for sure')
 
         
     }

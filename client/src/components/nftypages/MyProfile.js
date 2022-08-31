@@ -73,6 +73,7 @@ function MyProfile() {
     const {isAuthenticated, user} = useMoralis();
 
     const [address, setAddress] = useState('');
+    const [width, setWindowWidth] = useState()
     const [username, setUsername] = useState('');
     const [artistType, setArtistType] = useState('');
     const [profilePhoto, setProfilePhoto] = useState('');
@@ -119,6 +120,8 @@ function MyProfile() {
     
 
     useEffect(async() => {
+        updateDimensions();
+        window.addEventListener("resize", updateDimensions);
         if(!user) return null;
         setAddress(user.get('ethAddress'));
         setUsername(user.get('username'));
@@ -137,8 +140,17 @@ function MyProfile() {
         if (artistType !== "Collector" && await CheckUserRole(nftyLazyFactoryAddress, nftyLazyContractABIJson) === false) {
             handleMinterShow()
         }
-
+        return () => window.removeEventListener("resize",updateDimensions);
     }, [user]);
+
+    const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+    const responsive = {
+        showTopNavMenu: width > 1023
+    }
     
     let navigate = useNavigate();
 
@@ -206,10 +218,11 @@ function MyProfile() {
 
     return (
         <React.Fragment>
+        {(responsive.showTopNavMenu) ? (
+            <>
             {(bannerPhoto) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={bannerPhoto} height="300px" width="100%" style={{backgroundSize: "100%"}}></img>) :
             (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="300px" width="100%" style={{backgroundSize: "100%"}}></img>)}
                         <ProfileNavSection>
-                            
                             <Container style={{paddingTop: "50px"}}>
                                 <Row style={{display: "flex"}}>
                                     <Col sm={10}>
@@ -242,14 +255,10 @@ function MyProfile() {
                                     }
                                     </Col>
                                 </Row>
-
-                                
-
                                 <div style={{paddingTop: "20px", paddingBottom: "20px"}}> 
-                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>{address.slice(0,5)}...{address.slice(38,43)}</Button></div>
-                                    
-                                    
-                                    
+                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} 
+                                    style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>
+                                    {address.slice(0,5)}...{address.slice(38,43)}</Button></div>
                                     <div style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</div>
                                     <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
                                 </div>
@@ -272,6 +281,81 @@ function MyProfile() {
                                 </Nav>
                             </Container>
                         </ProfileNavSection>
+            </>
+        ) : (
+            <>
+            {(bannerPhoto) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={bannerPhoto} height="200px" width="100%" style={{backgroundSize: "100%"}}></img>) :
+            (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="200px" width="100%" style={{backgroundSize: "100%"}}></img>)}
+                        <ProfileNavSection>
+                            <Container style={{paddingTop: "50px"}}>
+                                <Row style={{display: "flex"}}>
+                                    <Col sm={2}>
+                                    </Col>
+                                    <Col sm={8} style={{display: "flex", justifyContent: "center"}}>
+                                    {(profilePhoto) ? 
+                                    (<img crossOrigin='true' crossoriginresourcepolicy='false' src={profilePhoto} height="150px" width="150px" 
+                                    style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-110px", borderRadius: "5.00rem"}}></img>) 
+                                    : (<img src={DefaultProfilePicture} height="150px" width="150px" 
+                                    style={{padding: "10px",border: "2px solid black", marginTop: "-110px",borderRadius: "5.00rem"}}></img>)}
+                                    </Col>
+                                    <Col sm={2} >
+                                    {twitter && 
+                                        <a className="socials" href={twitter} style={{padding:"10px"}}>
+                                            <i class="bi bi-twitter" style={{fontSize: "1.75rem", color: "cornflowerblue"}}></i>
+                                        </a>
+                                    }
+                                    {discord &&
+                                        <a className="socials" href={discord} style={{padding:"10px"}}>
+                                            <i class="bi bi-discord" style={{fontSize: "1.75rem", color: "#7289DA"}}></i>
+                                        </a>
+                                    }
+                                    {tiktok && 
+                                        <a className="socials" href={tiktok} style={{padding:"10px"}}>
+                                            <i class="bi bi-tiktok" style={{fontSize: "1.75rem", color: "#FF5700"}}></i>
+                                        </a>
+                                    }
+                                    {instagram && 
+                                        <a className="socials" href={instagram} style={{padding:"10px"}}>
+                                            <i class="bi bi-instagram" style={{fontSize: "1.75rem", color: "#8a3ab9"}}></i>
+                                        </a>
+                                    }
+                                    </Col>
+                                </Row>
+                                <Row style={{paddingTop: "20px", paddingBottom: "20px"}}> 
+                                    <Col style={{paddingBottom: "5px", fontSize: 30, display: "flex", justifyContent: "center"}}>
+                                    {(username.length === 25) ? ("...".concat(address.slice(33,43))) : (username)}   </Col>
+                                </Row>
+                                <Row style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</Row>
+                                <Row style={{ paddingBottom: "10px"}}>
+                                    <Col style={{float: "left"}}>
+                                        <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} 
+                                        onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
+                                    </Col>
+                                    {/* <Col style={{float: "right"}}>
+                                        <Button onClick={()=>sendToEtherscan()} 
+                                        style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>
+                                        {address.slice(0,5)}...{address.slice(38,43)}</Button>
+                                    </Col> */}
+                                </Row>
+                                <Nav className="justify-content-center nav-tabs">
+                                    <Nav.Item>
+                                        <Nav.Link as={Link} className = "text-dark-3" to="onsale">On Sale</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link as={Link} className = "text-dark-3" to="sold">Sold</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link as={Link} className = "text-dark-3" to="owned">Owned</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item>
+                                        <Nav.Link as={Link} className = "text-dark-3" to="created">Created</Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
+                            </Container>
+                        </ProfileNavSection>
+            </>
+        )
+        }
                              <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
                                 <Modal.Header style={{backgroundColor: "black"}} >
                                     <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>

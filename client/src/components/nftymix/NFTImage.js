@@ -15,7 +15,7 @@ function NFTImage({output}) {
     if (output.includes("ipfs")) {
       setTokenImage(resolveLink(output))
     } else {
-      console.log(output)
+      console.log(output, "this is output")
       setTokenImage(output)
     }
     // }

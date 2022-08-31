@@ -6,6 +6,7 @@ import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
 import ProductCardsLayout from "components/nftylayouts/ProductCardsLayout";
+import ProductListLayout from "components/nftylayouts/ProductListLayout"
 import ProductCardsLayoutLazy from "components/nftylayouts/ProductCardsLayoutLazy";
 import ProductSkeleton from "components/nftyloader/ProductSkeleton";
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
@@ -27,20 +28,23 @@ function NFTTokenIds() {
   const [loading, setLoading] = useState(true);
   
   useEffect(async() => {
-    try {
-    const tokenIds = await fetchTokenIds( marketAddress, marketContractABI, storageAddress, storageContractABI );
-    setNFTs(tokenIds)
-    fetchArtistPhoto();
-    
-    } catch (error) {
-      setNFTs([])
-    }
+    await fetchNFTs()
     
     
     setTimeout(() => {
       setLoading(false)
-    }, 500);
+    }, 1000);
   }, []);
+
+  const fetchNFTs = async() => {
+    try {
+      const tokenIds = await fetchTokenIds( marketAddress, marketContractABI, storageAddress, storageContractABI );
+      setNFTs(tokenIds)
+    
+    } catch (error) {
+      setNFTs([])
+    }
+  }
 
   return (
     <React.Fragment>
@@ -57,13 +61,9 @@ function NFTTokenIds() {
             (nfts &&
               nfts.map((nft, index) => {
                 return (
-                    <ProductCardsLayoutLazy key={index} pageFrom="Explore" owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
-                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
-                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} 
-                    price={nft.price} coverPhotoURL={nft.coverPhotoURL} nftyLazyFactoryAddress={nftyLazyFactoryAddress} 
-                    marketAddress={marketAddress} marketContractABIJson={contractABIJson}
-
-                    />
+                    <ProductCardsLayoutLazy key={index} pageFrom="Explore" nft={nft} nftyLazyFactoryAddress={nftyLazyFactoryAddress} 
+                    marketAddress={marketAddress} marketContractABIJson={contractABIJson} tokenAddress={nft.tokenAddress} tokenId={nft.tokenId}/>
+            
                 )}
               ))
           }

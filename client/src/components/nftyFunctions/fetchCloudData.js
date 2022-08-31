@@ -31,8 +31,9 @@ export const fetchArtistName = async(artist) => {
         const object = data[i]
         if (typeof(artist) === "string" && typeof(object.get("ethAddress")) === "string") {
             if (artist.toLowerCase()===object.get("ethAddress").toLowerCase()) {
-            const profileName = await object.get("username")
-            return profileName
+              const profileName = await object.get("username")
+              console.log(profileName, "Profile Name")
+              return profileName
             }
         }
         
