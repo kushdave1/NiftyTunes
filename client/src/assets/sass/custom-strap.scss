@@ -7,18 +7,18 @@ $theme-colors: (
   "light-3":#CCCCCC,
   "dark": #111111,
   "dark-2": #555555,
-  "dark-3":#17171b,
+  "dark-3":black,
   "info": #FCA17D,
   "danger":#FF3939, 
-  "gray": #777777
+  "gray": #777777,
+  "pink": #F6A2B1
 );
 
-$font-family-base: 'RocknRoll One', serif;
+$font-family-base: 'Graphik LCG';
 $display-font-weight: 700;
-$headings-font-weight: 400;
-
-.navbar-brand {
-  font-family: 'Pixeboy';
+$headings-font-weight: 500;
+.card {
+  background-color: #F6A2B1;
 }
 
 .truncate {
@@ -28,10 +28,10 @@ $headings-font-weight: 400;
   text-overflow: ellipsis;
 }
 
-.card:hover{
-  transform: scale(1.02);
-  box-shadow: 5px 5px 5px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
-}
+// .card:hover{
+//   transform: scale(1.02);
+//   box-shadow: 5px 5px 5px rgba(0,0,0,.12), 0 4px 8px rgba(0,0,0,.06);
+// }
 
 a { color: black; text-decoration: none; text-align: "center"}
 
@@ -39,6 +39,24 @@ a { color: black; text-decoration: none; text-align: "center"}
   box-shadow: 5px 5px 5px rgba(0,0,0,.12), 5px 5px 5px 5px rgba(0,0,0,.06);
   border-radius: 2rem;
 }
+
+.nav.link:hover {
+  color: black;
+}
+
+.nav-tabs .nav-link.active {
+  background-color: #BD9DFF !important;
+  color: black !important;
+
+  border-bottom: solid 5px black !important;
+
+  
+}
+
+.nav.link {
+  opacity: 0.6;
+}
+
 
 .arrow {
   text-align: center;
@@ -79,16 +97,13 @@ a { color: black; text-decoration: none; text-align: "center"}
   animation: spinner 1.5s linear infinite;
 }
 
-@media only screen and (min-width: 1024px) {
-  .mobile-nfts {
-
-  }
-}
 
 .listRight {
   left: auto !important;
   right: 0 !important;
 }
+
+
 
 
 
@@ -114,4 +129,18 @@ a { color: black; text-decoration: none; text-align: "center"}
 @font-face {
   font-family: 'Pixeboy';
   src: url("../fonts/Pixeboy.ttf") format("truetype");
+}
+@font-face {
+  font-family: 'Graphik LCG';
+  src: url("../fonts/GraphikLCG-Medium.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: 'Graphik LCG Regular';
+  src: url("../fonts/GraphikLCG-Regular.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: 'Druk Cyr';
+  src: url("../fonts/DrukCyr-BoldItalic.ttf") format("truetype");
 }

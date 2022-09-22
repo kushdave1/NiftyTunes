@@ -36,6 +36,7 @@ import WithdrawLoadingModal from '../nftyModals/BidModals/WithdrawLoadingModal'
 
 // functions
 import StartAuction from '../nftymarketplace/StartAuction'
+import { GetStarted } from '../nftyFunctions/GetStarted'
 
 //solidity buttons
 import BuyLazyNFTButton from '../nftySolidityButtons/BuyLazyNFTButton'
@@ -83,17 +84,13 @@ function BidCardMobile({auctionAddress, signerAddress, responsive, editionsPerAu
   const [showBidModal, setShowBidModal] = useState(false)
   const [showBidLoadingModal, setShowBidLoadingModal] = useState(false)
 
-  const [started, setStarted] = useState(false)
-  const [ended, setEnded] = useState(false) 
-
-  const [currentBid, setCurrentBid] = useState(0)
-  const [highestBid, setHighestBid] = useState(0)
-  const [lowestBid, setLowestBid] = useState(0)
-  const [bidAmount, setBidAmount] = useState()
-
   const [auctionTime, setAuctionTime] = useState()
   
   const [remainingTime, setRemainingTime] = useState(defaultRemainingTime)
+
+  const { withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading,
+    started, setStarted, ended, setEnded, currentBid, setCurrentBid, highestBid, setHighestBid, bidAmount, setBidAmount,
+    ifWinningBid, setIfWinningBid, lowestBid, setLowestBid } = usePlaceBid()
 
    
   const [timeLeft, setTimeLeft] = useState()
@@ -101,11 +98,6 @@ function BidCardMobile({auctionAddress, signerAddress, responsive, editionsPerAu
 
 
   const [showWithdrawLoadingModal, setShowWithdrawLoadingModal] = useState(false)
-
-  const { withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading } = usePlaceBid()
-
-  const [ifWinningBid, setIfWinningBid] = useState(false)
-
 
 
   const [showAuctionData, setShowAuctionData] = useState(false)
@@ -168,189 +160,7 @@ function BidCardMobile({auctionAddress, signerAddress, responsive, editionsPerAu
 
   }
 
-
-
-
- const getStarted = async(index) => {
     
-    const signer = await ConnectWallet()
-
-    const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-    const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-    let isStarted = ""
-
-    try {
-        isStarted = await liveAuctionFactoryContract.isStarted()
-        console.log(isStarted)
-        setStarted(isStarted)
-    } catch (e) {
-        console.log(e)
-    }
-
-    let addresses=[]
-    try{
-        
-        addresses = await liveAuctionFactoryContract.getTop(editionsPerAuction[0])
-    } catch (e) {
-        console.log(e)
-    }
-
-    let currBid = 0;
-    let lowBid = 0;
-
-    try {
-
-        let cBid = await liveAuctionFactoryContract.getBid()
-        
-        let res = utils.formatEther(cBid);
-        res = Math.round(res * 1e5) / 1e5;
-        currBid = res
-        
-        setCurrentBid(currBid)
-        
-    } catch {
-        setCurrentBid(0)
-    }
-
-    try {
-        
-
-
-        let highestBidPlaced = await liveAuctionFactoryContract.getHighestBid()
-        console.log("reason")
-        let res = utils.formatEther(highestBidPlaced);
-        console.log(res)
-        res = Math.round(res * 1e5) / 1e5;
-        let highBid = res
-        setHighestBid(highBid)
-    } catch (e) {
-        console.log(e)
-        setHighestBid(0)
-    }
-
-    try {
-        let lowestBidPlaced = await liveAuctionFactoryContract.getLowestBid()
-        let res = utils.formatEther(lowestBidPlaced);
-        res = Math.round(res * 1e5) / 1e5;
-        lowBid = res
-        setLowestBid(lowBid)
-    } catch {
-        setLowestBid(0)
-    }
-
-    if (currBid >= lowBid) {
-          if (currBid === 0 ) {
-              setIfWinningBid(false)
-          } else {
-          setIfWinningBid(true)
-        }
-    } else {
-        setIfWinningBid(false)
-    }
-
-
-
-
-    let endAt;
-    try {
-        endAt = await liveAuctionFactoryContract.getEndAt()
-    } catch {
-        console.log("endAt")
-    }
-    console.log(endAt.toNumber())
-    const secondsLeftInAuction = Math.floor((new Date(endAt.toNumber()*1000) - new Date())/1000)
-    console.log(secondsLeftInAuction, "Seconds left in auction")
-    if (secondsLeftInAuction < 0 && endAt.toNumber() !== 0) {
-        setEnded(true)
-        
-    } else {
-        setEnded(false)
-    }
-    
-    return endAt.toNumber()
-    } 
-
-    
-
-
-
-//   const PlaceBid = async() => {
-//       setBidLoading(true)
-//       setBidError(false)
-//       setBidSuccess(false)
-      
-//       const signer = await ConnectWallet()
-
-//       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-//       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-//       let lastBid = 0;
-//       try {
-//         lastBid = await liveAuctionFactoryContract.getBid()
-//         lastBid = lastBid.toNumber()
-//       } catch (e) {
-//         console.log(e)  
-//       }
-      
-//       console.log(lastBid, "lastbid")
-//       let currentBid;
-//       try {
-//       currentBid = ethers.utils.parseUnits(bidAmount.toString(), 'ether')
-//       } catch {
-//           currentBid = 0
-//           setBidLoading(false)
-//           setBidError(true)
-//       }
-//       console.log(currentBid, "currentbid")
-      
-      
-//       let transaction; 
-
-//       try {
-//           let price = currentBid.sub(lastBid)
-//           transaction = await liveAuctionFactoryContract.bid({value: price})
-//           await transaction.wait()
-//           setBidLoading(false)
-         
-//       } catch (error) {
-        
-//           setBidLoading(false)
-//           setBidError(true)
-//           return
-//       }
-
-//       setBidSuccess(true)
-//   }
-
-//   const WithdrawFunds = async() => {
-//       setWithdrawError(false)
-//       setWithdrawSuccess(false)
-//       setWithdrawLoading(true)
-      
-//       const signer = await ConnectWallet()
-
-//       const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-//       const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-      
-//       let transaction 
-
-//       try {
-//           transaction = await liveAuctionFactoryContract.withdraw()
-//           await transaction.wait()
-//           setWithdrawLoading(false)
-         
-//       } catch (error) {
-//           console.log(error)
-//           setWithdrawLoading(false)
-//           setWithdrawError(true)
-//           return
-//       }
-
-//       setWithdrawSuccess(true)
-//   }
 
   const showAuctionCardData = async(index, editions) => {
       console.log(started, ended)
@@ -358,7 +168,9 @@ function BidCardMobile({auctionAddress, signerAddress, responsive, editionsPerAu
       setHighestBid(0)
       setLowestBid(0)
       setDisplayedAuction(`Auc. ${index} - ${editions} editions`)
-      const timeLeftIn = await getStarted(index)
+      const timeLeftIn = await GetStarted(auctionAddress, started, setStarted, ended, setEnded, 
+        currentBid, setCurrentBid, highestBid, setHighestBid, bidAmount, setBidAmount,
+        ifWinningBid, setIfWinningBid, lowestBid, setLowestBid, editions)
       console.log(timeLeftIn)
 
       const intervalId = setInterval(() => {

@@ -66,13 +66,6 @@ select {
   font: inherit;
 }
 
-img:hover {
-  /* Start the shake animation and make the animation last for 0.5 seconds */
-  animation: shake 0.5s;
-
-  /* When the animation is finished, start again */
-  animation-iteration-count: 0.15;
-}
 
 .Card:hover {
   /* Start the shake animation and make the animation last for 0.5 seconds */

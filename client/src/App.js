@@ -3,7 +3,7 @@ import logo from './logo.svg';
 import "./App.css"
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
-import FooterPage from './components/nftynavs/Footer'
+
 
 //Pages
 import Landing from './components/nftypages/Landing'
@@ -21,6 +21,8 @@ import ProductPageToken from './components/nftypages/ProductPageToken'
 import LiveMint from './components/nftypages/LiveMint'
 import LiveCollectionPage from './components/nftypages/LiveCollectionPage'
 import ComingSoon from './components/nftypages/ComingSoon'
+import UpcomingCollectionPage from './components/nftyprofiles/LiveEvents/Upcoming'
+import PastCollectionPage from './components/nftyprofiles/LiveEvents/Past'
 
 //Layout
 import PageLayout from './components/nftylayouts/PageLayout'
@@ -51,9 +53,10 @@ function App() {
           <Route path="/lazy/:owner/:name" element={<ProductPage />} />
           <Route path="/:tokenAddress/:tokenId" element={<ProductPageToken />} />
           <Route path="/live/:liveMintAddress/:collectionName" element={<LiveCollectionPage />} />
+          <Route path="/live/past/:liveMintAddress/:collectionName" element={<PastCollectionPage/>}  />
+          <Route path="/live/upcoming/:liveMintAddress/:collectionName" element={<UpcomingCollectionPage/>} />
         </Routes>
         </PageLayout>
-        <FooterPage />
       </Router>
       
 

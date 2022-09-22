@@ -8,7 +8,7 @@ import LiveCollectionIds from '../nftymarketplace/LiveCollectionIds'
 
 //Layouts
 import CollectionListLayout from '../nftylayouts/CollectionListLayout'
-import ProductCardsLayout from '../nftylayouts/ProductCardsLayout'
+
 import ProductListLayout from '../nftylayouts/ProductListLayout'
 import FilterLayout from '../nftylayouts/FilterLayout'
 import LiveCollectionLayout from '../nftylayouts/LiveCollectionLayout'
@@ -25,6 +25,8 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import Alert from 'react-bootstrap/Alert'
 import Nav from 'react-bootstrap/Nav'
 import Table from 'react-bootstrap/Table'
+
+
 
 import {
     BrowserRouter as Router,
@@ -65,14 +67,20 @@ import LiveMintFactory from '../../contracts/LiveMint.sol/LiveMintFactory.json';
 const MarketPlaceSection = styled.div `
     padding: 50px;
     overflow:hidden;
-    background-color: white;
-    min-height: 100vh;
+    background-color: #BD9DFF;
+    height: 1625px;
 `;
 
 const SearchAndFilterSection = styled.div``;
 const TrendingSection = styled.div``;
 
 function LiveMint() {
+
+
+    const [key, setKey] = useState("upcoming")
+
+
+
     const [mintErrMessage, setMintErrMessage] = useState("")
     const {isAuthenticated, user} = useMoralis();
     const { saveFile } = useMoralisFile();
@@ -330,6 +338,10 @@ function LiveMint() {
     }
 
 
+    const SwitchKey = async(k) => {
+        console.log(k)
+    }
+
 
 
 
@@ -339,15 +351,52 @@ function LiveMint() {
     <>
     
       <MarketPlaceSection>
-        <Container fluid className="p-3" style={{fontSize: 24, fontWeight: "bold"}}>
-           <Row>
-           
+        <LiveSection>
+            <Title>
+            NftyTunes Live
+            </Title>
+            <Nav className="justify-content-left nav-tabs" variant="pills" style={{width: "100%"}} onSelect={(k) => {setKey(k);SwitchKey(k);}} style={{borderColor: "rgba(0, 0, 0, 0.3)"}}>
+                <HoverItem>
+                    <Nav.Link as={Link} eventKey="upcoming" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#upcoming">
+                        Upcoming
+                    </Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link as={Link} eventKey="live" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#live-shows">Live</Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link as={Link} eventKey="past" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#past">Past</Nav.Link>
+                </HoverItem> 
                 
-                <Col style={{display: "flex", paddingBottom:"20px", justifyContent: "center", alignItems: "center"}}>
-                    NftyTunes Live
-                </Col>
-            </Row>
-           <Row>
+            </Nav>
+            
+            <FilterContainer>
+                <FilterRow>
+                    <Col md={2}>
+                    <ArtistFilter></ArtistFilter>
+                    </Col>
+                    <Col md={2}>
+                    <TierFilter></TierFilter>
+                    </Col>
+                    <Col md={2}>
+
+                    </Col>
+                    <Col md={2}>
+
+                    </Col>
+                    <Col md={2}>
+                    </Col>
+                    <Col md={2}>
+                    <SortFilter></SortFilter>
+                    </Col>
+                </FilterRow>
+            </FilterContainer>
+            <CollectionListLayout>
+                     <LiveCollectionIds filter={key}/>
+                     {/* <LiveFilteredCollectionIds/> */}
+                </CollectionListLayout>   
+
+           {/* <Row>
                 <Col >
                     <Button variant="light" style={{borderRadius: "5rem", float: "left", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
                         How it Works
@@ -359,30 +408,16 @@ function LiveMint() {
                     </Button>
                 </Col>
             </Row>
-            
-        </Container>
-        <Container fluid style={{backgroundColor: "white"}}>
-            <Nav className="justify-content-left nav-tabs">
-                <Nav.Item>
-                    <Nav.Link as={Link} className = "text-dark-3" to="onsale">Past</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link as={Link} className = "text-dark-3" to="sold">Live</Nav.Link>
-                </Nav.Item>
-                <Nav.Item>
-                    <Nav.Link as={Link} className = "text-dark-3" to="owned">Upcoming</Nav.Link>
-                </Nav.Item>
-                
-            </Nav>
-
-                    <CollectionListLayout>
-                        <LiveCollectionIds/>
-                    </CollectionListLayout>   
-
-                    
-
-        </Container>
+             */}
+        </LiveSection>
+    
       </MarketPlaceSection>
+
+
+
+
+
+
 
         <NicknameModal showWelcomeModal={showWelcomeModal} handleCloseWelcomeModal={handleCloseWelcomeModal} 
         setNickname={setNickname} nickname={nickname} submitName={submitName}/>
@@ -498,3 +533,133 @@ function LiveMint() {
 }
 
 export default LiveMint
+
+
+const Title = styled.div`
+    width: 489px;
+    height: 104px;
+
+    /* H2 */
+    white-space: nowrap;
+
+    font-family: 'Druk Cyr';
+    font-style: italic;
+    font-weight: 900;
+    font-size: 110px;
+    line-height: 104px;
+    /* identical to box height, or 95% */
+
+    text-transform: uppercase;
+
+    color: #000000;
+`
+
+const LiveSection = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 80px;
+
+    position: absolute;
+    width: 1300px;
+    height: 1225px;
+    left: calc(50% - 1300px/2 );
+    top: 150px;
+
+
+    font-family: 'Graphik LCG';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 15px;
+    /* identical to box height, or 73% */
+
+    text-transform: uppercase;
+
+`
+
+const HoverItem = styled(Nav.Item)`
+    &:hover {
+        // border-bottom: 3px solid black;
+        color: black !important;
+    }
+`
+ 
+
+const Tab = styled(Nav.Link)`
+    &:hover {
+        font-weight: 1000;
+    }
+`
+
+
+const FilterContainer = styled.div`
+    position: absolute;
+    width: 100%;
+    height: 46px;
+    left: 0%;
+    top: 256px;
+`
+
+const FilterRow = styled(Row)`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 0px;
+`
+
+const ArtistFilter = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    width: 200px;
+    height: 46px;
+
+    /* white */
+
+    background: #FFFFFF;
+    border-radius: 30px;
+
+`
+
+const TierFilter = styled.div`
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    width: 200px;
+    height: 46px;
+
+    /* white */
+
+    background: #FFFFFF;
+    border-radius: 30px;
+
+`
+
+
+
+const SortFilter = styled.div`
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+
+    width: 200px;
+    height: 46px;
+
+    /* white */
+
+    background: #FFFFFF;
+    border-radius: 30px;
+`

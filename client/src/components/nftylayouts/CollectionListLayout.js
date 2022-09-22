@@ -9,9 +9,9 @@ import Col from 'react-bootstrap/Col'
 function CollectionListLayout({children}) {
   return (
         
-        <Container className="py-5" >
+        <Container fluid className="py-5" >
           
-            <Row xs={1} md={4} style={{display: "flex", alignItems:"center", justifyContent: "center"}}>
+            <Row xs={1} md={4} style={{display: "flex"}}>
                   {children}
             </Row>
         

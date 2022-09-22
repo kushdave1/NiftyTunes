@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import {useNavigate} from 'react-router'
-
+import styled from 'styled-components'
 import { useMoralis } from 'react-moralis'
 import Moralis from 'moralis'
 import { ethers, utils } from 'ethers';
@@ -23,6 +23,7 @@ import ButtonGroup from 'react-bootstrap/ButtonGroup'
 import FloatingLabel from 'react-bootstrap/FloatingLabel'
 import { Tooltip, Spin, Input } from "antd";
 import { Modal as antdModal } from 'antd';
+import Vector23 from '../../assets/images/Vector 23.png'
 
 // user auth offchain form
 
@@ -30,6 +31,86 @@ import { Modal as antdModal } from 'antd';
 
 // import PaymentForm from '../nftylayouts/CreditCardFormLayout'
 import { changeBackgroundWhite, changeBackgroundBlack } from "../nftyFunctions/hover"
+
+const NavButton = styled.button`
+/* button */
+
+
+/* Auto layout */
+
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 14px 26px;
+gap: 10px;
+
+position: absolute;
+width: 168px;
+right: 41px;
+top: 17.14%;
+bottom: 20%;
+font-size: 14px;
+
+background: #FFFFFF;
+border-radius: 30px;
+`
+
+const ConnectWalletButton = styled.button`
+    /* button */
+
+
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 26px;
+    gap: 10px;
+    color: white;
+
+    position: absolute;
+    font-family: 'Graphik LCG Regular';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    width: 167px;
+    height: 44px;
+    left: 30%;
+    top: 305px;
+
+    background: #000000;
+    border-radius: 30px;
+`
+
+const ConnectMetamaskButton = styled.button`
+    /* button */
+
+
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 26px;
+    gap: 10px;
+    font-family: 'Graphik LCG Regular';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    color: white;
+
+    position: absolute;
+    width: 131px;
+    height: 44px;
+    left: 55%;
+    top: 305px;
+
+    background: #000000;
+    border-radius: 30px;
+`
 
 
 function ConnectButton() {
@@ -125,44 +206,120 @@ function ConnectButton() {
                 
     }
 
+    const XFull = () => {
+        return (
+            <div style={{cursor: "pointer"}} onClick={()=>handleClose()}>
+                <XButton src={Vector23}/>
+                <XButton2 src={Vector23}/>
+            </div>
+        )
+    }
+
 
     return isAuthenticated?(
             <></>
                 
     ) : (
         <>
-        <Nav.Link className="text-primary d-inline-block align-top" style={{fontWeight:"500"}} onClick={() => handleShow()}>Connect Wallet</Nav.Link> 
-        <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >  
-            <center>
-                <div style={{paddingTop: "20px"}}>How would you like to pay for your NFTs?</div>
-                <ButtonGroup style={{width: "75%", padding: "20px"}}>
-                    <Button height="50px" width="50px" variant={(userAuth) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setUserAuth(true);setWallet(false);}}>Wallet Connect</Button>
-                    <Button height="50px" width="50px" variant={(wallet) ? ("dark") : ("light")} style={{border: "1px solid black"}} onClick={()=>{setWallet(true);setUserAuth(false);}}>Metamask</Button>
-                </ButtonGroup>
-            </center>
-            {userAuth && 
-            <center>
-                <Button className="button-hover my-3" variant="secondary" 
-                           style={{ color: "white", background: "black", pointerEvents: "auto", 
-                            borderRadius:"2.0rem", padding: "20px", width: "35%", 
-                            height: "20px", lineHeight: 0 }}
-                            onClick={()=>handleWalletConnect()}>Authenticate</Button>
-            </center>
-            }
-            {/* {creditCard &&  
-            <PaymentForm></PaymentForm>
-            } */}
-            {wallet && 
-            <center>
-            <Button className="button-hover my-3" variant="secondary" 
-                  style={{ color: "white", background: "black", pointerEvents: "auto", 
-                  borderRadius:"2.0rem", padding: "20px", width: "35%", 
-                  height: "20px", lineHeight: 0 }} onClick={()=>handleConnect()}>Authenticate</Button>
-            </center>
-            }
+        <NavButton onClick={() => handleShow()}>Connect wallet</NavButton> 
+        <Modal show={show} onHide={handleClose} fullscreen={true} >  
+            <XFull/>
+            <ModalContent>
+                <WalletTitle>Welcome! <br/> Connect Your Wallet!</WalletTitle>
+                <PayForNFTs>How would you like to pay for your NFTs?</PayForNFTs>
+                <ConnectWalletButton onClick={()=>handleWalletConnect()}>Wallet Connect</ConnectWalletButton>
+                <ConnectMetamaskButton onClick={()=>handleConnect()}>Metamask</ConnectMetamaskButton>
+            </ModalContent>
         </Modal>
         </>
         )
 }
 
 export default ConnectButton
+
+const ModalContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0px;
+    gap: 40px;
+
+    position: absolute;
+    width: 50%;
+    height: 35%;
+    left: 367px;
+    top: 176px;
+`
+
+const XButton = styled.img`
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 24px;
+    top: 24px;
+`
+
+const XButton2 = styled.img`
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 24px;
+    top: 24px;
+    transform: rotate(-90deg);
+`
+
+
+const WalletTitle = styled.div`
+    width: 686px;
+    height: 208px;
+
+    /* H2 */
+
+    font-family: 'Druk Cyr';
+    font-style: italic;
+    font-weight: 900;
+    font-size: 100px;
+    line-height: 104px;
+    /* or 95% */
+
+    text-align: center;
+    text-transform: uppercase;
+
+    color: #000000;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+`
+
+
+const PayForNFTs = styled.div`
+    /* How would you like to pay for your NFTs? */
+
+
+    width: 430px;
+    height: 27px;
+
+    /* Lead */
+
+    font-family: 'Graphik LCG Regular';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 22px;
+    line-height: 27px;
+    /* identical to box height */
+
+    text-align: center;
+
+    color: #000000;
+
+
+    /* Inside auto layout */
+
+    flex: none;
+    order: 0;
+    flex-grow: 0;
+`

@@ -21,6 +21,7 @@
     "browserify-zlib": "^0.2.0",
     "ethers-eip712": "^0.2.0",
     "express": "^4.17.3",
+    "get-eth-price": "^1.0.0",
     "history": "^5.2.0",
     "http-proxy-middleware": "^2.0.6",
     "ipfs": "^0.63.2",
@@ -47,6 +48,7 @@
     "web-vitals": "^2.1.3",
     "web3modal": "^1.9.5",
     "webpack-dev-middleware": "^5.3.3",
+    "xhr2-cookies": "^1.1.0",
     "xtypejs": "^0.7.1"
   },
   "proxy": "http://localhost:5000",

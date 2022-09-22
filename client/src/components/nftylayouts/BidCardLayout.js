@@ -38,6 +38,7 @@ import WithdrawLoadingModal from '../nftyModals/BidModals/WithdrawLoadingModal'
 
 // functions
 import StartAuction from '../nftymarketplace/StartAuction'
+import { GetStarted } from '../nftyFunctions/GetStarted'
 
 //solidity buttons
 import BuyLazyNFTButton from '../nftySolidityButtons/BuyLazyNFTButton'
@@ -86,13 +87,7 @@ function BidCard({auctionAddress, signerAddress, responsive, editionsPerAuction}
   const [showBidModal, setShowBidModal] = useState(false)
   const [showBidLoadingModal, setShowBidLoadingModal] = useState(false)
 
-  const [started, setStarted] = useState(false)
-  const [ended, setEnded] = useState(false) 
-
-  const [currentBid, setCurrentBid] = useState(0)
-  const [highestBid, setHighestBid] = useState(0)
-  const [lowestBid, setLowestBid] = useState(0)
-  const [bidAmount, setBidAmount] = useState()
+ 
 
   const [auctionTime, setAuctionTime] = useState()
   
@@ -103,14 +98,15 @@ function BidCard({auctionAddress, signerAddress, responsive, editionsPerAuction}
 
   const [showWithdrawLoadingModal, setShowWithdrawLoadingModal] = useState(false)
 
-  const { withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading } = usePlaceBid()
+  const { withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading,
+    started, setStarted, ended, setEnded, currentBid, setCurrentBid, highestBid, setHighestBid, bidAmount, setBidAmount,
+    ifWinningBid, setIfWinningBid, lowestBid, setLowestBid } = usePlaceBid()
 
   const [showAuctionData, setShowAuctionData] = useState(false)
 
   const [displayedAuction, setDisplayedAuction] = useState("Auction")
   const [showDropdown, setShowDropdown] = useState(false)
 
-  const [ifWinningBid, setIfWinningBid] = useState(false)
 
   const handleShowAuctionData = () => setShowAuctionData(true)
   const handleCloseAuctionData = () => setShowAuctionData(false)
@@ -151,7 +147,7 @@ function BidCard({auctionAddress, signerAddress, responsive, editionsPerAuction}
 
       const secondsLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000)
       const secondsLeft = secondsLeftInAuction % 60
-      
+
       const minutesLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60)
       const minutesLeft = minutesLeftInAuction % 60
 
@@ -169,104 +165,6 @@ function BidCard({auctionAddress, signerAddress, responsive, editionsPerAuction}
 
 
 
-
-  const getStarted = async(index) => {
-
-    const signer = await ConnectWallet()
-
-    const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-    const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-    let isStarted = ""
-
-    try {
-        isStarted = await liveAuctionFactoryContract.isStarted()
-        console.log(isStarted)
-        setStarted(isStarted)
-    } catch (e) {
-        console.log(e)
-    }
-
-    let addresses=[]
-    try{
-        
-        addresses = await liveAuctionFactoryContract.getTop(editionsPerAuction[0])
-    } catch (e) {
-        console.log(e)
-    }
-
-    let currBid = 0;
-    let lowBid = 0;
-
-    try {
-
-        let cBid = await liveAuctionFactoryContract.getBid()
-        
-        let res = utils.formatEther(cBid);
-        res = Math.round(res * 1e5) / 1e5;
-        currBid = res
-        
-        setCurrentBid(currBid)
-        
-    } catch {
-        setCurrentBid(0)
-    }
-
-    try {
-
-        let highestBidPlaced = await liveAuctionFactoryContract.getHighestBid()
-        let res = utils.formatEther(highestBidPlaced);
-        console.log(res)
-        res = Math.round(res * 1e5) / 1e5;
-        let highBid = res
-        setHighestBid(highBid)
-
-    } catch (e) {
-        setHighestBid(0)
-    }
-
-    try {
-        let lowestBidPlaced = await liveAuctionFactoryContract.getLowestBid()
-        let res = utils.formatEther(lowestBidPlaced);
-        res = Math.round(res * 1e5) / 1e5;
-        lowBid = res
-        setLowestBid(lowBid)
-    } catch {
-        setLowestBid(0)
-    }
-
-    if (currBid >= lowBid) {
-        if (currBid === 0 ) {
-            setIfWinningBid(false)
-        } else {
-            setIfWinningBid(true)
-        }
-    } else {
-        setIfWinningBid(false)
-    }
-
-
-    let endAt;
-    try {
-        endAt = await liveAuctionFactoryContract.getEndAt()
-    } catch {
-        console.log("endAt")
-    }
-
-    const secondsLeftInAuction = Math.floor((new Date(endAt.toNumber()*1000) - new Date())/1000)
-
-    if (secondsLeftInAuction < 0 && endAt.toNumber() !== 0) {
-        setEnded(true)
-    } else {
-        setEnded(false)
-    }
-    
-    return endAt.toNumber()
-
-    } 
-
-
-
   const showAuctionCardData = async(index, editions) => {
       setCurrentBid(0)
       setHighestBid(0)
@@ -274,16 +172,15 @@ function BidCard({auctionAddress, signerAddress, responsive, editionsPerAuction}
       
     
       setDisplayedAuction(`Auc. ${index} - ${editions} editions`)
-      const timeLeftIn = await getStarted(index)
-      console.log(timeLeftIn)
+      const timeLeftIn = await GetStarted(auctionAddress, started, setStarted, ended, setEnded, 
+        currentBid, setCurrentBid, highestBid, setHighestBid, bidAmount, setBidAmount,
+        ifWinningBid, setIfWinningBid, lowestBid, setLowestBid, editions)
 
       const intervalId = setInterval(() => {
         updateRemainingTime(timeLeftIn)
       }, 1000)
       return () => clearInterval(intervalId)
 
-      
-      
   }
 
   const checkIfWinningBid = () => {

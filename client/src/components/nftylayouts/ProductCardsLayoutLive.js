@@ -112,7 +112,6 @@ editionsPerAuction, sold, fileType}) {
   
 
   useEffect(async() => {
-      console.log(fileType, "BIGSHTUFF")
       const timeLeftIn = await getStarted()
 
       const intervalId = setInterval(() => {

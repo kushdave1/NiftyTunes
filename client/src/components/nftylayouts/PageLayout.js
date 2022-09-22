@@ -1,6 +1,7 @@
 import React from 'react'
 import Navigation from '../nftynavs/Navigation'
 import styled from 'styled-components'
+import FooterPage from '../nftynavs/Footer'
 
 const Body = styled.div `
     width:100%;
@@ -14,11 +15,9 @@ const Body = styled.div `
 const PageLayout = ({ children }) => {
     return (
     <React.Fragment>
-        <Body>
             <Navigation />
             <main>{children}</main>
-            
-        </Body>
+            <FooterPage/> 
     </React.Fragment>
     );
 };

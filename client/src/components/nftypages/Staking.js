@@ -5,7 +5,7 @@ import MyStaking from '../nftyprofiles/MyStaking'
 
 //Layouts
 import ProductListLayout from '../nftylayouts/ProductListLayout'
-import ProductCardsLayout from '../nftylayouts/ProductCardsLayout'
+
 
 //Bootstrap
 import Container from 'react-bootstrap/Container'

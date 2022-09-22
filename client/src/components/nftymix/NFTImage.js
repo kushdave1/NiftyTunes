@@ -32,7 +32,8 @@ function NFTImage({output}) {
         <img 
               crossOrigin='true'
               crossoriginresourcepolicy= 'false'
-              height="367.5"
+              width="310px"
+              height="246px"
               src={tokenImage}
               onError={onError}
               >

@@ -31,9 +31,9 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
     
 
     const query = new Moralis.Query(ListedNFTs);
-    query.equalTo("isSold", false)
+
     const data = await query.find();
-    console.log(data, "this data")
+
     const items = []
 
     let image = ''
@@ -58,7 +58,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         owner: object.get("signerAddress"),
         artistPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         artistName: await fetchArtistName(object.get("signerAddress")),
-       
         ownerPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         ownerName: await fetchArtistName(object.get("signerAddress")),
         coverPhotoURL: object.get("coverPhotoURL"),
@@ -73,7 +72,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         tokenAddress: false
       }
       if (item.isSold === false) {
-        console.log(item)
         items.push(item);
       }
     }
@@ -95,7 +93,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
 
       const fileType = await checkFileType(imageLink)
 
-      console.log(fileType, "THIS FILETYPe")
 
       let artistPhoto = await fetchArtistPhoto(i.publisher)
       let artistName = await fetchArtistName(i.publisher)
@@ -122,7 +119,7 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         tokenAddress: i.tokenAddress,
 
       }
-      console.log(item)
+
       items.push(item)
     }))
 
@@ -197,7 +194,6 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
     
 
     await Promise.all(dataStorage.map(async i => {
-      console.log(i, "datastore")
       if (i.tokenId.toString() === '0') {
         return;
       }

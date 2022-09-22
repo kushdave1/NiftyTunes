@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, BrowserRouter as Router, Route, useParams } from "react-router-dom";
 import { useMoralisQuery } from "react-moralis";
 import { useMoralis, useNFTBalances } from "react-moralis"
+import ProductPageSkeleton from "../nftyloader/ProductPageSkeleton"
 
 import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
@@ -72,11 +73,7 @@ function ProductPageToken() {
   const { marketAddress, marketContractABI, storageAddress, storageContractABI } = useMoralisDapp()
   const marketContractABIJson = JSON.parse(marketContractABI)
   const storageContractABIJson = JSON.parse(storageContractABI)
-  const [events, setEvents] = useState([{
-    fromAddress: "",
-    toAddress: "",
-    tokenId
-  }])
+  const [events, setEvents] = useState([])
   const [transfers, setTransfers] = useState([{
     fromAddress: "",
     toAddress: "",
@@ -111,7 +108,6 @@ function ProductPageToken() {
     await getNFTData();
     await fetchSeaportData();
     setIsLoading(false);
-
   }, []);
 
   const fetchMetadata = async() => {
@@ -182,41 +178,48 @@ function ProductPageToken() {
 
   }
 
-  const handleTransfer = async(from, to, tokenId) => {
+  const handleTransfer = async(index, blockNumber, from, to, tokenId) => {
         
         let fromAddress = await fetchArtistName(from)
         let toAddress = await fetchArtistName(to)
-        let ellipsis = "..." 
 
-        console.log(from, to, "HELLOOOO")
+        fromAddress = editAddress(fromAddress, from)
+        toAddress = editAddress(toAddress, to)
 
-        if (fromAddress===undefined) {
-            fromAddress = ellipsis.concat(from.slice(33,43))
-        }
-        if (fromAddress.length === 25) {
-            fromAddress = ellipsis.concat(from.slice(33,43))
-        } 
-
-        if (toAddress===undefined) {
-            toAddress = ellipsis.concat(to.slice(33,43))
-        }
-        if (toAddress.length === 25) {
-            toAddress = ellipsis.concat(to.slice(33,43))
-        } 
+        console.log(fromAddress, toAddress, "SHIZO")
 
         setEvents(previousEvents => [...previousEvents, {
-            from: fromAddress,
-            to: toAddress,
-            tokenId: tokenId.toNumber()
+            id: index,
+            blockNumber: blockNumber,
+            from: fromAddress.toString(),
+            to: toAddress.toString(),
+            tokenId: tokenId
         }])
 
         setTransfers(previousTransfers => [...previousTransfers, {
-            from: from,
-            to: to,
-            tokenId: tokenId.toNumber()
+            id: index,
+            blockNumber: blockNumber,
+            from: from.toString(),
+            to: to.toString(),
+            tokenId: tokenId
         }])
   
-    }
+  }
+
+  const sortEvents = () => {
+      let currEvents = events
+      
+
+      currEvents.sort((a,b) => {
+          return a.blockNumber-b.blockNumber
+        } 
+      )
+
+      setEvents(currEvents)
+      console.log(currEvents, "BLOOd")
+
+  }
+
 
   const editAddress = (name, address) => {
 
@@ -239,26 +242,32 @@ function ProductPageToken() {
     console.log(ethers.BigNumber.from(tokenId), "GANG")
     const filterTransfer = tokenContract.filters.Transfer(null, null, ethers.BigNumber.from(tokenId))
     
-    const transferItems = await tokenContract.queryFilter(filterTransfer)
-
-    console.log(transferItems, "these transfers")
+    let transferItems = await tokenContract.queryFilter(filterTransfer)
+    transferItems.sort((a,b) => {
+              return a.blockNumber-b.blockNumber
+        } 
+      )
+  
     let items = []
     for (const i in transferItems) {
-  
         // await handleTransfer(transferItems[i]["args"]["from"], transferItems[i]["args"]["to"], transferItems[i]["args"]["tokenId"])
         let item = {
+          id: parseInt(i+1),
+          blockNumber: transferItems[i]['blockNumber'],
           fromAddress: transferItems[i]["args"]["from"],
           toAddress: transferItems[i]["args"]["to"],
           tokenId
         }
+        handleTransfer(parseInt(i+1), transferItems[i]['blockNumber'], transferItems[i]["args"]["from"],transferItems[i]["args"]["to"],tokenId)
         items.push(item)
         //handleStart(item.tokenId, item.highestBid)
     }
-
     return items
 
 
   }
+
+
 
   const checkFileType = async(image) => {
 
@@ -266,7 +275,6 @@ function ProductPageToken() {
   
     
     const req = await fetch(file, {method: "HEAD"})
-    console.log(req.headers.get("content-type"), "This is the request result")
     setImageFile(req.headers.get("content-type"))
   }
 
@@ -287,11 +295,10 @@ function ProductPageToken() {
     const meta = await axios.get(fixURL(tokenUri))
     const signer = await ConnectWallet()
     const transfers = await fetchProvenance()
-    const artistPhoto = await fetchArtistPhoto(transfers[1].toAddress)
-    let artistName = await fetchArtistName(transfers[1].toAddress)
-    artistName = editAddress(artistName, transfers[1].toAddress)
+    const artistPhoto = await fetchArtistPhoto(transfers[0].toAddress)
+    let artistName = await fetchArtistName(transfers[0].toAddress)
+    artistName = editAddress(artistName, transfers[0].toAddress)
     const tokenOwner = await fetchOwner()
-    console.log(tokenOwner)
     let ownerPhoto
     let ownerName
     let price
@@ -305,7 +312,6 @@ function ProductPageToken() {
         price = await marketplaceContract.getItemPrice(marketItemId)
         price = ethers.utils.formatEther(price)
 
-        console.log(price, "GANG GOING UP")
 
 
  
@@ -316,7 +322,6 @@ function ProductPageToken() {
     
     ownerName = editAddress(ownerName, transfers.slice(-1).pop().fromAddress)
 
-    console.log("THIS WONT WORK")
     let imageLink;
     for (const j in meta.data) {
       if ((meta.data[j]).toString().includes('ipfs')) {
@@ -346,12 +351,18 @@ function ProductPageToken() {
       description: meta.data.description,
       tokenURI: tokenUri
     }]);
-    console.log(nft)
+    console.log(nft.transfers, "RIGGED")
   };
 
   return (
     <>
-      {!isLoading && (
+      {isLoading ? (Array(1)
+                .fill()
+                .map((item, index) => {
+                    return(
+                        <ProductPageSkeleton key={index} />
+                    )
+                })) : (
         <HeaderSection>
             <Container fluid="sm">
             
@@ -392,9 +403,35 @@ function ProductPageToken() {
                     <Col style={{marginLeft: "300px", paddingTop: 20}}>
                         <div style={{fontWeight: "Bold", fontSize: 30, paddingTop: 20, paddingBottom: 20}}><hr/>Provenance</div>
                         <ListGroup style={{paddingTop: "10px"}}>
+                        {events && events.map((event, index) => {
+                          console.log(event, index, "BIGBOLD")
+                          events.sort((a,b) => {
+                              return a.id-b.id
+                            } 
+                          )
+                            return (
                             <ListGroup.Item style={{fontWeight: "Bold"}}>
-                              Bid 1
+                            <Row>
+                              <Col md={2}>
+                                  {index+1}
+                              </Col>
+                              <Col md={4}>
+                                  {event.from}
+                              </Col>
+                              <Col md={2}>
+                                <center>
+                                  -->
+                                </center>
+                              </Col>
+                              <Col md={4}>
+                                  {event.to}
+                              </Col>
+                            </Row>
                             </ListGroup.Item>
+                          )
+                   
+                        })}
+                            
                         </ListGroup>
                     </Col>
                     

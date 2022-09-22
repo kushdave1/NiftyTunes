@@ -5,7 +5,6 @@ import Moralis from 'moralis'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
-import ProductCardsLayout from "components/nftylayouts/ProductCardsLayout";
 import ProductCardsStakingLayout from "components/nftylayouts/ProductCardsStakingLayout";
 import ProductCardsLayoutLazy from "components/nftylayouts/ProductCardsLayoutLazy";
 import ProductSkeleton from "components/nftyloader/ProductSkeleton";

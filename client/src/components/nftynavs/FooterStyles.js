@@ -1,17 +1,118 @@
 import styled from 'styled-components';
 
 export const Box = styled.div`
-padding: 80px 60px;
-background: black;
-position: relative;
-bottom: 0;
-width: 100%;
+	position: absolute;
+	width: 100%;
+	height: 160px;
 
-
-@media (max-width: 1000px) {
-	padding: 70px 30px;
-}
+	background: #000000;
+	line-height: 160px;
 `;
+
+export const TitleNfty = styled.div`
+position: absolute;
+font-family: 'Druk Cyr';
+font-style: italic;
+font-weight: 900;
+font-size: 60px;
+
+/* or 95% */
+
+width: 159px;
+height: 49px;
+left: 60px;
+
+text-transform: uppercase;
+color: white;
+`
+
+export const DescriptionNfty = styled.div`
+
+position: absolute;
+width: 309px;
+height: 48px;
+left: 279px;
+top: 60px;
+
+/* text */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 24px;
+/* or 133% */
+
+
+color: #FFFFFF;
+`
+
+export const FollowUs = styled.div`
+position: absolute;
+width: 94px;
+height: 18px;
+right: 192px;
+
+top: 56px;
+
+/* Caption small */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 18px;
+/* identical to box height, or 112% */
+
+text-transform: uppercase;
+
+color: #FFFFFF;
+`
+
+export const Socials = styled.div`
+display: flex;
+flex-direction: row;
+padding: 0px;
+column-gap: 50px;
+
+position: absolute;
+right: 154px;
+top: 84px;
+`
+
+export const Icons = styled.img`
+width: 18px;
+height: 18px;
+flex: none;
+order: 0;
+flex-grow: 0;
+`
+
+
+export const Twitter = styled(Icons)`
+position: absolute;
+
+`
+
+export const Reddit = styled(Icons)`
+position: absolute;
+
+`
+
+
+export const Discord = styled(Icons)`
+position: absolute;
+
+`
+
+export const Instagram = styled(Icons)`
+
+position: absolute;
+
+`
+
+
+
 
 export const Container = styled.div`
 	display: flex;

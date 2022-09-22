@@ -32,9 +32,10 @@ import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappP
 import { mintAndRedeem } from "../nftyFunctions/LazyFactoryAction"
 import { BuyLazyNFT } from "../nftymarketplace/BuyLazyNFT"
 import { BuyNFT } from "../nftymarketplace/BuyNFT"
-import { useState } from "react"
+import { useState , useEffect} from "react"
 import img from "../../assets/images/ethereum.png"
 import monkey from "../../assets/images/gorilla.png"
+import styled from 'styled-components'
 
 
 
@@ -44,40 +45,116 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
  
-function LiveCollectionLayout({collection}) {
+function LiveCollectionLayout({collection, filterFinal}) {
+  const [finalResult, setFinalResult] = useState(true)
+  
+
+  
 
 
   return (
-    <Col xs={1} md={4} style={{paddingBottom:"3rem",  display: "flex"}}>
+    <>
+    {finalResult && 
+      <Col xs={1} md={4} style={{ display: "flex", alignItems: "center", justifyContent: "center"}}>
       <Link to={`${collection.mintAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
         <Card className="bg-light shadow-md"
-              style={{ width: '22.5rem', height: '20rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
-                <CollectionBanner output={collection.banner}/>
+              style={{ width: '420px', height: '420px', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden", backgroundImage: `url(${collection.cover})`}} >
                 <CollectionImage output={collection.cover}/> 
+                <InfoBox>
+     
+                  <ConcertDate>
+                    {collection.date}
+                  </ConcertDate>
+   
+                  <ArtistName>{collection.name}
+                  <Location>
+                    {collection.description}
+                  </Location>
+                  </ArtistName>
+                </InfoBox>
             
-            <Card.Body>
 
-                <center>
-                    <Card.Title className="text-dark" style={{fontSize: 16}}>{collection.name}</Card.Title>
-                    <Card.Text style={{fontSize: 12, padding: "5px", color: "black"}}>{collection.description}</Card.Text>
-                </center>
-                
-            </Card.Body>
-              
-            <Card.Footer className="bg-dark text-light">
-              <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
-                <Col>
-                  {collection.date}
-                </Col>
-                <Col style={{justifyContent: 'right', display: "flex"}}>
-                  <img src={nftyimg} height="22.5" width="26"></img>
-                </Col>
-              </Row>
-            </Card.Footer> 
         </Card>
       </Link>
-    </Col>
+    </Col>}
+</>
   )
 }
 
 export default LiveCollectionLayout
+
+const InfoBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 266px;
+
+  position: absolute; 
+  width: 380px;
+  height: 376px;
+  left: 20px;
+  top: 25px;
+
+`
+
+const ConcertDate = styled.div`
+width: 168px;
+height: 37px;
+
+/* H6 */
+
+font-family: 'Druk Cyr';
+font-style: italic;
+font-weight: 700;
+font-size: 36px;
+/* identical to box height, or 37px */
+
+letter-spacing: 0.01em;
+text-transform: uppercase;
+
+/* white */
+
+color: #FFFFFF;
+`
+const ArtistName = styled.div`
+/* H5 */
+
+font-family: 'Druk Cyr';
+font-style: italic;
+font-weight: 700;
+font-size: 50px;
+line-height: 57px;
+/* identical to box height */
+
+text-transform: uppercase;
+
+/* white */
+
+color: #FFFFFF;
+`
+
+
+
+const Location = styled.div`
+width: 340px;
+height: 36px;
+
+/* Caption small */
+
+font-family: 'Graphik LCG';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 16px;
+/* or 112% */
+
+display: flex;
+align-items: flex-end;
+text-transform: uppercase;
+
+/* white */
+
+color: #FFFFFF;
+`

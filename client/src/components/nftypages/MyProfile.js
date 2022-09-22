@@ -9,6 +9,8 @@ import {
 } from "react-router-dom"
 import {useNavigate} from 'react-router'
 import { useMoralisFile } from "react-moralis";
+import ProfileInfo from '../nftyModals/ProfileModals/ProfileInfo'
+import ProfileSocials from '../nftyModals/ProfileModals/ProfileSocials'
 
 
 //bootstrap
@@ -356,115 +358,15 @@ function MyProfile() {
             </>
         )
         }
-                             <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-                                <Modal.Header style={{backgroundColor: "black"}} >
-                                    <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
-                                </Modal.Header>
-                                <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                                    Enter Your Details!
-                                </Modal.Title>
-                                <Form style={{padding: "30px"}}>
-                                    <Form.Group className="mb-3" controlId="formArtistName">
-                                        <Form.Label>Artist Name</Form.Label>
-                                        <Form.Control 
-                                        type="username" 
-                                        placeholder="Enter username" 
-                                        onInput={e => setUsernameEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formArtistName">
-                                        <Form.Label>Artist Description</Form.Label>
-                                        <Form.Control 
-                                        rows={5}
-                                        type="description" 
-                                        placeholder="Artist Description" 
-                                        onInput={e => setDescriptionEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formArtistType">
-                                        <Form.Label>Type of Artist</Form.Label>
-                                        <Form.Select aria-label="Default select example" onInput={e => setArtistTypeEntered(e.target.value)}>
-                                            <option>Open this select menu</option>
-                                            <option value="Visual Animator">Visual Animator</option>
-                                            <option value="Musician">Musician</option>
-                                            <option value="Collector">Collector</option>
-                                        </Form.Select>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formProfilePic">
-                                        <Form.Label>Upload a Profile Picture!</Form.Label>
-                                        <Form.Control 
-                                                         type="file" 
-                                                         placeholder="Upload ProPic" 
-                                                         onInput={e => {setFileTarget(e.target.files[0]); console.log(e.target.files[0]);}}>
-                                        </Form.Control>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formProfilePic">
-                                        <Form.Label>Upload a Banner!</Form.Label>
-                                        <Form.Control 
-                                                         type="file" 
-                                                         placeholder="Upload Banner" 
-                                                         onInput={e => {setBannerFileTarget(e.target.files[0]); console.log(e.target.files[0]);}}>
-                                        </Form.Control>
-                                    </Form.Group>
+                            <ProfileInfo show={show} handleClose={handleClose} setUsernameEntered={setUsernameEntered} setDescriptionEntered={setDescriptionEntered}
+                            setArtistTypeEntered={setArtistTypeEntered} setFileTarget={setFileTarget} setBannerFileTarget={setBannerFileTarget} handleClose={handleClose}
+                            handleSocialsShow={handleSocialsShow} />
 
-                                    <Button variant="dark" style={{borderRadius: "2rem", float: "right"}} onClick={()=>{handleClose();handleSocialsShow();}}>
-                                        Next
-                                    </Button>
-                                </Form>       
-                            </Modal>
-                            <Modal show={socialsShow} onHide={handleSocialsClose} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-                                <Modal.Header style={{backgroundColor: "black"}} >
-                                    <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
-                                </Modal.Header>
-                                <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                                    Help fans find you on Social Media! (Links Only)
-                                </Modal.Title>
-                                <Form style={{padding: "30px"}}>
-                                    <Form.Group className="mb-3" controlId="formTwitter">
-                                        <Form.Label>Twitter</Form.Label>
-                                        <Form.Control 
-                                        type="twitter" 
-                                        placeholder="Twitter Link" 
-                                        onInput={e => setTwitterEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formInstagram">
-                                        <Form.Label>Instagram</Form.Label>
-                                        <Form.Control 
-          
-                                        type="instagram" 
-                                        placeholder="Instagram Link" 
-                                        onInput={e => setInstagramEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formDiscord">
-                                        <Form.Label>Discord</Form.Label>
-                                        <Form.Control 
-                                        type="discord" 
-                                        placeholder="Instagram Link" 
-                                        onInput={e => setDiscordEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Form.Group className="mb-3" controlId="formTiktok">
-                                        <Form.Label>Tiktok</Form.Label>
-                                        <Form.Control 
-                                        type="tiktok" 
-                                        placeholder="Tiktok Link" 
-                                        onInput={e => setTiktokEntered(e.target.value)}/>
-                                        <Form.Text className="text-muted">
-                                        </Form.Text>
-                                    </Form.Group>
-                                    <Button variant="dark" style={{borderRadius: "2rem", float: "right"}} onClick={()=>{saveUserInfo();handleSocialsClose();}}>
-                                        Submit
-                                    </Button>
-                                </Form>       
-                            </Modal>
+                            <ProfileSocials socialsShow={socialsShow} handleSocialsClose={handleSocialsClose} setTwitterEntered={setTwitterEntered} 
+                            setInstagramEntered={setInstagramEntered} setDiscordEntered={setDiscordEntered} setTiktokEntered={setTiktokEntered} 
+                            saveUserInfo={saveUserInfo} />
 
+                            
                             <Modal show={minterShow} onHide={handleMinterClose} contentClassName = 'modal-rounded-6' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
                                 <Modal.Header style={{backgroundColor: "black"}} >
                                     <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
