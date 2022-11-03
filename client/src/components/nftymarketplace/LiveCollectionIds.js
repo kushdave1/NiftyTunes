@@ -7,15 +7,15 @@ import Web3Modal from 'web3modal'
 import axios from 'axios';
 import LiveCollectionLayout from "components/nftylayouts/LiveCollectionLayout";
 import LiveCollectionLayoutMobile from "components/nftylayouts/LiveCollectionLayoutMobile";
-import ProductSkeleton from "components/nftyloader/ProductSkeleton";
+import CollectionSkeleton from "components/nftyloader/CollectionSkeleton";
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 import { useIPFS } from "hooks/useIPFS";
 import { fetchArtistPhoto, fetchArtistName } from '../nftyFunctions/fetchCloudData'
 import { FetchLiveTokenURI } from '../nftyFunctions/FetchLiveTokenIds'
 import { APP_ID, SERVER_URL } from "../../index"
+import styled from 'styled-components'
 
-
-function LiveCollectionIds() {
+function LiveCollectionIds({filter}) {
 
   const { resolveLink } = useIPFS();
   const [width, setWindowWidth] = useState()
@@ -28,14 +28,17 @@ function LiveCollectionIds() {
   const [nftToSend, setNftToSend] = useState(null);
   const [price, setPrice] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [finalResult, setFinalResult] = useState()
   
   useEffect(async() => {
     updateDimensions();
+
     window.addEventListener("resize", updateDimensions);
     try {
         let collectionIds = await GetCollections()
-        console.log(collectionIds)
+
         setCollections(collectionIds)
+        
         
     } catch (error) {
         console.log(error)
@@ -47,7 +50,7 @@ function LiveCollectionIds() {
       setLoading(false)
     }, 500);
     return () => window.removeEventListener("resize",updateDimensions);
-  }, []);
+  }, [filter]);
 
   const updateDimensions = () => {
       const innerWidth = window.innerWidth
@@ -56,6 +59,28 @@ function LiveCollectionIds() {
 
   const responsive = {
     showTopNavMenu: width > 1023
+  }
+
+  const CheckCollectionDate = (collectionDate) => {
+    const Today = new Date()
+
+    var year = Today.getFullYear();
+    var month = Today.toLocaleString("default", { month: "2-digit" });
+    var day = Today.toLocaleString("default", { day: "2-digit" });
+
+    // Generate yyyy-mm-dd date string
+    var formattedDate = year + "-" + month + "-" + day;
+
+    if (filter === 'past') {
+      return new Date(collectionDate).getTime() < new Date(formattedDate).getTime()
+    } else if (filter === 'upcoming') {
+      return new Date(collectionDate).getTime() > new Date(formattedDate).getTime()
+    } else if (filter === 'live') {
+      return new Date(collectionDate).getTime() === new Date(formattedDate).getTime()
+    }
+    
+    
+
   }
 
 
@@ -72,6 +97,7 @@ function LiveCollectionIds() {
 
         for (const i in results) {
             console.log(i)
+
             const object = results[i]
             console.log(object)
             let item = {
@@ -82,11 +108,18 @@ function LiveCollectionIds() {
                 banner: object.get("bannerImageURL"),
                 date: object.get("date"),
                 description: object.get("description"),
-                mintAddress: object.get("liveMintAddress"),
-                auctionAddress: object.get("liveAuctionAddress"),
-                signerAddress: object.get("signerAddress")
+                signerAddress: object.get("signerAddress"),
+                auctionData: object.get("auctionData"),
+                startTime: object.get("startTime"),
+                location: object.get("location")
             }
-            items.push(item)
+
+            const result = CheckCollectionDate(object.get("date"))
+
+            if (result) {
+              items.push(item)
+            }
+            
         }
         return items
 
@@ -96,20 +129,20 @@ function LiveCollectionIds() {
     <React.Fragment>
           {loading?
               //render skeleton when loading
-            (Array(6)
+            (Array(3)
             .fill()
             .map((item, index) => {
                 return(
-                    <ProductSkeleton key={index} />
+                    <CollectionSkeleton key={index} />
                 )
               })) : 
 
-              (responsive.showTopNavMenu) ? (
+              (filter !== "live") ? ((responsive.showTopNavMenu) ? (
 
             (collections &&
               collections.map((nft, index) => {
                 return (
-                    <LiveCollectionLayout collection={nft}
+                    <LiveCollectionLayout collection={nft} filterFinal={filter}
                     />
                 )}
               ))
@@ -117,10 +150,37 @@ function LiveCollectionIds() {
               (collections &&
               collections.map((nft, index) => {
                 return (
-                    <LiveCollectionLayoutMobile collection={nft}
+                    <LiveCollectionLayoutMobile collection={nft} filterFinal={filter}
                     />
                 )}
               ))
+              )) : (collections.length > 0) ? (
+                (responsive.showTopNavMenu) ? (
+
+                  (collections &&
+                    collections.map((nft, index) => {
+                      return (
+                          <LiveCollectionLayout collection={nft} filterFinal={filter}
+                          />
+                      )}
+                    ))
+                    ) : (
+                    (collections &&
+                    collections.map((nft, index) => {
+                      return (
+                          <LiveCollectionLayoutMobile collection={nft} filterFinal={filter}
+                          />
+                      )}
+                    ))
+                    )
+              ) : (responsive.showTopNavMenu) ? (
+                <NoLiveConcerts>
+                  No live concerts right now. Look up upcoming ones.
+                </NoLiveConcerts>
+              ) : (
+                <NoLiveConcertsMobile>
+                  No live concerts right now. Look up upcoming ones.
+                </NoLiveConcertsMobile>
               )
           }
     </React.Fragment>
@@ -128,3 +188,38 @@ function LiveCollectionIds() {
 }
 
 export default LiveCollectionIds
+
+const NoLiveConcerts = styled.div`
+width: 700px;
+height: 27px;
+
+/* Lead */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+/* identical to box height */
+
+color: #000000;
+`
+
+const NoLiveConcertsMobile = styled.div`
+position: absolute;
+width: 255px;
+height: 48px;
+left: 20px;
+top: 321px;
+
+/* Lead */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+/* identical to box height */
+
+color: #000000;
+`

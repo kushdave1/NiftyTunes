@@ -7,7 +7,7 @@ import Button from 'react-bootstrap/Button'
 function ExploreButton() {
   let navigate = useNavigate();
   return (
-    <Button variant="info" style={{borderRadius: "2rem"}} onClick={()=> navigate('/live')}>Start Collecting</Button>
+    <button onClick={()=> navigate('/live')}>Start Collecting</button>
   )
 }
 

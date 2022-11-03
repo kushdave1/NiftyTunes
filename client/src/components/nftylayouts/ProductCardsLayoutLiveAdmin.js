@@ -113,7 +113,6 @@ coverArt, name, description, nft, auctionAddress, editionsPerAuction, fileType})
       }, 1000)
       return () => clearInterval(intervalId)
     
-      console.log(parseInt("00"))
   }, [])
 
   
@@ -210,32 +209,7 @@ coverArt, name, description, nft, auctionAddress, editionsPerAuction, fileType})
 
 
 
-  const StartAuction = async() => {
-      
-      const signer = await ConnectWallet()
-
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-      const price = ethers.utils.parseUnits(minBid, 'ether')
-      let transaction = await liveAuctionFactoryContract.start(auctionTime, price, nftEditions)
-
-      try {
-          await transaction.wait()
-          
-          setAuctionLoading(false)
-         
-      } catch (error) {
-          console.log(error)
-          setAuctionLoading(false)
-          setStartError(true)
-          return
-      }
-
-      setAuctionStarted(true)
-  }
-
+  
   return (
     <>
     <Col xs={1} md={4} style={{paddingBottom:"20px", display: "flex", alignItems: "center", justifyContent: "center"}}>

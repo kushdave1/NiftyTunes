@@ -112,7 +112,7 @@ collection, image, coverArt, name, description, nft, auctionAddress, editionsPer
       }, 1000)
       return () => clearInterval(intervalId)
     
-      console.log(parseInt("00"))
+
   }, [])
 
   

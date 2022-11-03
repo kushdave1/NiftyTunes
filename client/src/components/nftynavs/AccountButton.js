@@ -11,6 +11,7 @@ import Dropdown from 'react-bootstrap/Dropdown'
 import DropdownButton from 'react-bootstrap/DropdownButton'
 import { MdAccountCircle } from "react-icons/md";
 import img from '../../assets/images/gorilla.png';
+import styled from 'styled-components'
 
 
 
@@ -38,25 +39,49 @@ function AccountButton() {
 
 
     return isAuthenticated?(
-            <DropdownButton
+            <NavButton
                 id="user-profile-button"
-                variant="light"
+                variant='dark'
                 title= {(profilePhoto) ?  (<img src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false' width="37.5" height="37.5" style={{borderRadius: "2rem"}}></img>) : (<img src={img} width="40" height="35"></img>)}
-                className="mt-2 fixed"
             >
-                <Dropdown.Item href="/profile"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
-                <Dropdown.Item href="/live">🤳🏻 Live Mints</Dropdown.Item>
+                <Dropdown.Item href="/profile/onsale"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
                 {/* <Dropdown.Item href="/wethbalance"><i class="bi bi-gear-fill"></i> WETH Balance</Dropdown.Item>
                 <Dropdown.Item href="/collections">🐇 Mint a Bunny</Dropdown.Item>
                 <Dropdown.Item href="/staking">🥩 Stake a Bunny</Dropdown.Item>
                  */}
                 <Dropdown.Divider />
                 <Dropdown.Item onClick={handleDisconnect}><i class="bi bi-box-arrow-left"></i> Logout</Dropdown.Item>
-            </DropdownButton>
+            </NavButton>
                 
     ) : (
         <></>
     )
 }
 
+
 export default AccountButton
+
+
+const NavButton = styled(DropdownButton)`
+    /* button */
+
+
+    /* Auto layout */
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 14px 26px;
+    gap: 10px;
+
+    position: absolute;
+    width: 168px;
+    right: 41px;
+    top: 17.14%;
+    bottom: 20%;
+    font-size: 14px;
+    background-color: #000000;
+
+    border-radius: 30px;
+`

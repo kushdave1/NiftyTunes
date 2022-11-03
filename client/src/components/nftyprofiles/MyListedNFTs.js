@@ -25,6 +25,7 @@ import { getExplorer } from "../../helpers/networks";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 import { useIPFS } from "hooks/useIPFS";
+import {useNavigate} from 'react-router'
 
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
@@ -87,8 +88,10 @@ function MyListedNFTs() {
   const listItemFunction = "createMarketItem";
   const ItemImage = Moralis.Object.extend("ListedNFTs");
   const storageContractABIJson = JSON.parse(storageContractABI);
+  let navigate = useNavigate();
 
   const [show, setShow] = useState(false);
+  const [width, setWindowWidth] = useState()
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
 
@@ -97,6 +100,25 @@ function MyListedNFTs() {
     setNftToSend(nft);
     setVisibility(true);
   };
+
+  useEffect(async() => {
+
+        updateDimensions();
+
+        window.addEventListener("resize", updateDimensions);
+
+        return () => window.removeEventListener("resize",updateDimensions);
+
+    }, [])
+
+    const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+    const responsive = {
+        showTopNavMenu: width > 1023
+    }
 
 
   // const { fetchERC20Balances, data, error, isLoading, isFetching } = useERC20Balances();
@@ -125,10 +147,11 @@ function MyListedNFTs() {
   }
 
   return (
-    
-    <MarketPlaceSection className="d-flex justify-content-center">
-    <Row>
-      <React.Fragment>
+    <>
+    {(responsive.showTopNavMenu) ? (
+      <MarketContainer>
+      <MarketRow>
+        <ProductListLayout>
               {loading?
                   //render skeleton when loading
                 (Array(6)
@@ -141,24 +164,164 @@ function MyListedNFTs() {
                 nfts && nfts.map((nft, index) => {
                   if (nft.name !== "") { 
                     return(
-                    <ProductListLayout>
+                    
                     <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} nft={nft} 
                     handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress}
                     tokenId={nft.tokenId}/>
-                    </ProductListLayout>
+                    
 
                   )}}
               ))
               }
-      </React.Fragment>
-    </Row>
+              {(nfts.length === 0) ? (<>
+              <NoItemsBox>
+                <NoItemsLabel>
+                  No items for display yet.
+                </NoItemsLabel>
+                <NoItemsStartCollecting onClick={()=>navigate("/marketplace")}>
+                  <CollectingText>
+                    Start Collecting
+                  </CollectingText>
+                </NoItemsStartCollecting>
+              </NoItemsBox>
+              </>): (<></>)}
+          </ProductListLayout>
+      </MarketRow>
+    </MarketContainer>
+    ) : (
+      <div style={{display: "flex", top: "500px", left: "calc(50% - 322px/2 - 5px)", position: "absolute"}}>
+        <ProductListLayout>
+              {loading?
+                  //render skeleton when loading
+                (Array(8)
+                .fill()
+                .map((item, index) => {
+                    return(
+                        <ProductSkeleton key={index} />
+                    )
+                  })) : (
+                nfts && nfts.map((nft, index) => {
+                  if (nft.name !== "") { 
+                    return(
+                    
+                    <ProductCardsLayoutLazy pageFrom="MyListedNFTs" key={index} nft={nft} 
+                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress}
+                    tokenId={nft.tokenId}/>
+                    
+
+                  )}}
+              ))
+              }
+              {(nfts.length === 0) ? (<>
+              <NoItemsBox>
+                <NoItemsLabel>
+                  No items for display yet.
+                </NoItemsLabel>
+                <NoItemsStartCollecting onClick={()=>navigate("/marketplace")}>
+                  <CollectingText>
+                    Start Collecting
+                  </CollectingText>
+                </NoItemsStartCollecting>
+              </NoItemsBox>
+              </>): (<></>)}
+          </ProductListLayout>
+        </div>
+    )}
+    
     <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
             <Button variant = 'primary' onClick={() => deListNFT(nftToSend)}>DeList</Button>
             
           </Modal>
-  </MarketPlaceSection>
+
+    </>
     
   );
 }
 
 export default MyListedNFTs;
+
+const MarketContainer = styled.div`
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 40px;
+
+    position: absolute;
+    width: 1300px;
+    height: 1048px;
+    left: calc(50% - 1300px/2);
+    top: 300px;
+`
+
+const MarketRow = styled.div`
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 20px;
+
+    width: 1300px;
+    height: 382px;
+`
+
+const NoItemsBox = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 40px;
+
+width: 254px;
+height: 123px;
+`
+
+const NoItemsLabel = styled.div`
+width: 254px;
+height: 27px;
+
+/* Lead */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 22px;
+line-height: 27px;
+/* identical to box height */
+
+
+color: #000000;
+`
+
+const NoItemsStartCollecting = styled.button`
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 20px 38px;
+gap: 10px;
+
+width: 195px;
+height: 56px;
+
+background: #000000;
+border-radius: 50px;
+`
+
+const CollectingText = styled.div`
+width: 119px;
+height: 16px;
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 16px;
+/* identical to box height */
+white-space: nowrap;
+
+
+color: #FFFFFF;
+`

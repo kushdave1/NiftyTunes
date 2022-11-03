@@ -6,10 +6,12 @@ import { useMoralis, useNFTBalances, useERC20Balances } from "react-moralis";
 import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider";
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
 
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
 
 
 
-export const StartAuction = async(auctionTime, auctionAddress, setAuctionStarted, setStartError) => {
+
+export const StartAuction = async(auctionTime, minBid, mintAddress, nfts, auctionAddress, setAuctionStarted, setStartError) => {
 
     
   const web3Modal = new Web3Modal({})
@@ -17,10 +19,11 @@ export const StartAuction = async(auctionTime, auctionAddress, setAuctionStarted
   const provider = new ethers.providers.Web3Provider(connection)
   const signer = provider.getSigner()
 
-  const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
+  const liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuctionProxy.abi, signer)
 
-  const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-  let transaction = await liveAuctionFactoryContract.start(auctionTime)
+  const minimumBid = ethers.utils.parseUnits(minBid, 'ether')
+  console.log(mintAddress, "HOdL")
+  let transaction = await liveAuctionFactoryContract.start(auctionTime, minimumBid, nfts, mintAddress)
   await transaction.wait()
 
   setAuctionStarted(true)

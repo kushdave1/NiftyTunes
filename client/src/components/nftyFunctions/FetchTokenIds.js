@@ -31,9 +31,9 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
     
 
     const query = new Moralis.Query(ListedNFTs);
-    query.equalTo("isSold", false)
+
     const data = await query.find();
-    console.log(data, "this data")
+
     const items = []
 
     let image = ''
@@ -58,7 +58,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         owner: object.get("signerAddress"),
         artistPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         artistName: await fetchArtistName(object.get("signerAddress")),
-       
         ownerPhoto: await fetchArtistPhoto(object.get("signerAddress")),
         ownerName: await fetchArtistName(object.get("signerAddress")),
         coverPhotoURL: object.get("coverPhotoURL"),
@@ -66,6 +65,7 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
@@ -73,7 +73,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         tokenAddress: false
       }
       if (item.isSold === false) {
-        console.log(item)
         items.push(item);
       }
     }
@@ -95,7 +94,6 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
 
       const fileType = await checkFileType(imageLink)
 
-      console.log(fileType, "THIS FILETYPe")
 
       let artistPhoto = await fetchArtistPhoto(i.publisher)
       let artistName = await fetchArtistName(i.publisher)
@@ -117,12 +115,14 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress,
 
       }
-      console.log(item)
+
       items.push(item)
     }))
 
@@ -160,6 +160,7 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
     for (const i in data) {
       const object = data[i];
       const meta = await axios.get(fixURL(object.get("tokenURI")))
+      console.log(meta, "IPFS")
       for (const j in meta.data) {
         if ((meta.data[j]).toString().includes('ipfs')) {
             imageLink = meta.data[j]
@@ -181,6 +182,7 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
@@ -197,7 +199,6 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
     
 
     await Promise.all(dataStorage.map(async i => {
-      console.log(i, "datastore")
       if (i.tokenId.toString() === '0') {
         return;
       }
@@ -225,14 +226,17 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress
       }
       items.push(item)
-      console.log(item)
+
     }))
 
+    console.log(items)
     
     return items;
   }
@@ -282,12 +286,14 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
         artistName: await fetchArtistName(i.publisher),
         ownerPhoto: await fetchArtistPhoto(i.owner),
         ownerName: await fetchArtistName(i.owner),
+        tier: meta.data.tier,
         tokenAddress: i.tokenAddress,
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress
       }
       items.push(item)

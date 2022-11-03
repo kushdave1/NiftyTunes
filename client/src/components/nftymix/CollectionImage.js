@@ -13,12 +13,11 @@ function CollectionImage({output}) {
         <img 
               crossOrigin='true'
               crossoriginresourcepolicy= 'false'
-              height="75"
-              width="75"
+              height="425px"
+              width="425px"
               src={output}
               style={{
-                  borderRadius: "5rem",
-                  marginTop: "-60px"
+                  overflow: "hidden"
               }}
               >
         </img>

@@ -5,7 +5,6 @@ import Moralis from 'moralis'
 import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
-import ProductCardsLayout from "components/nftylayouts/ProductCardsLayout";
 import ProductListLayout from "components/nftylayouts/ProductListLayout"
 import ProductCardsLayoutLazy from "components/nftylayouts/ProductCardsLayoutLazy";
 import ProductSkeleton from "components/nftyloader/ProductSkeleton";
@@ -50,7 +49,7 @@ function NFTTokenIds() {
     <React.Fragment>
           {loading?
               //render skeleton when loading
-            (Array(6)
+            (Array(4)
             .fill()
             .map((item, index) => {
                 return(

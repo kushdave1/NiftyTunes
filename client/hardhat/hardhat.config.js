@@ -24,25 +24,12 @@ console.log(API_URL, PRIVATE_KEY);
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  defaultNetwork: "goerli",
+  defaultNetwork: "mainnet",
   solidity: "0.8.4",
   networks: {
-    hardhat: {
-      chainId: 1337
-    },
-    localhost: {
-      url: "http://localhost:8545",
-      chainId: 1337
-    },
-    rinkeby: {
+    mainnet: {
       url: API_URL,
-      chainId: 4,
-      accounts: [`0x${PRIVATE_KEY}`],
-    },
-    goerli: {
-      url: API_URL,
-      chainId: 5,
       accounts: [`0x${PRIVATE_KEY}`],
     }
+    }
   }
-};

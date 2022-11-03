@@ -1,5 +1,3 @@
 {
-  "compilerOptions": { "baseUrl": "src" },
-  "javascript.updateImportsOnFileMove.enabled": "always",
-  "allowJs": true  
+  "compilerOptions": { "baseUrl": "src" }
 }

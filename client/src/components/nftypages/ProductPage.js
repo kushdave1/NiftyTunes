@@ -50,7 +50,7 @@ const HeaderSection = styled.div `
     display:flex;
     flex:1;
     overflow:hidden;
-    background-color: white;
+    background: #F6A2B1;
     min-height: 100vh;
     padding-top: 75px;
 `;
@@ -127,7 +127,6 @@ function ProductPage() {
       tokenURI: object.get("tokenURI"),
       isSold: object.get("isSold")
     }]);
-    console.log(nft)
   };
 
   const singleQuery = () => {

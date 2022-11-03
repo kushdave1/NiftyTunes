@@ -2,10 +2,10 @@ import React, { useState } from 'react'
 
 //Explore components
 import NFTTokenIds from '../nftymarketplace/NFTTokenIds'
+import FullFilterBar from '../nftymarketplace/Filter'
 
 //Layouts
 import ProductListLayout from '../nftylayouts/ProductListLayout'
-import ProductCardsLayout from '../nftylayouts/ProductCardsLayout'
 import FilterLayout from '../nftylayouts/FilterLayout'
 
 //Bootstrap
@@ -21,10 +21,13 @@ import nftyimg from "../../assets/images/NT_Black_2.png";
 import {useMoralis} from 'react-moralis'
 
 const MarketPlaceSection = styled.div `
-    padding: 50px;
-    overflow:hidden;
-    background-color: white;
-    min-height: 100vh;
+    position: relative;
+    width: 100%;
+    height: 2385px;
+
+    /* pink */
+
+    background: #F6A2B1;
 `;
 
 const SearchAndFilterSection = styled.div``;
@@ -35,27 +38,79 @@ function Explore() {
 
     return (
       <MarketPlaceSection>
-        <Container fluid className="d-flex p-3" style={{fontSize: 24, fontWeight: "bold"}}>
-           <Row>Explore NftyTunes</Row>
-        </Container>
-        <Container fluid className="p-0" style={{backgroundColor: "white"}}>
-            <hr></hr>
-            <Row className="p-2">
-                <Col sm={2} style={{paddingRight: "20px"}}>
-                    <FilterLayout></FilterLayout>
-                </Col>
+        <MarketplaceTitle>Marketplace</MarketplaceTitle>
+        
+        <FullFilterBar/>
+        
 
-                <Col sm={10} style={{ paddingLeft: "20px"}}>
+
+
+        <MarketContainer>
+            <MarketRow >
+                
+
+                
                     
-                    <ProductListLayout>
-                        <NFTTokenIds/>
-                    </ProductListLayout>    
+                <ProductListLayout>
+                    <NFTTokenIds/>
+                </ProductListLayout>    
                     
-                </Col>
-            </Row>
-        </Container>
+               
+            </MarketRow>
+        </MarketContainer>
       </MarketPlaceSection>
     )
 }
 
 export default Explore
+
+const MarketContainer = styled.div`
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 40px;
+
+    position: absolute;
+    width: 1300px;
+    height: 1648px;
+    left: calc(50% - 1300px/2);
+    top: 438px;
+`
+
+const MarketRow = styled.div`
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 20px;
+
+    width: 1300px;
+    height: 382px;
+`
+
+
+
+const MarketplaceTitle = styled.div`
+    position: absolute;
+    width: 329px;
+    height: 104px;
+    left: calc(50% - 329px/2 - 485.5px);
+    top: 150px;
+
+    /* H2 */
+
+    font-family: 'Druk Cyr';
+
+    font-weight: 900;
+    font-size: 110px;
+    line-height: 104px;
+    /* identical to box height, or 95% */
+
+    text-transform: uppercase;
+
+    color: #000000;
+`
+
