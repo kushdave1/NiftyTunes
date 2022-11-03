@@ -20,7 +20,9 @@ import Alert from 'react-bootstrap/Alert'
 import Nav from 'react-bootstrap/Nav'
 import Table from 'react-bootstrap/Table'
 
+import legendaryband from '../../../assets/images/legendaryband.png'
 import { usePlaceBid } from "../../../providers/PlaceBidProvider/PlaceBidProvider";
+import Vector23 from '../../../assets/images/Vector 23.png'
 
 
 
@@ -29,9 +31,76 @@ function BidLoadingModal(props) {
 
     const { bidSuccess, setBidSuccess, bidError, setBidError, bidLoading, setBidLoading } = usePlaceBid()
 
+    const XFull = () => {
+        return (
+            <div style={{cursor: "pointer", width: "25px", height: "25px"}} onClick={()=>props.handleCloseBidLoadingModal()}>
+                <XButton src={Vector23}/>
+                <XButton2 src={Vector23}/>
+            </div>
+        )
+    }
+
+    const XFullSuccess = () => {
+        return (
+            <div style={{cursor: "pointer"}} onClick={()=>setBidSuccess(false)}>
+                <XButton src={Vector23}/>
+                <XButton2 src={Vector23}/>
+            </div>
+        )
+    }
+
+    const XFullError = () => {
+        return (
+            <div style={{cursor: "pointer"}} onClick={()=>setBidError(false)}>
+                <XButton src={Vector23}/>
+                <XButton2 src={Vector23}/>
+            </div>
+        )
+    }
+
     return (
     <>
-        <Modal show={props.showBidLoadingModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
+        {props.showBidLoadingModal && bidLoading && <BidModal>
+            <XFull/>
+            <BidForm>
+                <div class="snippet" data-title=".dot-flashing" style={{top: "90px"}}>
+                    <div class="stage">
+                        <div class="dot-flashing"></div>
+                    </div>
+                </div>
+                <PlacingYourBid>
+                    Placing Your Bid...
+                </PlacingYourBid>
+            </BidForm>
+        </BidModal>}
+
+        {bidSuccess && <BidModal>
+            <XFullSuccess/>
+            <BidForm>
+                <PlacingYourBid>
+                    Your Bid is Placed Successfully.
+                </PlacingYourBid>
+            </BidForm>
+        </BidModal>}
+
+        {bidError && <BidModal>
+            <XFullError/>
+            <BidForm>
+                <PlacingYourBid>
+                    Your Bid failed.
+                    
+                    
+                </PlacingYourBid>
+                <div style={{fontSize: 12, top: "300px", left: "85px", width: "75%", position: "absolute", justifyContent: "center", alignSelf: "center"}}>
+                You likely have not connected your wallet or are not bidding high enough. 
+                    
+         
+                    Make sure you have enough ETH in your wallet.
+                </div>
+            </BidForm>
+        </BidModal>}
+
+        {/* <Modal show={props.showBidLoadingModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
             <Modal.Header style={{backgroundColor: "black"}} >
                 <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
             </Modal.Header>
@@ -74,9 +143,100 @@ function BidLoadingModal(props) {
                 </Alert>
 
             }
-      </Modal>
+      </Modal> */}
+
     </>
     )
 }
 
 export default BidLoadingModal
+
+
+const BidModal = styled.div`
+position: fixed;
+width: 670px;
+height: 470px;
+background-image: url(${legendaryband});
+z-index: 2;
+left: 30%;
+top: 25%;
+`
+
+const BidForm = styled.div`
+position: absolute;
+width: 600px;
+height: 470px;
+left: 0px;
+top: 0px;
+
+/* white */
+
+background: #FFFFFF;
+`
+
+const BidLoadingSquare = styled.div`
+position: absolute;
+width: 195px;
+height: 100px;
+left: 202px;
+top: 160px;
+
+`
+
+const PlacingYourBid = styled.div`
+
+position: absolute;
+width: 195px;
+height: 37px;
+left: 202px;
+top: 223px;
+
+/* H6 */
+
+font-family: 'Druk Cyr';
+
+font-weight: 700;
+font-size: 36px;
+line-height: 101.8%;
+/* identical to box height, or 37px */
+
+letter-spacing: 0.01em;
+text-transform: uppercase;
+
+color: #000000;
+`
+
+const XButton = styled.img`
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 24px;
+    top: 24px;
+`
+
+const XButton2 = styled.img`
+    position: absolute;
+    width: 24px;
+    height: 24px;
+    right: 24px;
+    top: 24px;
+    transform: rotate(-90deg);
+`
+
+
+const LoadingButtons = styled.div`
+
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+position: absolute;
+width: 102px;
+height: 24px;
+left: 240px;
+top: 160px;
+
+`

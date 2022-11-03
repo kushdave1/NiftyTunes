@@ -4,7 +4,7 @@ import { ethers, utils } from 'ethers';
 
 export const GetStarted = async(auctionAddress, started, setStarted, ended, setEnded, 
     currentBid, setCurrentBid, highestBid, setHighestBid, bidAmount, setBidAmount,
-    ifWinningBid, setIfWinningBid, lowestBid, setLowestBid, editionsPerAuction) => {
+    ifWinningBid, setIfWinningBid, lowestBid, setLowestBid, editionsPerAuction, tier) => {
 
     const signer = await ConnectWallet()
 
@@ -15,7 +15,7 @@ export const GetStarted = async(auctionAddress, started, setStarted, ended, setE
 
     try {
         isStarted = await liveAuctionFactoryContract.isStarted()
-        console.log(isStarted)
+        console.log(isStarted, auctionAddress, "FORYOYU")
         setStarted(isStarted)
     } catch (e) {
         console.log(e)
@@ -39,6 +39,7 @@ export const GetStarted = async(auctionAddress, started, setStarted, ended, setE
         let res = utils.formatEther(cBid);
         res = Math.round(res * 1e5) / 1e5;
         currBid = res
+
         
         setCurrentBid(currBid)
         
@@ -54,7 +55,7 @@ export const GetStarted = async(auctionAddress, started, setStarted, ended, setE
         res = Math.round(res * 1e5) / 1e5;
         let highBid = res
         setHighestBid(highBid)
-        console.log(highBid, "GANSTAG")
+  
 
     } catch (e) {
         setHighestBid(0)
@@ -79,6 +80,7 @@ export const GetStarted = async(auctionAddress, started, setStarted, ended, setE
     } else {
         setIfWinningBid(false)
     }
+
 
 
     let endAt;

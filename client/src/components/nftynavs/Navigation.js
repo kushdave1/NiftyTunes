@@ -18,21 +18,21 @@ import AccountMobileButton from './AccountMobileButton'
 import ConnectButton from './ConnectButton'
 import Search from '../nftymarketplace/Search'
 import { fixURL, fixImageURL } from "../nftyFunctions/fixURL"
-// import live from "../../assets/images/liveTwo.png"
-import live from "../../assets/images/LiveButton.png"
 
+import live from "../../assets/images/LiveButton.png"
 import vector1 from "../../assets/images/Vector 1.png"
 import vector2 from "../../assets/images/Vector 2.png"
 import vector3 from "../../assets/images/Vector 3.png"
 import vector4 from "../../assets/images/Vector 4.png"
 import vector5 from "../../assets/images/Vector 5.png"
 import vector6 from "../../assets/images/Vector 6.png"
-
 import explore from "../../assets/images/Explore.png"
 import loops from "../../assets/images/Nftyloops.png"
+import hamburger from '../../assets/images/hamburger.png'
+import XWhite from '../../assets/images/Vector White Mobile.png'
 
-
-
+import * as Desktop from '../nftyCSS/NavigationDesktop'
+import * as Mobile from '../nftyCSS/NavigationMobile'
 
 function Navigation() {
     const {isAuthenticated, user} = useMoralis();
@@ -42,6 +42,11 @@ function Navigation() {
         name: "",
         owner: "",
     }]);
+    const [showDropdown, setShowDropdown] = useState(false)
+    const handleOpenDropdown = () => setShowDropdown(true)
+    const handleCloseDropdown = () => setShowDropdown(false)
+    const toggleDropdown = () => setShowDropdown(p => !p)
+    
 
     let navigate = useNavigate();
 
@@ -49,12 +54,9 @@ function Navigation() {
         updateDimensions();
         if(!user) return null;
         fetchTokenIds();
-        console.log(data);
-
-        
 
         window.addEventListener("resize", updateDimensions);
-        console.log(width, responsive.showTopNavMenu, "asfinaifn")
+        console.log(width, responsive.showTopNavMenu, showDropdown, "asfinaifn")
 
         return () => window.removeEventListener("resize",updateDimensions);
 
@@ -88,26 +90,36 @@ function Navigation() {
         }
     }
 
+     const XFull = () => {
+        return (
+            <div>
+                <Mobile.XButton1 src={XWhite}/>
+                <Mobile.XButton2 src={XWhite}/>
+            </div>
+        )
+    }
+
     return (
         <>
         {(responsive.showTopNavMenu) ? (
             <Navbar bg='black' style={{height: "70px"}}>
                 <Navbar.Brand href="#" onClick={()=> navigate('/')}>
-                    <Logo>
-                        <Rectangle1>
-                            <Vector1 src={vector1} />
-                            <Vector2 src={vector2} />
-                            <Vector3 src={vector3} />
-                            <Vector4 src={vector4} />
-                            <Vector5 src={vector5} />
-                            <Vector6 src={vector6} />
-                            <LiveMints>Digital<br/>Vibes</LiveMints>
-                        </Rectangle1>
+                    <Desktop.Logo>
+                        <Desktop.Rectangle1>
+                            <Desktop.Vector1 src={vector1} />
+                            <Desktop.Vector2 src={vector2} />
+                            <Desktop.Vector3 src={vector3} />
+                            <Desktop.Vector4 src={vector4} />
+                            <Desktop.Vector5 src={vector5} />
+                            <Desktop.Vector6 src={vector6} />
+                            <Desktop.LiveMints>Digital<br/>Vibes</Desktop.LiveMints>
+                        </Desktop.Rectangle1>
                             
                             
-                        <LogoFont>NFTYTUNES</LogoFont></Logo>
+                        <Desktop.LogoFont>NFTYTUNES</Desktop.LogoFont>
+                    </Desktop.Logo>
                 </Navbar.Brand> 
-                        <NavFormat className="ml-auto">  
+                        <Desktop.NavFormat className="ml-auto">  
                         <Navbar.Collapse className='ms-5'>
                             {/* <div className="search-container">
                                 <div className="search-inner">
@@ -147,43 +159,63 @@ function Navigation() {
                             {user?
                                 (
                                 <>
-                                <MarketButtonConnected onClick={()=>navigate('/marketplace')}>Marketplace</MarketButtonConnected>
-                                <Ellipse3Connected onClick={()=> navigate('/live')}></Ellipse3Connected>
-                                <LiveButtonConnected onClick={()=> navigate('/live')}>
-                                NftyTunes Live</LiveButtonConnected>
+                                <Desktop.MarketButtonConnected onClick={()=>navigate('/gallery')}>Gallery</Desktop.MarketButtonConnected>
+                                <Desktop.Ellipse3Connected onClick={()=> navigate('/live')}></Desktop.Ellipse3Connected>
+                                <Desktop.LiveButtonConnected onClick={()=> navigate('/live')}>
+                                NftyTunes Live</Desktop.LiveButtonConnected>
                                 <Navbar.Collapse>
                                         <AccountButton />
                                 </Navbar.Collapse>
                                 </>
                                 ):
                                 (<>
-                                <MarketButton onClick={()=>navigate('/marketplace')}>Marketplace</MarketButton>
-                                <Ellipse3 onClick={()=> navigate('/live')}></Ellipse3>
-                                <LiveButton onClick={()=> navigate('/live')}>
-                                NftyTunes Live</LiveButton>
+                                <Desktop.MarketButton onClick={()=>navigate('/gallery')}>Gallery</Desktop.MarketButton>
+                                <Desktop.Ellipse3 onClick={()=> navigate('/live')}></Desktop.Ellipse3>
+                                <Desktop.LiveButton onClick={()=> navigate('/live')}>
+                                NftyTunes Live</Desktop.LiveButton>
                                 <ConnectButton />
                                 </>)
                             }
 
                             
                         </Navbar.Collapse>
-                        </NavFormat>
+                        </Desktop.NavFormat>
                                 
                                 
             </Navbar>
         ) : (
-            <Navbar className="shadow-lg bottom" bg='white' expand="lg">
-                <Container>   
+            <Navbar bg='black' style={{height: "70px", width: "100vw"}}>
                 <Navbar.Brand href="#" onClick={()=> navigate('/')}>
-                    <img src={img} width="47" height="40" className="d-inline-block align-top"
-                    alt="React Bootstrap logo"></img>
-                    </Navbar.Brand> 
+                    <Mobile.Logo>
+                        <Mobile.LogoFont>NFTYTUNES</Mobile.LogoFont>
+                    </Mobile.Logo>
+                </Navbar.Brand> 
+                        <>
+                        {showDropdown ? (
+                            <Mobile.XButton onClick={()=>handleCloseDropdown()}>
+                          
+                                    <Mobile.XButton1 src={XWhite}/>
+                                    <Mobile.XButton2 src={XWhite}/>
+                       
+                            </Mobile.XButton>
+                            
+                        ) : (<Mobile.HamburgerMenu onClick={()=>handleOpenDropdown()}>
+                            <Mobile.HamburgerSection >
+                                <Mobile.HamburgerLine/>
+                                <Mobile.HamburgerLine/>
+                                <Mobile.HamburgerLine/>
+                            </Mobile.HamburgerSection>
+                        </Mobile.HamburgerMenu>)}
+                        {showDropdown && <AccountMobileButton showDropdown={showDropdown} handleShow={handleOpenDropdown}
+                        handleClose={handleCloseDropdown}/>}
+                        </>
+                    
+                
                        
                                 
-                    {(user) ? (<AccountMobileButton />) : (<ConnectButton/>)}
+                {/* {(user) ? (<AccountMobileButton />) : (<ConnectButton/>)} */}
                     
-                    
-                    </Container>
+                
             </Navbar>
         )}
         </>
@@ -194,308 +226,4 @@ export default Navigation
 
 
 
-const Vector1 = styled.img`
-    /* Vector 1 */
 
-
-    position: absolute;
-    left: 4.71%;
-    right: 81.22%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const Vector2 = styled.img`
-    /* Vector 2 */
-
-
-    position: absolute;
-    left: 14.52%;
-    right: 71.41%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const Vector3 = styled.img`
-    /* Vector 3 */
-
-
-    position: absolute;
-    left: 24.32%;
-    right: 61.6%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const Vector4 = styled.img`
-    /* Vector 4 */
-
-
-    position: absolute;
-    left: 34.14%;
-    right: 51.79%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const Vector5 = styled.img`
-    /* Vector 5 */
-
-
-    position: absolute;
-    left: 43.95%;
-    right: 41.98%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const Vector6 = styled.img`
-    /* Vector 6 */
-
-
-    position: absolute;
-    left: 53.75%;
-    right: 32.17%;
-    top: 9.53%;
-    bottom: 9.53%;
-    width: 19.71px;
-    height: 56.66px;
-
-    /* black */
-
-    // border: 0.722645px solid #000000;
-    // border-radius: 2.8px;
-`
-
-const LiveMints = styled.div`
-    position: absolute;
-    right: 5px;
-    top: 44.29%;
-    bottom: 44.29%;
-
-    font-family: 'Graphik LCG Regular';
-    font-style: normal;
-    font-weight: 400;
-    font-size: 15.3479px;
-    line-height: 16px;
-    /* or 102% */
-
-    text-align: center;
-    text-transform: uppercase;
-
-    /* black */
-
-    color: #000000;
-
-    transform: rotate(-90deg);
-`
-
-
-
-const Logo = styled.div`
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    padding: 0px 20px 0px 0px;
-    gap: 18px;
-
-    position: absolute;
-    width: 337px;
-    height: 70px;
-    left: 0px;
-    top: 0px;
-
-    /* black */
-
-    background: #000000;
-`
-
-const Rectangle1 = styled.div`
-    position: absolute;
-    left: 0%;
-    right: 0%;
-    top: 0%;
-    bottom: 0%;
-    width: 140px;
-    height: 70px;
-
-    /* white */
-
-    background: #FFFFFF;
-`
-
-const LogoFont = styled.div`
-    font-family: 'Druk Cyr';
-    position: absolute;
-    color: #FFFFFF;
-    right: 35px;
-    font-size: 48px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 16px;
-`
-
-
-const NavFormat = styled.div `
-    font-weight : 200;
-`;
-
-
-const Ellipse3Connected = styled.div`
-position: absolute;
-width: 8px;
-right: 332px;
-border-radius: 2rem;
-top: 44.29%;
-bottom: 44.29%;
-cursor: pointer;
-
-/* fuchsia */
-
-background: #FF007A;
-`
-
-const LiveButtonConnected = styled.div`
-/* NftyTunes Live */
-
-
-position: absolute;
-width: 114px;
-right: 208px;
-top: 38.57%;
-bottom: 38.57%;
-
-/* menu */
-
-font-family: 'Graphik LCG';
-font-style: normal;
-font-weight: 500;
-font-size: 16px;
-line-height: 16px;
-cursor: pointer;
-/* identical to box height */
-
-
-color: #FFFFFF;
-`
-
-const MarketButtonConnected = styled.div`
-/* Marketplace */
-
-
-position: absolute;
-width: 96px;
-right: 376px;
-top: 38.57%;
-bottom: 38.57%;
-
-/* menu */
-
-font-family: 'Graphik LCG';
-font-style: normal;
-font-weight: 500;
-font-size: 16px;
-line-height: 16px;
-/* identical to box height */
-cursor: pointer;
-
-color: #FFFFFF;
-`
-
-
-
-const Ellipse3 = styled.div`
-position: absolute;
-width: 8px;
-right: 360px;
-border-radius: 2rem;
-top: 44.29%;
-bottom: 44.29%;
-cursor: pointer;
-
-/* fuchsia */
-
-background: #FF007A;
-`
-
-const LiveButton = styled.div`
-/* NftyTunes Live */
-
-
-position: absolute;
-width: 114px;
-right: 236px;
-top: 38.57%;
-bottom: 38.57%;
-
-/* menu */
-
-font-family: 'Graphik LCG';
-font-style: normal;
-font-weight: 500;
-font-size: 16px;
-line-height: 16px;
-/* identical to box height */
-
-
-color: #FFFFFF;
-`
-
-const MarketButton = styled.div`
-/* Marketplace */
-
-
-position: absolute;
-width: 96px;
-right: 392px;
-top: 38.57%;
-bottom: 38.57%;
-
-/* menu */
-
-font-family: 'Graphik LCG';
-font-style: normal;
-font-weight: 500;
-font-size: 16px;
-line-height: 16px;
-/* identical to box height */
-cursor: pointer;
-
-color: #FFFFFF;
-`

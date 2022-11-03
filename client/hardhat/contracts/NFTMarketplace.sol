@@ -554,11 +554,11 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
         return super.supportsInterface(interfaceId);
     }
 
-    function setSignerRole(address nftyLazyFactory) public {
+    // function setSignerRole(address nftyLazyFactory) public {
       
-      IAccessControl(nftyLazyFactory).grantRole(SIGNER_ROLE, msg.sender);
+    //   IAccessControl(nftyLazyFactory).grantRole(SIGNER_ROLE, msg.sender);
 
-    }
+    // }
 
     //                                         //
     //                                         //
@@ -675,6 +675,12 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
       }
     }  
 
+    function withdrawFunds() public payable returns(bool) {
+      require(owner == msg.sender, "Must be owner to withdraw");
+      owner.transfer(address(this).balance);
+      return true;
+    }
+
 
     //                                                          //
     //                                                          //
@@ -683,60 +689,60 @@ contract NFTMarketplace is ERC721URIStorage, ReentrancyGuard, ERC2981 {
     //                                                          // 
     
 
-    function createBredToken(
-      uint256 tokenIdOne, 
-      address tokenIdOneContract, 
-      uint256 tokenIdTwo, 
-      address tokenIdTwoContract, 
-      string memory bredTokenUri) public payable returns (uint) {
+    // function createBredToken(
+    //   uint256 tokenIdOne, 
+    //   address tokenIdOneContract, 
+    //   uint256 tokenIdTwo, 
+    //   address tokenIdTwoContract, 
+    //   string memory bredTokenUri) public payable returns (uint) {
 
-      require(IERC721(tokenIdOneContract).ownerOf(tokenIdOne) == msg.sender, "Only item 1 owner can perform this operation");
-      require(IERC721(tokenIdTwoContract).ownerOf(tokenIdTwo) == msg.sender, "Only item 2 owner can perform this operation");
+    //   require(IERC721(tokenIdOneContract).ownerOf(tokenIdOne) == msg.sender, "Only item 1 owner can perform this operation");
+    //   require(IERC721(tokenIdTwoContract).ownerOf(tokenIdTwo) == msg.sender, "Only item 2 owner can perform this operation");
 
 
-      (address publisherOne, uint256 royaltyAmountOne) = IERC2981(tokenIdOneContract).royaltyInfo(tokenIdOne, 1 ether);
-      (address publisherTwo, uint256 royaltyAmountTwo) = IERC2981(tokenIdTwoContract).royaltyInfo(tokenIdTwo, 1 ether);
+    //   (address publisherOne, uint256 royaltyAmountOne) = IERC2981(tokenIdOneContract).royaltyInfo(tokenIdOne, 1 ether);
+    //   (address publisherTwo, uint256 royaltyAmountTwo) = IERC2981(tokenIdTwoContract).royaltyInfo(tokenIdTwo, 1 ether);
 
-      NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
+    //   NFTMarketplaceStorage storageContract = NFTMarketplaceStorage(Storage);
 
-      if (storageContract.checkIfItemExists(tokenIdOneContract, tokenIdOne)) {
-        uint marketItemId = storageContract.getItemId(tokenIdOneContract, tokenIdOne);
-        storageContract.storeLockedData(marketItemId, msg.sender);
-      } else {
-        storageContract.storeLockedItem(tokenIdOne, msg.sender, publisherOne, royaltyAmountOne, tokenIdOneContract);
-      }
+    //   if (storageContract.checkIfItemExists(tokenIdOneContract, tokenIdOne)) {
+    //     uint marketItemId = storageContract.getItemId(tokenIdOneContract, tokenIdOne);
+    //     storageContract.storeLockedData(marketItemId, msg.sender);
+    //   } else {
+    //     storageContract.storeLockedItem(tokenIdOne, msg.sender, publisherOne, royaltyAmountOne, tokenIdOneContract);
+    //   }
 
-      if (storageContract.checkIfItemExists(tokenIdTwoContract, tokenIdTwo)) {
-        uint marketItemId = storageContract.getItemId(tokenIdTwoContract, tokenIdTwo);
-        storageContract.storeLockedData(marketItemId, msg.sender);
-      } else {
-        storageContract.storeLockedItem(tokenIdTwo, msg.sender, publisherTwo, royaltyAmountTwo, tokenIdTwoContract);
-      }
+    //   if (storageContract.checkIfItemExists(tokenIdTwoContract, tokenIdTwo)) {
+    //     uint marketItemId = storageContract.getItemId(tokenIdTwoContract, tokenIdTwo);
+    //     storageContract.storeLockedData(marketItemId, msg.sender);
+    //   } else {
+    //     storageContract.storeLockedItem(tokenIdTwo, msg.sender, publisherTwo, royaltyAmountTwo, tokenIdTwoContract);
+    //   }
 
-      IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdOne);
-      IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdTwo);
+    //   IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdOne);
+    //   IERC721(tokenIdOneContract).transferFrom(msg.sender, address(this), tokenIdTwo);
 
      
-      uint256 newMarketItemId = storageContract.storeBredItem(
-        msg.sender, 
-        publisherOne, 
-        publisherTwo, 
-        ((royaltyAmountOne*(1 ether) + royaltyAmountTwo*(1 ether)) / 2));
+    //   uint256 newMarketItemId = storageContract.storeBredItem(
+    //     msg.sender, 
+    //     publisherOne, 
+    //     publisherTwo, 
+    //     ((royaltyAmountOne*(1 ether) + royaltyAmountTwo*(1 ether)) / 2));
       
-      storageContract.setBredContractInfo(
-        tokenIdOne,
-        tokenIdTwo,
-        tokenIdOneContract,
-        tokenIdTwoContract,
-        newMarketItemId
-      );
+    //   storageContract.setBredContractInfo(
+    //     tokenIdOne,
+    //     tokenIdTwo,
+    //     tokenIdOneContract,
+    //     tokenIdTwoContract,
+    //     newMarketItemId
+    //   );
 
-      _mint(msg.sender, newMarketItemId);
-      _setTokenURI(newMarketItemId, bredTokenUri);
+    //   _mint(msg.sender, newMarketItemId);
+    //   _setTokenURI(newMarketItemId, bredTokenUri);
             
-      return newMarketItemId;
+    //   return newMarketItemId;
 
-    }
+    // }
 
     // function unBreedToken(
     //   uint256 marketItemId

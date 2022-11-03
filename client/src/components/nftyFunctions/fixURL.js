@@ -19,11 +19,11 @@
 export const fixURL = (url) => {
   
   if(url.startsWith("ipfs://ipfs")){
-    console.log("https://cloudflare-ipfs.com/"+url.split("ipfs://").pop(), "FIXURL")
-    return "https://cf-ipfs.com/"+url.split("ipfs://").pop()
+    console.log("https://ipfs.nftytunes.xyz/"+url.split("ipfs://").pop(), "FIXURL")
+    return "https://cloudflare-ipfs.com/"+url.split("ipfs://").pop()
   }
   else if(url.startsWith("https://ipfs.moralis.io:2053/")) {
-    console.log("https://cloudflare-ipfs.com/"+url.split("https://ipfs.moralis.io:2053/").pop(), "FIXURL")
+    console.log("https://ipfs.io/"+url.split("https://ipfs.moralis.io:2053/").pop(), "FIXURL")
     return url
     } 
   else if(url.startsWith("/ipfs")) {
@@ -43,3 +43,4 @@ export const fixImageURL = (url) => {
       return url+"?format=json"
     }
   };
+

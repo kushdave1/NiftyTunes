@@ -6,6 +6,9 @@ import { ethers } from 'ethers'
 import Web3Modal from 'web3modal'
 import axios from 'axios';
 
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
+import { GetProvider } from '../nftyFunctions/GetProvider'
+
 import { fixURL, fixImageURL } from './fixURL'
 import { useIPFS } from "hooks/useIPFS";
 import { APP_ID, SERVER_URL } from "../../index"
@@ -14,25 +17,31 @@ import LiveMintFactory from '../../contracts/LiveMint.sol/LiveMintFactory.json';
 
 import LiveAuctionFactory from '../../contracts/LiveMint.sol/LiveMintAuction.json';
  
-export const FetchLiveTokenURI = async(liveMintAddress, mintNumber, tokenId, coverArt) => {
+export const FetchLiveTokenURI = async(liveMintAddress, mintNumber, tokenId, coverArt, isAuthenticated) => {
 
-    const web3Modal = new Web3Modal()
-    const connection = await web3Modal.connect()
-    const provider = new ethers.providers.Web3Provider(connection)
-    const { chainId } = await provider.getNetwork();
-    const signer = provider.getSigner()
+    
+    console.log("FREE")
 
-    const liveMintFactory = new ethers.ContractFactory(LiveMintFactory.abi, LiveMintFactory.bytecode, signer)
-    console.log(liveMintAddress)
-    const liveMintFactoryContract = liveMintFactory.attach(liveMintAddress);
-    console.log(liveMintFactoryContract, "CONTRACT OWNER")
+    let signer
+    let liveMintFactory
+    let liveMintFactoryContract
+
+    if (isAuthenticated) {
+        signer = await ConnectWallet()
+        liveMintFactory = new ethers.ContractFactory(LiveMintFactory.abi, LiveMintFactory.bytecode, signer)
+        liveMintFactoryContract = liveMintFactory.attach(liveMintAddress);
+    } else {
+        signer = GetProvider()
+        liveMintFactoryContract = new ethers.Contract(liveMintAddress, LiveMintFactory.abi, signer)
+    }
+
     let tokenURI = ""
     try {
         tokenURI = await liveMintFactoryContract.tokenURI(tokenId)
     } catch {
         tokenURI = ""
     }
-    console.log(tokenURI, "HIASDKNASDIN")
+
     return tokenURI
         
 
@@ -90,7 +99,7 @@ export const FetchLiveOwner = async(liveMintAddress, tokenId) => {
     } catch {
         owner = ""
     }
-    console.log(owner, "FEFEEFE")
+
     return owner
 
 }
@@ -112,7 +121,7 @@ export const FetchAuctionId = async(liveAuctionAddress) => {
     } catch {
         auctionId = ""
     }
-    console.log(auctionId, "FEFEEFE")
+
     return auctionId
 
 }

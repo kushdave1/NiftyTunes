@@ -65,6 +65,7 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
@@ -114,8 +115,10 @@ export const fetchTokenIds = async(marketAddress, marketContractABI, storageAddr
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress,
 
       }
@@ -157,6 +160,7 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
     for (const i in data) {
       const object = data[i];
       const meta = await axios.get(fixURL(object.get("tokenURI")))
+      console.log(meta, "IPFS")
       for (const j in meta.data) {
         if ((meta.data[j]).toString().includes('ipfs')) {
             imageLink = meta.data[j]
@@ -178,6 +182,7 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI: object.get("tokenURI"),
         voucher: object.get("voucher"),
         lazy: true,
@@ -221,14 +226,17 @@ export const fetchListedIds = async(marketAddress, marketContractABI, storageAdd
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
+        tier: meta.data.tier,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress
       }
       items.push(item)
-      console.log(item)
+
     }))
 
+    console.log(items)
     
     return items;
   }
@@ -278,12 +286,14 @@ export const fetchOwnedIds = async(marketAddress, marketContractABI, storageAddr
         artistName: await fetchArtistName(i.publisher),
         ownerPhoto: await fetchArtistPhoto(i.owner),
         ownerName: await fetchArtistName(i.owner),
+        tier: meta.data.tier,
         tokenAddress: i.tokenAddress,
         image: imageLink,
         name: meta.data.name,
         description: meta.data.description,
         tokenURI,
         lazy: false,
+        isSold: true,
         tokenAddress: i.tokenAddress
       }
       items.push(item)

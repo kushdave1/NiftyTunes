@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, BrowserRouter as Router, Route, useParams } from "react-router-dom";
 import { useMoralisQuery } from "react-moralis";
+import Moralis from 'moralis'
 import { useMoralis, useNFTBalances } from "react-moralis"
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
 import { fetchArtistName, fetchArtistPhoto } from "../nftyFunctions/fetchCloudData"
@@ -8,224 +9,354 @@ import { fetchArtistName, fetchArtistPhoto } from "../nftyFunctions/fetchCloudDa
 import { ethers, utils } from 'ethers'
 import Web3Modal from 'web3modal';
 import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
+import { GetProvider } from '../nftyFunctions/GetProvider'
+import DefaultProfilePicture from '../../assets/images/gorilla.png';
 
 import Table from 'react-bootstrap/Table'
 import Button from 'react-bootstrap/Button'
 import Row from 'react-bootstrap/Row'
 import Col from 'react-bootstrap/Col'
+import styled from 'styled-components'
 
 import goTo from '../../assets/images/linkGoTo.jpeg'
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
 
+function AuctionBoard({auctionAddress, signerAddress, mintAddress, responsive, mintNumber, indexNumber}) {
 
-function AuctionBoard({auctionAddress, signerAddress, responsive, mintNumber}) {
-
-    const [events, setEvents] = useState([{
-        tokenId: "",
-        username: "",
-        address: "",
-        event: "",
-        bid: ""
-    }])
+    const [events, setEvents] = useState([])
+    const { isInitialized, isAuthenticated, user } = useMoralis()
+    const [bid, setBid] = useState(false)
     
 
 
     const getContract = async() => {
         
-        const signer = await ConnectWallet()
+        let signer
+        let liveAuctionFactory
+        let liveAuctionFactoryContract
 
-        const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-        const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
+        if (isAuthenticated) {
+
+            signer = await ConnectWallet()
+            if (auctionAddress === "0xDDeB92CbB5A97C3C75FcA2f498BA3d3Ce8E5D429") {  
+                liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuctionProxy.abi, signer)
+            } else {
+                liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuction.abi, signer)
+            }
+            
+
+        } else {
+            signer = GetProvider()
+            if (auctionAddress === "0xDDeB92CbB5A97C3C75FcA2f498BA3d3Ce8E5D429") {  
+                liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuctionProxy.abi, signer)
+            } else {
+                liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuction.abi, signer)
+            }
+            
+        }
 
         return liveAuctionFactoryContract
 
     }
 
-    const handleStart = async(highestBid, timestamp) => {
-        
-        let bid = ethers.utils.formatUnits(highestBid.toString(), 'ether')
-        let user = await fetchArtistName(signerAddress)
-        let ellipsis = "..."
-        let date = new Date(timestamp.toNumber()*1000)
-        
-        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
-        
-        if (user.length === 25) {
-            user = ellipsis.concat(signerAddress.slice(33,43))
-        } 
 
-        
-        setEvents(previousEvents => [...previousEvents, {
-            date: time,
-            timestamp: timestamp.toNumber(),
-            username: user,
-            address: signerAddress,
-            event: "Auction Started",
-            bid: bid
-        }])
+    
+
+    const PopulateBids = () => {
+        if (events.length < 10) {
+            for (const i in Array.from(Array(10).keys())) {
+                setEvents(previousEvents => [...previousEvents, {
+                    date: "01-01-2020",
+                    timestamp: "12:00",
+                    username: "Empty",
+                    userphoto: "Empty",
+                    address: "0x0",
+                    event: "Bid Placed",
+                    bid: "0.00"
+                }])
+            }
+        }
+
+    }
+
+    const { fetch } = useMoralisQuery(
+        "LiveAuctions",
+        (query) => query.equalTo("auctionAddress", mintAddress),
+        [],
+        { autoFetch: false }
+    );
+
+    const getBids = async() => {
+        const LiveAuction = Moralis.Object.extend("LiveAuctions")
+        const liveAuction = new LiveAuction()
+
+        const auctionQuery = await fetch()
+
+        return auctionQuery
+
+    }
+
+    const minutes = (date) => {
+            if (date.getMinutes() < 10) {
+                return `0${date.getMinutes()}`
+            } else {
+                return date.getMinutes()
+            }
+        }
+
+    const handleBid = () => {
+        if (bid === false) {
+            setBid(true)
+        } else {
+            setBid(false)
+        }
         
     }
 
-    const handleBid = async(sender, amount, timestamp) => {
-        
-        let bid = ethers.utils.formatUnits(amount.toString(), 'ether')
-        let user = await fetchArtistName(sender)
+
+
+    const filterSortOneEvent = async(bidItems) => {
+
+        /// convert Bid and User Data into Readable form
+
+
+        let bid = ethers.utils.formatUnits((bidItems["args"]["amount"]).toString(), 'ether')
+        let user = await fetchArtistName(bidItems["args"]["sender"])
+        let userPhoto = await fetchArtistPhoto(bidItems["args"]["sender"])
         let ellipsis = "..." 
         if (user===undefined) {
-            user = ellipsis.concat(sender.slice(33,43))
+            user = ellipsis.concat(bidItems["args"]["sender"].slice(33,43))
         }
         if (user.length === 25) {
-            user = ellipsis.concat(sender.slice(33,43))
+            user = ellipsis.concat(bidItems["args"]["sender"].slice(33,43))
         } 
 
-        let date = new Date(timestamp.toNumber()*1000)
-        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
+        let date = new Date((bidItems["args"]["timestamp"]).toNumber()*1000)
+        let dateTwo = (date.getMonth()+1)+"-"+date.getDate()+"-"+date.getFullYear()
+       
+        let time = date.getHours()+":"+minutes(date)
 
-        setEvents(previousEvents => [...previousEvents, {
-    
-            date: time,
-            timestamp: timestamp.toNumber(),
+        let item = {
+            date: dateTwo,
+            timestamp: time,
             username: user,
-            address: sender,
+            userphoto: userPhoto,
+            address: bidItems["args"]["sender"],
             event: "Bid Placed",
             bid: bid
-        }])
-
-
-        
-    }
-
-    const handleEnd = async(highestBidder, timestamp) => {
-        const users = []
-        for (const i in highestBidder) {
-            let user = await fetchArtistName(highestBidder[i])
-            if (user.length === 25) {
-                user = ("...").concat(highestBidder[i].slice(33,43))
-            } 
-            users.push(user)
         }
 
-        let date = new Date(timestamp.toNumber()*1000)
-        let time = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds()
-        
-        console.log(highestBidder, timestamp, "END AUCTION")
-        setEvents(previousEvents => [...previousEvents, {
-  
-            date: time,
-            timestamp: timestamp.toNumber(),
-            username: users.join(","),
-            address: highestBidder,
-            event: "Auction Ended",
-            bid: 0
-        }])
-        
+        return item
+
     }
 
-    const handlePastEvents = async(contract) => {
-        const filterStart = contract.filters.Start(null, null)
-        const startItems = await contract.queryFilter(filterStart)
 
-        for (const i in startItems) {
-  
-            handleStart(startItems[i]["args"]["highestBid"], startItems[i]["args"]["timestamp"])
-            //handleStart(item.tokenId, item.highestBid)
-        }
-
-        const filterBid = contract.filters.Bid(null, null, null)
-        const bidItems = await contract.queryFilter(filterBid)
+    const filterSortEvents = async(bidItems) => {
+        let items = []
         for (const i in bidItems) {
-            handleBid(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"],bidItems[i]["args"]["timestamp"])
-            console.log(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"], "THESE ARE THE BIDS")
+
+            /// convert Bid and User Data into Readable form
+
+
+            let bid = ethers.utils.formatUnits((bidItems[i]["args"]["amount"]).toString(), 'ether')
+            let user = await fetchArtistName(bidItems[i]["args"]["sender"])
+            let userPhoto = await fetchArtistPhoto(bidItems[i]["args"]["sender"])
+            let ellipsis = "..." 
+            if (user===undefined) {
+                user = ellipsis.concat(bidItems[i]["args"]["sender"].slice(33,43))
+            }
+            if (user.length === 25) {
+                user = ellipsis.concat(bidItems[i]["args"]["sender"].slice(33,43))
+            } 
+
+            let date = new Date((bidItems[i]["args"]["timestamp"]).toNumber()*1000)
+            let dateTwo = (date.getMonth()+1)+"-"+date.getDate()+"-"+date.getFullYear()
+            let time = date.getHours()+":"+date.getMinutes()
+
+            let item = {
+  
+                date: dateTwo,
+                timestamp: time,
+                username: user,
+                userphoto: userPhoto,
+                address: bidItems[i]["args"]["sender"],
+                event: "Bid Placed",
+                bid: bid
+
+            }
+
+            items.push(item)
+
+            //handleBid(bidItems[i]["args"]["sender"],bidItems[i]["args"]["amount"],bidItems[i]["args"]["timestamp"])
         }
 
-        const filterEnd = contract.filters.End(null, null)
-        const endItems = await contract.queryFilter(filterEnd)
-        for (const i in endItems) {
-            handleEnd(endItems[i]["args"]["winningBidders"],endItems[i]["args"]["timestamp"])
-        }
-
-    }
-
-    const filterEvents = async(currEvents) => {
-        currEvents.forEach(function (event, indexI) {
-            currEvents.forEach(function(eventTwo, indexJ) {
-                if (indexI!==indexJ) {
-                    if (event.username===eventTwo.username) {
-                        currEvents.splice(indexJ, 1)
-                    }
-                }
-            })
-        })
-        return currEvents
-    }
-
-    const sortEvents = () => {
-        let currEvents = events
-        
-        currEvents.sort((a,b) => {
+        items.sort((a,b) => {
             if (a.bid !== "" || b.bid !== "") {
                 return b.bid-a.bid
             }
         } 
         )
 
-        currEvents.forEach(function (event, i) {
-            currEvents.forEach(function (eventTwo, j) {
+        items.forEach(function (event, i) {
+            items.forEach(function (eventTwo, j) {
                 if (event.username === eventTwo.username && i !== j && event.bid >= eventTwo.bid) {
 
-                    currEvents.splice(j,1)
+                    items.splice(j,1)
                         
                 }
             })
         })
 
-        currEvents.forEach(function (event, i) {
-            currEvents.forEach(function (eventTwo, j) {
-                if (event.username === eventTwo.username && i !== j) {
+        return items
+    }
 
-                    currEvents.splice(j,1)
-                        
+    const filterSortItems = (items) => {
+        items.sort((a,b) => {
+            if (a.bid !== "" || b.bid !== "") {
+                return b.bid-a.bid
+            }
+        } 
+        )
+        let counter = 0
+        let itemsTwo = items
+        let i = 0
+        let j = 0
+
+        while (i < items.length) {
+            while (j < items.length) {
+                if (items[i].username === items[j].username && items[i].bid >= items[j].bid && i !== j) {
+                    items.splice(j,1)
+                    j = 0
+                    i = 0
+                } else {
+                    
+                    j+=1
                 }
-            })
-        })
 
-        setEvents(currEvents.slice(0,parseInt(mintNumber)))
+            }
+            i+=1
+            j=0
+        }
+
+                
         
+        
+        return items
     }
-        // for(let i = 0; i < events.length; i++) {
-        //     for(let j = 0; j < events.length; i++) {
-        //         if (i!==j) {
-        //             console.log(events[1], j)
-
-        //             if (events[i]['date']=== events[j]['date']) {
-        //                 setEvents(events.splice(j, 1))
-        //             }
-        //         }
-        //     i++
-        //     } 
-        // 
 
 
-    const sendToEtherscan = async(address) => {
-        window.location.href = "http://www.etherscan.io/address/"+address;
+    const handlePastEvents = async(contract) => {
+
+        let filterBid
+        if (auctionAddress === "0xDDeB92CbB5A97C3C75FcA2f498BA3d3Ce8E5D429") {  
+            filterBid = contract.filters.Bid(null, null, null, mintAddress)
+        } else {
+            filterBid = contract.filters.Bid(null, null, null)
+        }
+        
+        
+        
+        const bidItems = await contract.queryFilter(filterBid)
+
+        
+       
+        
+        const cachedBidItems = await getBids()
+
+
+        
+        let itemsFinal
+
+        if (cachedBidItems.length === 0) {
+            itemsFinal = await filterSortEvents(bidItems)
+
+            const LiveAuction = Moralis.Object.extend("LiveAuctions")
+            const liveAuction = new LiveAuction()
+
+            liveAuction.set("auctionAddress", mintAddress)
+            liveAuction.set("bids", itemsFinal)
+            await liveAuction.save()
+
+        } else {
+
+
+            const totalBids = cachedBidItems[0].get("bids")
+
+            setEvents(totalBids)
+
+            for (const i in bidItems) {
+                let bid = ethers.utils.formatUnits((bidItems[i]["args"]["amount"]).toString(), 'ether')
+                let address = bidItems[i]["args"]["sender"]
+                let itemFinal
+                let newItems = []
+
+                if (totalBids.length !== 0) {
+                    
+                    for (const j in totalBids) {
+                        console.log(totalBids, bidItems, 'sen')
+                        if (totalBids[j].bid === bid && totalBids[j].address === address) {
+                            
+                            break
+                        } else {
+
+                            itemFinal = await filterSortOneEvent(bidItems[i])
+                            
+                            totalBids.push(itemFinal)
+                        }
+                    }  
+                } else {
+                    
+                    itemFinal = await filterSortOneEvent(bidItems[i])
+                    console.log(itemFinal, "FLS")
+                    
+                    totalBids.push(itemFinal)
+
+                }
+                
+            } 
+
+            console.log(totalBids, "FREAK")
+
+            itemsFinal = filterSortItems(totalBids)
+
+            const auctionQuery = await getBids()
+
+            console.log(itemsFinal, auctionQuery[0].get("bids"))
+
+            auctionQuery[0].set("bids", itemsFinal)
+            await auctionQuery[0].save()
+
+
+
+        }
+        
+
+        setEvents(itemsFinal)
+
+
     }
+
+    
 
 
     useEffect(async() => {
 
-
         const contract = await getContract();
-        
-
-        // contract.on("Start", await handleStart)
-        // contract.on("Bid", await handleBid)
-        // contract.on("End", await handleEnd)
 
         await handlePastEvents(contract)
         
+
+        // contract.on("Start", await handleStart)
+        contract.on("Bid", await handleBid)
+        // contract.on("End", await handleEnd)
+         
+
+        
+
+
+        
         return () => {
-            contract.removeAllListeners("Start")
             contract.removeAllListeners("Bid")
-            contract.removeAllListeners("End")
         }
 
         
@@ -235,85 +366,257 @@ function AuctionBoard({auctionAddress, signerAddress, responsive, mintNumber}) {
 
     return (
     
-    (responsive) ? (
-        <>
-        <Button onClick={()=>sortEvents()} style={{borderRadius: "2rem", 
-        borderColor: "black", backgroundColor: "white", color: "black"}}>Refresh Table</Button>
-    <Table striped bordered hover responsive>
-      
-      <thead>
-        <tr style={{backgroundColor: "black", color: "white"}}>
-          
-          <th>User/Address</th>
-          <th>Event</th>
-          <th>Bid (Eth)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {events && events.map((event, index) => {
-            return (
-                (event.date !== "") ? (
-                    <tr>
-                        
-                        {(event.username.includes(",")) ? (<td>
-                        {event.username}</td>) : (
-                        <td>
-                        {event.username}</td>)}
-                    
-                        <td>{event.event}</td>
-                        <td>{event.bid}</td>
-                    </tr>
-                ) : (<></>)
-                
-            )
-        })}
+    <Table responsive
+    style={{display: "flex",
+        flexDirection: "column",
+        alignItems: "flex-start",
+        padding: "0px",
+        gap: "2px",
         
-      </tbody>
+        width: "420px",
+        height: "502px",
+        
+        /* white */
+        
+        background: "#FFFFFF"}}>
+            {/* <tbody>
+            {Array.from(Array(10).keys()).map((event, index) => {
+                <tr>
+                    <td>{event}</td>
+                </tr>
+            })}
+            </tbody> */}
+        <tbody>
+            {events && events.map((event, index) => {
+                return(
+                    <>
+                {(index < mintNumber) ? (
+                    <AuctionUnitHighlighted>
+                    <AuctionBoardBox>
+                        <BidList>
+                            <UserInfo>
+                                <BidNumber>
+                                #<div style={{color: "black", fontFamily: "Graphik LCG Regular"}}>{index+1}</div>
+                                </BidNumber>
+                            </UserInfo>
+                            <BidderInfo>
+                                {(event.userphoto && event.userphoto !== "Empty") ? (<BidderPhoto crossOrigin='true' crossoriginresourcepolicy='false' src={event.userphoto}/>) : (<BidderPhoto src={DefaultProfilePicture}/>)}
+                                <BidderName>{event.username}</BidderName>
+                            </BidderInfo>
+                            <BidTime>
+                                <BidTimeDate>
+                                    {event.date} {event.timestamp}
+                                </BidTimeDate>
+                                <BidAmount>
+                                    {event.bid} ETH
+                                </BidAmount>
+                            </BidTime>
+                            
+                        </BidList>
+                    </AuctionBoardBox>
+                </AuctionUnitHighlighted>) : (
+                    <AuctionUnit>
+                    <AuctionBoardBox>
+                        <BidList>
+                            <UserInfo>
+                                <BidNumber>
+                                #<div style={{color: "black", fontFamily: "Graphik LCG Regular"}}>{index+1}</div>
+                                </BidNumber>
+                            </UserInfo>
+                            <BidderInfo>
+                                {(event.userphoto && event.userphoto !== "Empty") ? (<BidderPhoto crossOrigin='true' crossoriginresourcepolicy='false' src={event.userphoto}/>) : (<BidderPhoto src={DefaultProfilePicture}/>)}
+                                <BidderName>{event.username}</BidderName>
+                            </BidderInfo>
+                            <BidTime>
+                                <BidTimeDate>
+                                    {event.date} {event.timestamp}
+                                </BidTimeDate>
+                                <BidAmount>
+                                    {event.bid} ETH
+                                </BidAmount>
+                            </BidTime>
+                            
+                        </BidList>
+                    </AuctionBoardBox>
+                </AuctionUnit>
+                )}
+                </>
+                )
+            })}
+            
+        </tbody>
+        
     </Table>
-    </>
-    ) : (
-        <>
-        <Row className="py-2">
-            <Col style={{float: 'right'}}>
-                <Button onClick={()=>sortEvents()} width='5rem' 
-                style={{borderRadius: "2rem", borderColor: "black", 
-                backgroundColor: "white", color: "black"}}>Get Top Bids</Button>
-            </Col>
-        </Row>
-    <Table striped bordered hover responsive style={{fontSize: 10}}>
-        
-      <thead>
-        <tr style={{backgroundColor: "black", color: "white"}}>
-          
-          <th>User/Address</th>
-          <th>Event</th>
-          <th>Bid (Eth)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {events && events.map((event, index) => {
-            return (
-                (event.tokenId !== "") ? (
-                    <tr>
-                        
-                        {(event.username.includes(",")) ? (<td>
-                        {event.username}</td>) : (
-                        <td>
-                        {event.username}</td>)}
-                    
-                        <td>{event.event}</td>
-                        <td>{event.bid}</td>
-                    </tr>
-                ) : (<></>)
-                
-            )
-        })}
-        
-      </tbody>
-    </Table>
-    </>
-    )
-  );
-}
+
+    )}
 
 export default AuctionBoard;
+
+const AuctionUnit = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 10px;
+
+width: 420px;
+height: 61px;
+
+/* white */
+
+background: #FFFFFF;
+`
+
+const AuctionUnitHighlighted = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+gap: 10px;
+
+width: 420px;
+height: 61px;
+
+/* white */
+
+background: #CACACA;
+`
+
+const AuctionBoardBox = styled.div`
+display: flex;
+flex-direction: column;
+align-items: center;
+padding: 0px;
+gap: 10px;
+
+width: 400px;
+height: 51px;
+`
+
+const BidList = styled.div`
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 10px;
+gap: 106px;
+
+width: 400px;
+height: 41px;
+`
+
+const UserInfo = styled.div`
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+gap: 23px;
+
+width: 161px;
+height: 34px;
+
+`
+
+const BidNumber = styled.div`
+width: 23px;
+height: 33px;
+
+/* Caption */
+
+font-family: 'Montserrat';
+font-style: normal;
+font-weight: 600;
+font-size: 24px;
+line-height: 15px;
+/* or 54% */
+
+text-transform: uppercase;
+
+color: rgba(0, 0, 0, 0.2);
+`
+
+const BidderInfo = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+margin-left: -100px;
+padding: 0px;
+gap: 10px;
+
+width: 115px;
+height: 34px;
+`
+
+const BidderPhoto = styled.img`
+width: 34px;
+height: 34px;
+border-radius: 80px;
+`
+
+const BidderName = styled.div`
+width: 71px;
+height: 24px;
+
+white-space: nowrap;
+/* text */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 18px;
+line-height: 24px;
+/* identical to box height, or 133% */
+
+
+color: #000000;
+`
+
+const BidTime = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-end;
+padding: 0px 0px;
+gap: 7px;
+
+width: 101px;
+height: 41px;
+`
+
+const BidTimeDate = styled.div`
+width: 101px;
+height: 16px;
+
+/* small text */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 16px;
+white-space: nowrap;
+/* identical to box height, or 114% */
+margin-right: 9px;
+text-align: right;
+
+color: #000000;
+`
+
+const BidAmount = styled.div`
+width: 66px;
+height: 18px;
+
+/* Caption small */
+
+font-family: 'Graphik LCG';
+
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 18px;
+white-space: nowrap;
+/* identical to box height, or 112% */
+
+text-align: right;
+text-transform: uppercase;
+margin-left: auto;
+color: #000000;
+`

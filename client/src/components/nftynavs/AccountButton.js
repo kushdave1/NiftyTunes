@@ -44,7 +44,7 @@ function AccountButton() {
                 variant='dark'
                 title= {(profilePhoto) ?  (<img src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false' width="37.5" height="37.5" style={{borderRadius: "2rem"}}></img>) : (<img src={img} width="40" height="35"></img>)}
             >
-                <Dropdown.Item href="/profile"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
+                <Dropdown.Item href="/profile/onsale"><i class="bi bi-eye-fill"></i> My Profile</Dropdown.Item>
                 {/* <Dropdown.Item href="/wethbalance"><i class="bi bi-gear-fill"></i> WETH Balance</Dropdown.Item>
                 <Dropdown.Item href="/collections">🐇 Mint a Bunny</Dropdown.Item>
                 <Dropdown.Item href="/staking">🥩 Stake a Bunny</Dropdown.Item>

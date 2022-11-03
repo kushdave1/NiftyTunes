@@ -21,6 +21,27 @@ $headings-font-weight: 500;
   background-color: #F6A2B1;
 }
 
+.btn:focus {
+  box-shadow: none!important;
+}
+
+.card-title {
+  position: absolute;
+width: 152px;
+height: 57px;
+left: 0px;
+top: 0px;
+
+/* H5 */
+
+font-family: 'Druk Cyr';
+font-weight: 700;
+font-size: 50px;
+line-height: 57px;
+/* identical to box height */
+
+text-transform: uppercase;
+}
 .truncate {
   width: 250px;
   white-space: nowrap;
@@ -45,13 +66,23 @@ a { color: black; text-decoration: none; text-align: "center"}
 }
 
 .nav-tabs .nav-link.active {
-  background-color: #BD9DFF !important;
   color: black !important;
 
   border-bottom: solid 5px black !important;
 
   
 }
+
+
+.profile {
+  background-color: #F6A2B1 !important;
+}
+
+.livemint {
+  background-color: #BD9DFF !important;
+}
+
+
 
 .nav.link {
   opacity: 0.6;
@@ -80,6 +111,10 @@ a { color: black; text-decoration: none; text-align: "center"}
   }
 }
 
+.carousel-control-next-icon {
+  margin-top: 100;
+}
+
 @keyframes spinner {
   0% {
     transform: rotate(0deg);
@@ -97,10 +132,95 @@ a { color: black; text-decoration: none; text-align: "center"}
   animation: spinner 1.5s linear infinite;
 }
 
+.web3modal-modal-lightbox.web3modal-modal-lightbox { z-index: -1; }
+
 
 .listRight {
   left: auto !important;
   right: 0 !important;
+}
+
+.dot-flashing {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  background-color: #9880ff;
+  color: #9880ff;
+  animation: dotFlashing 1s infinite linear alternate;
+  animation-delay: .5s;
+}
+
+.dot-flashing::before, .dot-flashing::after {
+  content: '';
+  display: inline-block;
+  position: absolute;
+  top: 0;
+}
+
+.dot-flashing::before {
+  left: -30px;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  background-color: #9880ff;
+  color: #9880ff;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 0s;
+}
+
+.dot-flashing::after {
+  left: 30px;
+  width: 20px;
+  height: 20px;
+  border-radius: 20px;
+  background-color: #9880ff;
+  color: #9880ff;
+  animation: dotFlashing 1s infinite alternate;
+  animation-delay: 1s;
+}
+
+@keyframes dotFlashing {
+  0% {
+    background-color: #9880ff;
+  }
+  50%,
+  100% {
+    background-color: #ebe6ff;
+  }
+}
+
+
+.snippet {
+  position: relative;
+  background: #fff;
+  padding: 2rem 5%;
+  margin: 1.5rem 0;
+  border-radius: .25rem;
+}
+
+.examples .snippet:before {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 0 5px;
+  content: attr(data-title);
+  font-size: .75rem;
+  font-family: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  color: white;
+  background-color: rgb(255, 25, 100);
+  border-radius: .25rem 0 .25rem 0;
+}
+
+.stage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  padding: 2rem 0;
+  margin: 0 -5%;
+  overflow: hidden;
 }
 
 
@@ -144,3 +264,65 @@ a { color: black; text-decoration: none; text-align: "center"}
   font-family: 'Druk Cyr';
   src: url("../fonts/DrukCyr-BoldItalic.ttf") format("truetype");
 }
+
+@font-face {
+    font-family: 'Druk Web';
+    src: url("../fonts/DrukCyr-BoldItalic.ttf") format("truetype");
+
+  }
+
+
+// @font-face {
+//   font-family: 'Graphik Bold';
+//   src: url('../fonts/Graphik-Bold-Web.woff2') format('woff2'),
+//        url('../fonts/Graphik-Bold-Web.woff') format('woff');
+//   font-weight:  700;
+//   font-style:   normal;
+//   font-stretch: normal;
+// }
+
+
+
+@font-face {
+  font-family: 'Druk Super';
+  src: url('../fonts/DrukCond-SuperItalic-Web.woff') format('truetype');
+  font-weight:  500;
+  font-style:   italic;
+  font-stretch: normal;
+}
+
+
+
+
+// @font-face {
+//   font-family: 'Graphik LCG Regular';
+//   src: url('../fonts/Graphik-Regular-Web.woff2') format('woff2'),
+//        url('../fonts/Graphik-Regular-Web.woff') format('woff');
+//   font-weight:  400;
+//   font-style:   normal;
+//   font-stretch: normal;
+// }
+
+// @font-face {
+//   font-family: 'Druk Cyr';
+//   src: url('../fonts/DrukCond-SuperItalic-Web.woff2') format('woff2'),
+//        url('../fonts/DrukCond-SuperItalic-Web.woff') format('woff');
+//   font-weight:  900;
+//   font-style:   italic;
+//   font-stretch: normal;
+// }
+
+
+
+// @font-face {
+//   font-family: 'Druk Web';
+//   src: url('../fonts/Druk-BoldItalic-Web.woff2') format('woff2'),
+//        url('../fonts/Druk-BoldItalic-Web.woff') format('woff');
+//   font-weight:  700;
+//   font-style:   italic;
+//   font-stretch: normal;
+// }
+
+
+
+

@@ -10,7 +10,7 @@ function Countdown({ seconds }) {
     intervalRef.current = setInterval(() => {
       setTLeft((t) => t - 1);
     }, 1000);
-    console.log(seconds, "dsfinsdi")
+
     return () => clearInterval(intervalRef.current);
   }, [tLeft]);
 

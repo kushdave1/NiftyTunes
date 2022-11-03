@@ -14,7 +14,8 @@ module.exports = function override(config) {
         "zlib": require.resolve("browserify-zlib") ,
         "path": require.resolve("path-browserify"),
 
-    })
+    });
+    
     config.resolve.fallback = fallback;
     config.plugins = (config.plugins || []).concat([
         new webpack.ProvidePlugin({

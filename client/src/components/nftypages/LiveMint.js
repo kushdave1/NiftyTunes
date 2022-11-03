@@ -41,9 +41,9 @@ import xicon from '../../assets/images/xicon.png'
 import live from "../../assets/images/liveTwo.png"
 import checkmark from "../../assets/images/checkmark.png"
 import error from '../../assets/images/error.png'
-import bunnies from "../../assets/images/livebunnies.gif"
 import liveButton from "../../assets/images/LiveButton.png"
 import pdfHowItWorks from "../../assets/images/pdfHowItWorks.png"
+import { useMoralisDapp } from "../../providers/MoralisDappProvider/MoralisDappProvider";
 
 //Moralis
 import { useMoralis, useMoralisFile } from 'react-moralis'
@@ -57,10 +57,14 @@ import HowItWorksModal from '../nftyModals/HowItWorksModal'
 import ModalOne from '../nftyModals/createAuctionModals/ModalOne'
 import ModalTwo from '../nftyModals/createAuctionModals/ModalTwo'
 import ModalThree from '../nftyModals/createAuctionModals/ModalThree'
+import FullFilterBar from '../nftymarketplace/Filter'
 
 //Contract ABIs and ByteCodes
-import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
-import LiveMintFactory from '../../contracts/LiveMint.sol/LiveMintFactory.json';
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
+import LiveMintFactoryProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintFactory.json';
+
+
+import MintFactoryClone from '../../contracts/LiveMintFactoryWAuction.sol/MintFactoryClone.json';
 
 
 
@@ -79,6 +83,8 @@ function LiveMint() {
 
     const [key, setKey] = useState("upcoming")
 
+    const { liveMintAuctionProxy, liveMintProxy } = useMoralisDapp();
+
 
 
     const [mintErrMessage, setMintErrMessage] = useState("")
@@ -90,6 +96,7 @@ function LiveMint() {
     const [showThree, setShowThree] = useState(false)
 
     const [stream, setStream] = useState("")
+    const [location, setLocation] = useState("")
     const [mintNumber, setMintNumber] = useState("")
     const [royalty, setRoyalty] = useState()
     const [coverArt, setCoverArt] = useState("")
@@ -99,6 +106,14 @@ function LiveMint() {
     const [description, setDescription] = useState("")
     const [mintAddress, setMintAddress] = useState("")
     const [auctionArray, setAuctionArray] = useState([])
+
+    const [recipientOneAddress, setRecipientOneAddress] = useState("")
+    const [recipientOneSplit, setRecipientOneSplit] = useState("")
+    const [recipientTwoAddress, setRecipientTwoAddress] = useState("")
+    const [recipientTwoSplit, setRecipientTwoSplit] = useState("")
+
+    const [recipientThreeAddress, setRecipientThreeAddress] = useState("")
+    const [recipientThreeSplit, setRecipientThreeSplit] = useState("")
 
     const [nickname, setNickname] = useState("")
 
@@ -132,18 +147,45 @@ function LiveMint() {
 
     const [nftsPerAuction, setNFTsPerAuction] = useState([])
 
+    const [userAddress, setUserAddress] = useState("")
+
+    const [width, setWindowWidth] = useState();
+
     const handleShow = () => setShow(true)
     const handleClose = () => {
         setShow(false)
         setMintErrMessage("")
     }
 
+
+    useEffect(() => {
+        updateDimensions();
+        if(!user) return null;
+
+        window.addEventListener("resize", updateDimensions);
+
+        return () => window.removeEventListener("resize",updateDimensions);
+
+    }, [user]);
+
+    const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+    const responsive = {
+        showTopNavMenu: width > 1023
+    }
+
+
+
+
     useEffect(async() => {
         let username
         try {
-            console.log(user.attributes.ethAddress, "this username guys")
+            console.log(user.attributes.ethAddress, "this username")
             username = await fetchArtistName(user.attributes.ethAddress)
-            console.log(username, "this puser guys")
+      
             if (username.length !== 25) {
                 handleCloseWelcomeModal()
             } else {
@@ -155,7 +197,7 @@ function LiveMint() {
                 setShowWelcomeModal(true)
             }
         } catch {
-            setShowWelcomeModal(true)
+            setShowWelcomeModal(false)
         }
     }, [user])
 
@@ -214,7 +256,10 @@ function LiveMint() {
     const handleGenerate = () => {
         handleCloseThree()
         handleShowGenerating()
+
         DeployLiveContracts()
+
+        
     }
 
     const handleShowThree = () => setShowThree(true);
@@ -226,67 +271,120 @@ function LiveMint() {
 
     const DeployLiveContracts = async() => {
 
+        let liveAuctionAddress = liveMintAuctionProxy
+
         const signer = await ConnectWallet()
         const signerAddress = await signer.getAddress()
-        const liveMintFactoryContract = new ethers.ContractFactory(LiveMintFactory.abi, LiveMintFactory.bytecode, signer)
-        const liveAuctionFactoryContract = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
+        const liveMintFactoryContract = new ethers.Contract(liveMintProxy,MintFactoryClone.abi,  signer)
 
-        let liveMintContract = await liveMintFactoryContract.deploy(
-                galleryName,
-                gallerySymbol,
-                signerAddress,
-                mintNumber,
-                royalty*100
-            );
+        const liveAuctionFactoryContract = new ethers.Contract(liveAuctionAddress,LiveMintAuctionProxy.abi, signer)
         
-        try {
-            await liveMintContract.deployTransaction.wait();
-            setLoadingLiveMint(false)
-        } catch {
-            setLiveMintError(true)
-            return
+
+        const auctionData = []
+
+        let liveMintAddress
+        let tier
+
+        let x = 0
+        
+
+        for (const i in nftsPerAuction) {
+            console.log(nftsPerAuction, i, "MEER")
+            x+=1
+            if (x === 1) {
+                tier = "Legendary"
+            } else if (x === 2) {
+                tier = "Rare"
+            } else {
+                tier = "Common"
+            }
+
+            let nftsInAuction = nftsPerAuction[i]
+
+            let liveMintContractOne = await liveMintFactoryContract.createERC721Token(
+                    galleryName,
+                    gallerySymbol,
+                    liveAuctionAddress,
+                    parseInt(nftsInAuction),
+                    royalty*100
+                );
+            let completedMint
+            let liveMintAddress
+        
+            try {
+                completedMint = await liveMintContractOne.wait()
+                liveMintAddress = completedMint['events'][1]['args'][0]
+                setLoadingLiveMint(false)
+            } catch {
+                setLiveMintError(true)
+                return
+            }
+
+            let liveMintContract = new ethers.ContractFactory(LiveMintFactoryProxy.abi, LiveMintFactoryProxy.bytecode, signer)
+            liveMintContract.attach(liveMintAddress)
+            
+            let completedAuction
+
+            console.log(liveMintAddress,
+                    recipientOneAddress,
+                    recipientTwoAddress,
+                    recipientThreeAddress,
+                    recipientOneSplit,
+                    recipientTwoSplit,
+                    recipientThreeSplit, "HALOW")
+
+            let liveAuctionContract = await liveAuctionFactoryContract.setupAuction(
+                    liveMintAddress,
+                    recipientOneAddress,
+                    recipientTwoAddress,
+                    recipientThreeAddress,
+                    recipientOneSplit,
+                    recipientTwoSplit,
+                    recipientThreeSplit
+                );
+            
+            try {
+                await liveAuctionContract.wait(); 
+                setLoadingLiveAuction(false)
+            } catch {
+                setLiveAuctionError(true)
+                return
+            }
+
+
+            
+            
+            
+
+            let singleAuctionData = {
+                mintAddress: liveMintAddress,
+                auctionAddress: liveAuctionAddress,
+                totalNFTs: nftsInAuction,
+                tier: tier
+            }
+
+            auctionData.push(singleAuctionData)
+            
         }
+
+        
          // loading before confirmed transaction
         
 
-        const liveMintAddress = await liveMintContract.address
-        let liveAuctionContract = await liveAuctionFactoryContract.deploy(
-                liveMintAddress
-            );
         
-        try {
-            await liveAuctionContract.deployTransaction.wait(); 
-            setLoadingLiveAuction(false)
-        } catch {
-            setLiveAuctionError(true)
-            return
-        }
-
-        let transaction = await liveMintContract.transferOwnership(liveAuctionContract.address);
-
-        try {
-            await transaction.wait()
-        } catch {
-            setSaveDetailsError(true)
-            return
-        }
-        
-
-        const liveAuctionAddress = await liveAuctionContract.address
-        await SubmitLiveMintData(liveMintAddress, liveAuctionAddress, signerAddress)
+        await SubmitLiveMintData(auctionData, signerAddress)
         setLoadingSaveDetails(false)
         setAuctionDeployed(true)
 
     }
 
-    const SubmitLiveMintData = async(liveMintAddress, liveAuctionAddress, signerAddress) => {
+    const SubmitLiveMintData = async(auctionData, signerAddress) => {
         const LiveMintedCollection = Moralis.Object.extend("LiveMintedCollections")
         const liveMint = new LiveMintedCollection()
 
-        setMintAddress(liveMintAddress)
 
         const filteredEditions = nftsPerAuction.filter(function(auction) {return auction.editions != " "})
-
+        setUserAddress(signerAddress)
 
         liveMint.set("StreamLink", stream);
         liveMint.set("MintNumber", mintNumber);
@@ -298,11 +396,11 @@ function LiveMint() {
         liveMint.set("startTime", startTime);
         liveMint.set("endTime", endTime);
         liveMint.set("editionsPerAuction", filteredEditions)
+        liveMint.set("location", location)
         liveMint.set("totalEditions", filteredEditions.reduce(function (x, y) {
             return x + y;
         }, 0))
-        liveMint.set("liveMintAddress", liveMintAddress);
-        liveMint.set("liveAuctionAddress", liveAuctionAddress);
+        liveMint.set("auctionData", auctionData);
         liveMint.set("signerAddress", signerAddress);
 
         await saveFile("photo.jpg", coverArt, {
@@ -317,6 +415,8 @@ function LiveMint() {
             onError: (error) => console.log(error),
         });
 
+        console.log(auctionData, "MENS")
+
 
 
         await liveMint.save()
@@ -326,7 +426,6 @@ function LiveMint() {
     const updateNFTsPerAuction = (auction) => e => {
         let newArr = [...nftsPerAuction]
         newArr[auction] = e.target.value
-        console.log(newArr, 'hercules')
 
         setNFTsPerAuction(newArr)
         console.log(nftsPerAuction)
@@ -349,58 +448,13 @@ function LiveMint() {
 
     return (
     <>
-    
-      <MarketPlaceSection>
-        <LiveSection>
-            <Title>
-            NftyTunes Live
-            </Title>
-            <Nav className="justify-content-left nav-tabs" variant="pills" style={{width: "100%"}} onSelect={(k) => {setKey(k);SwitchKey(k);}} style={{borderColor: "rgba(0, 0, 0, 0.3)"}}>
-                <HoverItem>
-                    <Nav.Link as={Link} eventKey="upcoming" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#upcoming">
-                        Upcoming
-                    </Nav.Link>
-                </HoverItem>
-                <HoverItem>
-                    <Nav.Link as={Link} eventKey="live" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#live-shows">Live</Nav.Link>
-                </HoverItem>
-                <HoverItem>
-                    <Nav.Link as={Link} eventKey="past" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#past">Past</Nav.Link>
-                </HoverItem> 
-                
-            </Nav>
-            
-            <FilterContainer>
-                <FilterRow>
-                    <Col md={2}>
-                    <ArtistFilter></ArtistFilter>
-                    </Col>
-                    <Col md={2}>
-                    <TierFilter></TierFilter>
-                    </Col>
-                    <Col md={2}>
-
-                    </Col>
-                    <Col md={2}>
-
-                    </Col>
-                    <Col md={2}>
-                    </Col>
-                    <Col md={2}>
-                    <SortFilter></SortFilter>
-                    </Col>
-                </FilterRow>
-            </FilterContainer>
-            <CollectionListLayout>
-                     <LiveCollectionIds filter={key}/>
-                     {/* <LiveFilteredCollectionIds/> */}
-                </CollectionListLayout>   
-
-           {/* <Row>
+    {responsive.showTopNavMenu ? (
+        <MarketPlaceSection>
+      <Row>
                 <Col >
-                    <Button variant="light" style={{borderRadius: "5rem", float: "left", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
+                    {/* <Button variant="light" style={{borderRadius: "5rem", float: "left", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
                         How it Works
-                    </Button>
+                    </Button> */}
                 </Col>
                 <Col >
                     <Button variant="light" style={{borderRadius: "5rem", float: "right", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShow()}>
@@ -408,10 +462,76 @@ function LiveMint() {
                     </Button>
                 </Col>
             </Row>
-             */}
+        <LiveSection>
+        
+            <Title>
+            NftyTunes Live
+            </Title>
+            <Nav className="justify-content-left nav-tabs" variant="pills" defaultActiveKey="upcoming" 
+            onSelect={(k) => {setKey(k);SwitchKey(k);}} style={{borderColor: "rgba(0, 0, 0, 0.3)"}}>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="upcoming" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#upcoming">
+                        Upcoming
+                    </Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="live" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#live-shows">Live</Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="past" style={{color: "rgba(0, 0, 0, 0.3)"}} to="#past">Past</Nav.Link>
+                </HoverItem> 
+                
+            </Nav>
+            
+            {/* <FullFilterBar/> */}
+            <CollectionListLayout>
+                    <LiveCollectionIds filter={key}/>
+                    {/* <LiveFilteredCollectionIds/> */}
+            </CollectionListLayout>   
+
+           
+            
         </LiveSection>
     
       </MarketPlaceSection>
+    ) : (
+        <HeaderMobile>
+        
+            <TitleMobile>
+            NftyTunes Live
+            </TitleMobile>
+            <Nav className="nav-tabs nav-fill nav-justified" variant="pills" defaultActiveKey="upcoming"
+            onSelect={(k) => {setKey(k);SwitchKey(k);}} style={{borderColor: "rgba(0, 0, 0, 0.3)", position: "absolute",
+            marginTop: "245px", width: "100%"}}>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="upcoming" style={{color: "rgba(0, 0, 0, 0.3)",
+                    fontSize: "16px", textTransform: "uppercase"}} to="#upcoming">
+                        Upcoming
+                    </Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="live" style={{color: "rgba(0, 0, 0, 0.3)",
+                    fontSize: "16px", textTransform: "uppercase", whiteSpace: "nowrap"}} to="#live-shows">
+                    Live</Nav.Link>
+                </HoverItem>
+                <HoverItem>
+                    <Nav.Link className="livemint" as={Link} eventKey="past" style={{color: "rgba(0, 0, 0, 0.3)",
+                    fontSize: "16px", textTransform: "uppercase"}} to="#past">Past</Nav.Link>
+                </HoverItem> 
+                
+            </Nav>
+        
+            <CollectionListLayout>
+                    <LiveCollectionIds filter={key}/>
+                    {/* <LiveFilteredCollectionIds/> */}
+            </CollectionListLayout>   
+
+           
+            
+        </HeaderMobile>
+    
+    )}
+      
 
 
 
@@ -428,11 +548,18 @@ function LiveMint() {
         gallerySymbol={gallerySymbol} setGallerySymbol={setGallerySymbol} stream={stream} setStream={setStream}
         royalty={royalty} setRoyalty={setRoyalty} mintNumber={mintNumber} setMintNumber={setMintNumber} 
         coverArt={coverArt} setCoverArt={setCoverArt} bannerImage={bannerImage} setBannerImage={setBannerImage}
-        handleNext={handleNext} mintErrMessage={mintErrMessage} setMintErrMessage={setMintErrMessage}/>
+        handleNext={handleNext} mintErrMessage={mintErrMessage} setMintErrMessage={setMintErrMessage} location={location}
+        setLocation={setLocation}/>
 
         <ModalTwo showTwo={showTwo} handleCloseTwo={handleCloseTwo} description={description} setDescription={setDescription}
         date={date} setDate={setDate} endTime={endTime} setEndTime={setEndTime} startTime={startTime} setStartTime={setStartTime}
-        mintErrMessage={mintErrMessage} handleShow={handleShow} handleCloseTwo={handleCloseTwo} handleNextTwo={handleNextTwo} />
+        mintErrMessage={mintErrMessage} handleShow={handleShow} handleCloseTwo={handleCloseTwo} handleNextTwo={handleNextTwo} 
+        recipientThreeAddress={recipientThreeAddress} setRecipientThreeAddress={setRecipientThreeAddress} recipientOneAddress={recipientOneAddress} 
+        setRecipientOneAddress={setRecipientOneAddress} recipientThreeSplit={recipientThreeSplit} setRecipientThreeSplit={setRecipientThreeSplit} 
+        recipientOneSplit={recipientOneSplit} 
+        setRecipientOneSplit={setRecipientOneSplit} recipientTwoSplit={recipientTwoSplit} 
+        setRecipientTwoSplit={setRecipientTwoSplit} recipientTwoAddress={recipientTwoAddress} 
+        setRecipientTwoAddress={setRecipientTwoAddress}/>
 
         <ModalThree showThree={showThree} handleCloseThree={handleCloseThree} auctionArray={auctionArray} handleShowTwo={handleShowTwo}
         handleGenerate={handleGenerate} mintErrMessage={mintErrMessage} updateNFTsPerAuction={updateNFTsPerAuction}/>
@@ -509,7 +636,7 @@ function LiveMint() {
                 <Alert variant='success' className="py-1">
                 <i class="bi bi-check-circle-fill"></i>
                 {' '} Congrats! Your collection and auction have been successfully deployed!
-                <Alert.Link onClick={() => navigate(`${mintAddress}/${galleryName}`)}>View Auction Console</Alert.Link>
+                <Alert.Link onClick={() => navigate(`${userAddress}/${galleryName}`)}>View Auction Console</Alert.Link>
                 </Alert>
             }
             {(liveMintError || liveAuctionError || saveDetailsError) && 
@@ -535,6 +662,46 @@ function LiveMint() {
 export default LiveMint
 
 
+const HeaderMobile = styled.div`
+position: relative;
+width: 100vw;
+overflow-y:scroll;
+min-height:1898px;
+overflow-x: hidden;
+height: 350px;
+
+/* lilac */
+
+background: #BD9DFF;
+`
+
+
+const TitleMobile = styled.div`
+/* NftyTunes Live */
+
+
+position: absolute;
+width: 270px;
+height: 75px;
+left: calc(50% - 270px/2 - 34.5px);
+top: 130px;
+
+/* H4 */
+white-space: nowrap;
+
+font-family: 'Druk Cyr';
+
+font-weight: 900;
+font-size: 70px;
+line-height: 75px;
+/* identical to box height, or 94% */
+
+text-transform: uppercase;
+
+color: #000000;
+`
+
+
 const Title = styled.div`
     width: 489px;
     height: 104px;
@@ -542,8 +709,8 @@ const Title = styled.div`
     /* H2 */
     white-space: nowrap;
 
-    font-family: 'Druk Cyr';
-    font-style: italic;
+    font-family: 'Druk Super';
+
     font-weight: 900;
     font-size: 110px;
     line-height: 104px;
@@ -567,6 +734,8 @@ const LiveSection = styled.div`
     left: calc(50% - 1300px/2 );
     top: 150px;
 
+    overflow-y: scroll;
+
 
     font-family: 'Graphik LCG';
     font-style: normal;
@@ -579,12 +748,16 @@ const LiveSection = styled.div`
 
 `
 
+
+
 const HoverItem = styled(Nav.Item)`
+
     &:hover {
         // border-bottom: 3px solid black;
         color: black !important;
     }
 `
+
  
 
 const Tab = styled(Nav.Link)`
@@ -593,73 +766,3 @@ const Tab = styled(Nav.Link)`
     }
 `
 
-
-const FilterContainer = styled.div`
-    position: absolute;
-    width: 100%;
-    height: 46px;
-    left: 0%;
-    top: 256px;
-`
-
-const FilterRow = styled(Row)`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0px;
-`
-
-const ArtistFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-
-`
-
-const TierFilter = styled.div`
-    /* Auto layout */
-
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-
-`
-
-
-
-const SortFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-`

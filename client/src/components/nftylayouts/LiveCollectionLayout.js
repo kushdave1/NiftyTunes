@@ -14,6 +14,7 @@ import FormGroup from 'react-bootstrap/FormGroup'
 //custom
 import NFTPlayer from '../nftymix/NFTPlayer'
 import CollectionImage from '../nftymix/CollectionImage'
+import CollectionImageLive from '../nftymix/CollectionImageLive'
 import CollectionBanner from '../nftymix/CollectionBanner'
 import NFTAudioPlayer from '../nftymix/NFTAudioPlayer'
 
@@ -44,9 +45,16 @@ import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
+import AOS from 'aos';
+import 'aos/dist/aos.css';
+
+
  
 function LiveCollectionLayout({collection, filterFinal}) {
   const [finalResult, setFinalResult] = useState(true)
+  AOS.init();
+
+
   
 
   
@@ -55,33 +63,109 @@ function LiveCollectionLayout({collection, filterFinal}) {
   return (
     <>
     {finalResult && 
-      <Col xs={1} md={4} style={{ display: "flex", alignItems: "center", justifyContent: "center"}}>
-      <Link to={`${collection.mintAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
-        <Card className="bg-light shadow-md"
-              style={{ width: '420px', height: '420px', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden", backgroundImage: `url(${collection.cover})`}} >
+      <>
+      {(filterFinal === "past") ? (
+        <Col xs={1} md={4} style={{ display: "flex", alignItems: "center", justifyContent: "center"}}>
+      <Link to={`${collection.signerAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+        <Card className="shadow-md"
+        
+              style={{ width: '420px', height: '420px', borderRadius:'.50rem', marginBottom: "40px", cursor: "pointer", overflow: "hidden", backgroundImage: `url(${collection.cover})`}} >
                 <CollectionImage output={collection.cover}/> 
+                <PastTime/>
                 <InfoBox>
-     
                   <ConcertDate>
                     {collection.date}
                   </ConcertDate>
    
                   <ArtistName>{collection.name}
                   <Location>
-                    {collection.description}
+                    {collection.location}
                   </Location>
                   </ArtistName>
                 </InfoBox>
-            
-
+                <PastBottom/>
         </Card>
       </Link>
-    </Col>}
-</>
+      </Col>
+    ) : (filterFinal === "upcoming") ? (
+      <Col xs={1} md={4} style={{ display: "flex", alignItems: "center", justifyContent: "center"}}>
+      <Link to={`${collection.signerAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+        <Card className="shadow-md"
+        
+              style={{ width: '420px', height: '420px', borderRadius:'.50rem', marginBottom: "40px", cursor: "pointer", overflow: "hidden", backgroundImage: `url(${collection.cover})`}} >
+                <CollectionImage output={collection.cover}/> 
+                <PastTime/>
+                <InfoBox>
+                  <ConcertDate>
+                    {collection.date}
+                  </ConcertDate>
+   
+                  <ArtistName>{collection.name}
+                  <Location>
+                    {collection.location}
+                  </Location>
+                  </ArtistName>
+                </InfoBox>
+                <PastBottom/>
+        </Card>
+      </Link>
+      </Col>
+    ) : (filterFinal === "live") ? (
+      <Col xs={1} md={6} style={{ display: "flex", alignItems: "center", justifyContent: "center"}}>
+      <Link to={`${collection.signerAddress}/${collection.name}`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+        <Card className="shadow-md"
+              style={{ width: '640px', height: '420px', borderRadius:'.50rem', marginBottom: "40px", cursor: "pointer", overflow: "hidden", backgroundImage: `url(${collection.cover})`}} >
+                <CollectionImageLive output={collection.cover}/> 
+                <LiveTime/>
+            
+                <InfoBox>
+                  
+                  <ConcertDate>
+                    <Ellipse/>Live: {collection.startTime} EST
+                  </ConcertDate>
+   
+                  <ArtistNameLive>{collection.name}
+                  <Location>
+                    {collection.location}
+                  </Location>
+                  </ArtistNameLive>
+                </InfoBox>
+                <BottomShade/>
+        </Card>
+      </Link>
+      </Col>
+    ) : (<></>)}
+    </>
+  }
+  </>
   )
 }
 
 export default LiveCollectionLayout
+
+const Ellipse = styled.div`
+width: 8px;
+height: 8px;
+border-radius: 2rem;
+vertical-align: baseline;
+
+/* fuchsia */
+
+background: #FF007A;
+`
+
+const BottomShade = styled.div`
+
+position: absolute;
+width: 650px;
+height: 125px;
+left: 0px;
+top: 305px;
+
+background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
+opacity: 0.3;
+z-index: 0;
+`
 
 const InfoBox = styled.div`
   display: flex;
@@ -96,19 +180,89 @@ const InfoBox = styled.div`
   height: 376px;
   left: 20px;
   top: 25px;
+`
+
+const InfoBoxLive = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 266px;
+
+  position: absolute; 
+  width: 380px;
+  height: 376px;
+  left: 20px;
+  top: 10px;
 
 `
 
-const ConcertDate = styled.div`
-width: 168px;
-height: 37px;
+const LiveTime = styled.div`
+position: absolute;
+width: 650px;
+height: 82px;
+left: 0px;
+top: 0px;
 
+background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0) 100%);
+opacity: 0.6;
+`
+
+
+const PastTime = styled.div`
+position: absolute;
+width: 420px;
+height: 82px;
+left: 0px;
+top: 0px;
+
+background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0) 100%);
+opacity: 0.6;
+`
+
+const PastBottom = styled.div`
+position: absolute;
+width: 420px;
+height: 202px;
+left: 0px;
+bottom: 0px;
+
+background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, #000000 100%);
+opacity: 0.6;
+`
+
+
+const NoLiveConcerts = styled.div`
+width: 548px;
+height: 27px;
+
+/* Lead */
+
+font-family: 'Graphik LCG';
+font-style: normal;
+font-weight: 400;
+font-size: 22px;
+line-height: 27px;
+/* identical to box height */
+
+
+color: #000000;
+`
+
+const ConcertDate = styled.div`
+gap: 10px;
+
+width: 138px;
+height: 31px;
 /* H6 */
+font-size: 30px;
 
 font-family: 'Druk Cyr';
-font-style: italic;
+
+white-space: nowrap;
+
 font-weight: 700;
-font-size: 36px;
 /* identical to box height, or 37px */
 
 letter-spacing: 0.01em;
@@ -118,13 +272,32 @@ text-transform: uppercase;
 
 color: #FFFFFF;
 `
+
 const ArtistName = styled.div`
 /* H5 */
 
 font-family: 'Druk Cyr';
-font-style: italic;
+
 font-weight: 700;
 font-size: 50px;
+line-height: 57px;
+/* identical to box height */
+
+text-transform: uppercase;
+z-index: 2;
+
+/* white */
+
+color: #FFFFFF;
+`
+
+const ArtistNameLive = styled.div`
+/* H5 */
+
+font-family: 'Druk Cyr';
+
+font-weight: 700;
+font-size: 80px;
 line-height: 57px;
 /* identical to box height */
 
@@ -134,7 +307,6 @@ text-transform: uppercase;
 
 color: #FFFFFF;
 `
-
 
 
 const Location = styled.div`

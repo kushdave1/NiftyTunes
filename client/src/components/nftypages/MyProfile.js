@@ -11,6 +11,10 @@ import {useNavigate} from 'react-router'
 import { useMoralisFile } from "react-moralis";
 import ProfileInfo from '../nftyModals/ProfileModals/ProfileInfo'
 import ProfileSocials from '../nftyModals/ProfileModals/ProfileSocials'
+import profilebanner from '../../assets/images/profilebanner.png'
+import * as Desktop from '../nftyCSS/MyProfileDesktop'
+
+import * as Mobile from '../nftyCSS/MyProfileMobile'
 
 
 //bootstrap
@@ -33,6 +37,7 @@ import link from '../../assets/images/link.png'
 
 //components
 import MyNFTs from '../nftyprofiles/MyNFTs'
+
 import DefaultProfilePicture from '../../assets/images/gorilla.png';
 import Banner from '../../assets/images/bannerOne.jpeg';
 import { changeBackgroundWhite, changeBackgroundBlack } from "../nftyFunctions/hover"
@@ -64,15 +69,11 @@ const ProfileNavSection = styled.div `
 const ProfilePic = styled.div `
 `
 
-const NFTSection = styled.div `
-    flex:1;
-    overflow:hidden;
-    background-color: white;
-    min-height: 100vh;
-`;
+
 
 function MyProfile() {
     const {isAuthenticated, user} = useMoralis();
+    const [key, setKey] = useState("onsale")
 
     const [address, setAddress] = useState('');
     const [width, setWindowWidth] = useState()
@@ -122,6 +123,7 @@ function MyProfile() {
     
 
     useEffect(async() => {
+        console.log(key, "SK")
         updateDimensions();
         window.addEventListener("resize", updateDimensions);
         if(!user) return null;
@@ -139,11 +141,11 @@ function MyProfile() {
 
         setEtherscan(`https://etherscan.io/address/${address}`)
 
-        if (artistType !== "Collector" && await CheckUserRole(nftyLazyFactoryAddress, nftyLazyContractABIJson) === false) {
-            handleMinterShow()
-        }
+        // if (artistType !== "Collector" && await CheckUserRole(nftyLazyFactoryAddress, nftyLazyContractABIJson) === false) {
+        //     handleMinterShow()
+        // }
         return () => window.removeEventListener("resize",updateDimensions);
-    }, [user]);
+    }, [user, key]);
 
     const updateDimensions = () => {
       const innerWidth = window.innerWidth
@@ -220,154 +222,130 @@ function MyProfile() {
 
     return (
         <React.Fragment>
+        
         {(responsive.showTopNavMenu) ? (
-            <>
-            {(bannerPhoto) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={bannerPhoto} height="300px" width="100%" style={{backgroundSize: "100%"}}></img>) :
-            (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="300px" width="100%" style={{backgroundSize: "100%"}}></img>)}
-                        <ProfileNavSection>
-                            <Container style={{paddingTop: "50px"}}>
-                                <Row style={{display: "flex"}}>
-                                    <Col sm={10}>
-                                    {(profilePhoto) ? 
-                                    (<img crossOrigin='true' crossoriginresourcepolicy='false' src={profilePhoto} height="150px" width="150px" 
-                                    style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-110px", borderRadius: "5.00rem"}}></img>) 
-                                    : (<img src={DefaultProfilePicture} height="150px" width="150px" 
-                                    style={{padding: "10px",border: "2px solid black", marginTop: "-110px",borderRadius: "5.00rem"}}></img>)}
-                                    </Col>
-                                    <Col sm={2} style={{marginTop: "-25px"}}>
-                                    {twitter && 
-                                        <a className="socials" href={twitter} style={{padding:"10px"}}>
-                                            <i class="bi bi-twitter" style={{fontSize: "1.75rem", color: "cornflowerblue"}}></i>
-                                        </a>
-                                    }
-                                    {discord &&
-                                        <a className="socials" href={discord} style={{padding:"10px"}}>
-                                            <i class="bi bi-discord" style={{fontSize: "1.75rem", color: "#7289DA"}}></i>
-                                        </a>
-                                    }
-                                    {tiktok && 
-                                        <a className="socials" href={tiktok} style={{padding:"10px"}}>
-                                            <i class="bi bi-tiktok" style={{fontSize: "1.75rem", color: "#FF5700"}}></i>
-                                        </a>
-                                    }
-                                    {instagram && 
-                                        <a className="socials" href={instagram} style={{padding:"10px"}}>
-                                            <i class="bi bi-instagram" style={{fontSize: "1.75rem", color: "#8a3ab9"}}></i>
-                                        </a>
-                                    }
-                                    </Col>
-                                </Row>
-                                <div style={{paddingTop: "20px", paddingBottom: "20px"}}> 
-                                    <div style={{paddingBottom: "5px", fontSize: 30}}>{username}   <Button onClick={()=>sendToEtherscan()} 
-                                    style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>
-                                    {address.slice(0,5)}...{address.slice(38,43)}</Button></div>
-                                    <div style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</div>
-                                    <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
-                                </div>
-                                <Nav className="justify-content-left nav-tabs">
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="onsale">On Sale</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="sold">Sold</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="owned">Owned</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="created">Created</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="activity">Activity</Nav.Link>
-                                    </Nav.Item>
+            <Desktop.ProfileSection>
+                <Desktop.ProfileBanner src={profilebanner}/>
+                <Desktop.ProfileSubSection>
+                    <Desktop.ProfileTopSection>
+                        <Desktop.ProfilePhotoName>
+                        {(profilePhoto) ? (<Desktop.ProfilePhoto src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false'/>) : (<Desktop.ProfilePhoto src={DefaultProfilePicture}/>)}
+                        <Desktop.ProfileNameEtherscan>
+                            <Desktop.ProfileName>{(username.length.toString() === "25") ? (<>Unnamed</>) : (<>{username}</>)}</Desktop.ProfileName>
+                            <Desktop.Etherscan onClick={()=>sendToEtherscan()}>
+                                <Desktop.EtherscanText>{address.slice(0,5)}...{address.slice(38,43)}</Desktop.EtherscanText>
+                            </Desktop.Etherscan>
+                        </Desktop.ProfileNameEtherscan>
+                        </Desktop.ProfilePhotoName>
+                        <Desktop.EditProfile onClick={()=>navigate('edit')}>
+                            <Desktop.EditProfileText>
+                                Edit profile
+                            </Desktop.EditProfileText>
+                        </Desktop.EditProfile>
+                    </Desktop.ProfileTopSection>
+                    <Desktop.ProfileNav>
+                        <Desktop.NavSelect>
+                            <Desktop.NavBarSelect>
+                                <Nav className="justify-content-left nav-tabs" variant="pills" style={{width: "100%"}} onSelect={(k) => setKey(k)} 
+                                style={{borderColor: "rgba(0, 0, 0, 0.3)"}} defaultActiveKey="onsale">
+                                    <Desktop.HoverItem>
+                                        <Nav.Link className="profile" as={Link} eventKey="owned" style={{color: "rgba(0, 0, 0, 0.3)"}} to="owned">
+                                            Owned
+                                        </Nav.Link>
+                                    </Desktop.HoverItem>
+                                    <Desktop.HoverItem>
+                                        <Nav.Link className="profile" as={Link} eventKey="onsale" style={{color: "rgba(0, 0, 0, 0.3)"}} to="onsale">On Sale</Nav.Link>
+                                    </Desktop.HoverItem>
+                                    <Desktop.HoverItem>
+                                        <Nav.Link className="profile" as={Link} eventKey="sold" style={{color: "rgba(0, 0, 0, 0.3)"}} to="sold">Sold</Nav.Link>
+                                    </Desktop.HoverItem> 
+                                    <Desktop.HoverItem>
+                                        <Nav.Link className="profile" as={Link} eventKey="activity" style={{color: "rgba(0, 0, 0, 0.3)"}} to="activity">Activity</Nav.Link>
+                                    </Desktop.HoverItem> 
+                                    
                                 </Nav>
-                            </Container>
-                        </ProfileNavSection>
-            </>
+                            </Desktop.NavBarSelect>
+                        </Desktop.NavSelect>
+                        <Desktop.NFTSection >
+                            <Desktop.NFTSubSection>
+                                <Outlet />
+                            </Desktop.NFTSubSection>
+                        </Desktop.NFTSection>
+                    </Desktop.ProfileNav>
+                </Desktop.ProfileSubSection>
+            </Desktop.ProfileSection>
         ) : (
             <>
-            {(bannerPhoto) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={bannerPhoto} height="200px" width="100%" style={{backgroundSize: "100%"}}></img>) :
-            (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="200px" width="100%" style={{backgroundSize: "100%"}}></img>)}
-                        <ProfileNavSection>
-                            <Container style={{paddingTop: "50px"}}>
-                                <Row style={{display: "flex"}}>
-                                    <Col sm={2}>
-                                    </Col>
-                                    <Col sm={8} style={{display: "flex", justifyContent: "center"}}>
-                                    {(profilePhoto) ? 
-                                    (<img crossOrigin='true' crossoriginresourcepolicy='false' src={profilePhoto} height="150px" width="150px" 
-                                    style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-110px", borderRadius: "5.00rem"}}></img>) 
-                                    : (<img src={DefaultProfilePicture} height="150px" width="150px" 
-                                    style={{padding: "10px",border: "2px solid black", marginTop: "-110px",borderRadius: "5.00rem"}}></img>)}
-                                    </Col>
-                                    <Col sm={2} >
-                                    {twitter && 
-                                        <a className="socials" href={twitter} style={{padding:"10px"}}>
-                                            <i class="bi bi-twitter" style={{fontSize: "1.75rem", color: "cornflowerblue"}}></i>
-                                        </a>
-                                    }
-                                    {discord &&
-                                        <a className="socials" href={discord} style={{padding:"10px"}}>
-                                            <i class="bi bi-discord" style={{fontSize: "1.75rem", color: "#7289DA"}}></i>
-                                        </a>
-                                    }
-                                    {tiktok && 
-                                        <a className="socials" href={tiktok} style={{padding:"10px"}}>
-                                            <i class="bi bi-tiktok" style={{fontSize: "1.75rem", color: "#FF5700"}}></i>
-                                        </a>
-                                    }
-                                    {instagram && 
-                                        <a className="socials" href={instagram} style={{padding:"10px"}}>
-                                            <i class="bi bi-instagram" style={{fontSize: "1.75rem", color: "#8a3ab9"}}></i>
-                                        </a>
-                                    }
-                                    </Col>
-                                </Row>
-                                <Row style={{paddingTop: "20px", paddingBottom: "20px"}}> 
-                                    <Col style={{paddingBottom: "5px", fontSize: 30, display: "flex", justifyContent: "center"}}>
-                                    {(username.length === 25) ? ("...".concat(address.slice(33,43))) : (username)}   </Col>
-                                </Row>
-                                <Row style={{paddingTop: "10px", paddingBottom: "10px"}}>{artistType}</Row>
-                                <Row style={{ paddingBottom: "10px"}}>
-                                    <Col style={{float: "left"}}>
-                                        <Button className="button-hover" variant="secondary" style={{ color: "black", background: "white", borderRadius: "2rem" }} 
-                                        onMouseEnter={changeBackgroundWhite} onMouseOut={changeBackgroundBlack} onClick={() => handleShow()} >Edit User Profile</Button>
-                                    </Col>
-                                    {/* <Col style={{float: "right"}}>
-                                        <Button onClick={()=>sendToEtherscan()} 
-                                        style={{ color: "grey", background: "white", borderRadius: "4rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}}>
-                                        {address.slice(0,5)}...{address.slice(38,43)}</Button>
-                                    </Col> */}
-                                </Row>
-                                <Nav className="justify-content-center nav-tabs">
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="onsale">On Sale</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="sold">Sold</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="owned">Owned</Nav.Link>
-                                    </Nav.Item>
-                                    <Nav.Item>
-                                        <Nav.Link as={Link} className = "text-dark-3" to="created">Created</Nav.Link>
-                                    </Nav.Item>
-                                </Nav>
-                            </Container>
-                        </ProfileNavSection>
+            <Mobile.ProfileSection>
+                <Mobile.ProfileBanner src={profilebanner}/>
+
+                    <Mobile.ProfileTopSection>
+                        <Mobile.ProfilePhotoName>
+                        {(profilePhoto) ? (<Mobile.ProfilePhoto src={profilePhoto} crossOrigin='true' crossoriginresourcepolicy='false'/>) : (<Mobile.ProfilePhoto src={DefaultProfilePicture}/>)}
+                        <Mobile.ProfileNameEtherscan>
+                            <Mobile.ProfileName>{(username.length.toString() === "25") ? (<>Unnamed</>) : (<>{username}</>)}</Mobile.ProfileName>
+                            <Mobile.Etherscan onClick={()=>sendToEtherscan()}>
+                                <Mobile.EtherscanText>{address.slice(0,5)}...{address.slice(38,43)}</Mobile.EtherscanText>
+                            </Mobile.Etherscan>
+                        </Mobile.ProfileNameEtherscan>
+                        </Mobile.ProfilePhotoName>
+                        <Mobile.EditProfile onClick={()=>navigate('edit')}>
+                            <Mobile.EditProfileText>
+                                Edit profile
+                            </Mobile.EditProfileText>
+                        </Mobile.EditProfile>
+                    </Mobile.ProfileTopSection>
+                    <Mobile.ProfileNav>
+              
+               
+                                <Nav className="nav-tabs nav-fill nav-justified" variant="pills" 
+                                    onSelect={(k) => setKey(k)} style={{borderColor: "rgba(0, 0, 0, 0.3)", position: "absolute",
+                                    marginTop: "415px", width: "100%"}}
+                                    defaultActiveKey="onsale">
+                                        <Mobile.HoverItem>
+                                            <Nav.Link className="profile" as={Link} 
+                                            data-bs-toggle="tab" eventKey="onsale" style={{color: "rgba(0, 0, 0, 0.3)",
+                                            fontSize: "16px", textTransform: "uppercase"}} to="onsale">On Sale</Nav.Link>
+                                        </Mobile.HoverItem> 
+                                        <Mobile.HoverItem>
+                                            <Nav.Link className="profile" as={Link} 
+                                            data-bs-toggle="tab" eventKey="owned" style={{color: "rgba(0, 0, 0, 0.3)",
+                                            fontSize: "16px", textTransform: "uppercase"}} to="owned">
+                                                Owned
+                                            </Nav.Link>
+                                        </Mobile.HoverItem>
+                                        <Mobile.HoverItem>
+                                            <Nav.Link className="profile" as={Link} 
+                                            data-bs-toggle="tab" eventKey="sold" style={{color: "rgba(0, 0, 0, 0.3)",
+                                            fontSize: "16px", textTransform: "uppercase", whiteSpace: "nowrap"}} to="sold">
+                                            Sold</Nav.Link>
+                                        </Mobile.HoverItem>
+                                        
+                                        
+                                    </Nav>
+              
+             
+                        <Mobile.NFTSection >
+                            <Mobile.NFTSubSection>
+                                <Outlet />
+                            </Mobile.NFTSubSection>
+                        </Mobile.NFTSection>
+                    </Mobile.ProfileNav>
+
+            </Mobile.ProfileSection>
             </>
         )
         }
-                            <ProfileInfo show={show} handleClose={handleClose} setUsernameEntered={setUsernameEntered} setDescriptionEntered={setDescriptionEntered}
+                            {/* <ProfileInfo show={show} handleClose={handleClose} setUsernameEntered={setUsernameEntered} setDescriptionEntered={setDescriptionEntered}
                             setArtistTypeEntered={setArtistTypeEntered} setFileTarget={setFileTarget} setBannerFileTarget={setBannerFileTarget} handleClose={handleClose}
                             handleSocialsShow={handleSocialsShow} />
 
                             <ProfileSocials socialsShow={socialsShow} handleSocialsClose={handleSocialsClose} setTwitterEntered={setTwitterEntered} 
                             setInstagramEntered={setInstagramEntered} setDiscordEntered={setDiscordEntered} setTiktokEntered={setTiktokEntered} 
-                            saveUserInfo={saveUserInfo} />
+                            saveUserInfo={saveUserInfo} /> */}
 
                             
-                            <Modal show={minterShow} onHide={handleMinterClose} contentClassName = 'modal-rounded-6' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
+                            {/* <Modal show={minterShow} onHide={handleMinterClose} contentClassName = 'modal-rounded-6' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
                                 <Modal.Header style={{backgroundColor: "black"}} >
                                     <img style={{float: "right"}} height="27.5px" width="30px" src={nftyimg}></img>
                                 </Modal.Header>
@@ -386,13 +364,14 @@ function MyProfile() {
                                 </Form>
                                 
 
-                            </Modal>
+                            </Modal> */}
 
-                            <NFTSection className="d-flex justify-content-center">
+                            {/* <NFTSection className="d-flex justify-content-center">
                                 <Outlet />
-                            </NFTSection>  
+                            </NFTSection>   */}
         </React.Fragment>
     )
 }
 
 export default MyProfile
+

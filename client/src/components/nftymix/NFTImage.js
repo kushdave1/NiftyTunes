@@ -12,7 +12,7 @@ function NFTImage({output}) {
 
   useEffect(() => {
 
-    if (output.includes("ipfs")) {
+    if (output.includes("ipfs") && !UrlExists(output)) {
       setTokenImage(resolveLink(output))
     } else {
       console.log(output, "this is output")
@@ -21,6 +21,20 @@ function NFTImage({output}) {
     // }
     
   }, []);
+
+  function UrlExists(url)
+    {
+        var http = new XMLHttpRequest();
+        http.open('HEAD', url, false);
+        try {
+          http.send();
+        } catch {
+          return false
+        }
+        
+        console.log(http.status, url, "SLE")
+        return (http.status!=404 || http.status!=503 || http.status!=403);
+    }
 
 
   const onError = () => {

@@ -31,7 +31,7 @@ function ModalThree(props) {
                 <img style={{float: "right"}} height="27.5px" width="32.5px" src={nftyimg}></img>
             </Modal.Header>
             <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
-                Last Step! Please enter the # of NFT editions you'd like to give out per auction.
+                Almost there! Please enter the # of NFT editions you'd like to give out per auction.
             </Modal.Title>
             
             <Form style={{padding: "30px"}}>

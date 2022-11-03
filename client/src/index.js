@@ -6,6 +6,7 @@ import { BrowserRouter as Router } from 'react-router-dom'
 import { MoralisDappProvider } from "./providers/MoralisDappProvider/MoralisDappProvider";
 import "./index.css";
 import { PlaceBidProvider } from "./providers/PlaceBidProvider/PlaceBidProvider"
+import { FilterGalleryProvider } from "./providers/GalleryProvider/FilterGalleryProvider"
 
 /* bootstrap css*/
 import './assets/sass/custom-strap.scss';
@@ -21,8 +22,8 @@ import {MoralisProvider} from 'react-moralis'
 
 // localHost
 
-// export const APP_ID = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
-// export const SERVER_URL = 'https://5p6jpspfzahc.usemoralis.com:2053/server';
+//export const APP_ID = 'T3dcPAckXoTvA6hoPjuRCfT7nDAnh3B4fNx6IOZI';
+//export const SERVER_URL = 'https://5p6jpspfzahc.usemoralis.com:2053/server';
 
 // Rinkeby
 
@@ -31,14 +32,13 @@ import {MoralisProvider} from 'react-moralis'
 
 
 // Goerli
-
-export const APP_ID = 'ZJJ9kZiaiRBe3Zik0LzZy1S5ZhmnqEaQWTdUzzc0';
-export const SERVER_URL = 'https://8hixcfowznut.usemoralis.com:2053/server';
+//export const APP_ID = 'ZJJ9kZiaiRBe3Zik0LzZy1S5ZhmnqEaQWTdUzzc0';
+//export const SERVER_URL = 'https://8hixcfowznut.usemoralis.com:2053/server';
 
 // Mainnet 
 
-// export const APP_ID = 'jU6Q3ccwIhLS3AKWdhv3ClS7AQYZQhpMgIXKLiXp';
-// export const SERVER_URL = 'https://j6m7johdr7eh.usemoralis.com:2053/server';
+export const APP_ID = 'jU6Q3ccwIhLS3AKWdhv3ClS7AQYZQhpMgIXKLiXp';
+export const SERVER_URL = 'https://j6m7johdr7eh.usemoralis.com:2053/server';
 
 
 const Application = () => {
@@ -48,7 +48,9 @@ const Application = () => {
       <MoralisProvider appId={APP_ID} serverUrl={SERVER_URL}>
         <MoralisDappProvider>
         <PlaceBidProvider>
+        <FilterGalleryProvider>
           <App isServerInfo/>
+        </FilterGalleryProvider>
         </PlaceBidProvider>
         </MoralisDappProvider>
       </MoralisProvider>

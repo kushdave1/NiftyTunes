@@ -93,6 +93,118 @@ function ModalTwo(props) {
                         </Form.Group>
                     </Col>
                 </Row>
+                <Row>
+                    <Col>
+                        
+                        <center>
+                            Party Address
+                        </center>
+
+                    </Col>
+                    <Col>
+                        <center>
+                            % Split
+                        </center>
+                    </Col>
+                </Row>
+                <hr/>
+                <Row className="align-items-center">
+                    <Col>
+                        <Form.Group controlId="nft.editions">
+                            <FloatingLabel
+                                controlId="floatingInput"
+                                label="Address"
+                                className="mb-3"
+                            >
+                            <Form.Control 
+                                type="input"
+                                placeholder= 'Address'
+                                value={props.recipientOneAddress}
+                                onChange={e => props.setRecipientOneAddress(e.target.value)}/>
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group controlId="nft.editions">
+                            <FloatingLabel
+                                controlId="floatingInput"
+                                label="Split %"
+                                className="mb-3"
+                            >
+                            <Form.Control 
+                                type="input"
+                                placeholder= 'Split %'
+                                value={props.recipientOneSplit}
+                                onChange={e => props.setRecipientOneSplit(e.target.value)}/>
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Col>
+                </Row> 
+                <Row className="align-items-center">
+                    <Col>
+                        <Form.Group controlId="nft.editions">
+                            <FloatingLabel
+                                controlId="floatingInput"
+                                label="Address"
+                                className="mb-3"
+                            >
+                            <Form.Control 
+                                type="input"
+                                placeholder= 'Address'
+                                value={props.recipientTwoAddress}
+                                onChange={e => props.setRecipientTwoAddress(e.target.value)}/>
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Col>
+                    <Col>
+                        <Form.Group controlId="nft.editions">
+                            <FloatingLabel
+                                controlId="floatingInput"
+                                label="Split %"
+                                className="mb-3"
+                            >
+                            <Form.Control 
+                                type="input"
+                                placeholder= 'Split %'
+                                value={props.recipientTwoSplit}
+                                onChange={e => props.setRecipientTwoSplit(e.target.value)}/>
+                            </FloatingLabel>
+                        </Form.Group>
+                    </Col>
+                </Row> 
+                <Row>
+                <Col>
+                    <Form.Group controlId="nft.editions">
+                        <FloatingLabel
+                            controlId="floatingInput"
+                            label="Address"
+                            className="mb-3"
+                        >
+                        <Form.Control 
+                            type="input"
+                            placeholder= 'Address'
+                            value={props.recipientThree}
+                            onChange={e => props.setRecipientThreeAddress(e.target.value)}/>
+                        </FloatingLabel>
+                    </Form.Group>
+                </Col>
+                <Col>
+                    <Form.Group controlId="nft.editions">
+                        <FloatingLabel
+                            controlId="floatingInput"
+                            label="Split %"
+                            className="mb-3"
+                        >
+                        <Form.Control 
+                            type="input"
+                            placeholder= 'Split %'
+                            value={props.recipientThreeSplit}
+                            onChange={e => props.setRecipientThreeSplit(e.target.value)}/>
+                        </FloatingLabel>
+                    </Form.Group>
+                </Col>
+            </Row> 
+    
                 {props.mintErrMessage &&
                         <Alert variant='danger'>
                         <i class="bi bi-radioactive"></i>

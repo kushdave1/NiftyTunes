@@ -130,6 +130,8 @@ function ConnectButton() {
     const [wallet, setWallet] = useState(false)
     const [userAuth, setUserAuth] = useState(false)
 
+    const [username, setUsername] = useState('')
+
     const [show, setShow] = useState(false);
     const [minterShow, setMinterShow] = useState(false);
     const handleClose = () => setShow(false);
@@ -139,15 +141,18 @@ function ConnectButton() {
     let navigate = useNavigate();
     
 
-    useEffect(() => {
+    useEffect(async() => {
         console.log(isAuthenticated, 'ajdal')
         if(!user) return null;
         setAddress(user.get('ethAddress'));
     }, [user]);
 
+    
+
 
     async function handleConnect(){
         await authenticate({
+            signingMessage: "Welcome to Nftytunes. Please sign to log in.",
             onSuccess: () => navigate('/profile'),
             onError: () => console.log(authError)
         })
@@ -156,6 +161,7 @@ function ConnectButton() {
     async function handleWalletConnect(){
         await authenticate({
             provider: "walletconnect",
+            signingMessage: "Welcome to Nftytunes. Please sign to log in.",
             onSuccess: () => navigate('/profile'),
             onError: () => console.log(authError)
         })
@@ -247,7 +253,7 @@ const ModalContent = styled.div`
     position: absolute;
     width: 50%;
     height: 35%;
-    left: 367px;
+    left: calc(50%/2 - 30px);
     top: 176px;
 `
 
@@ -276,7 +282,7 @@ const WalletTitle = styled.div`
     /* H2 */
 
     font-family: 'Druk Cyr';
-    font-style: italic;
+
     font-weight: 900;
     font-size: 100px;
     line-height: 104px;

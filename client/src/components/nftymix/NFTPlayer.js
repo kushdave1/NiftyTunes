@@ -5,24 +5,32 @@ import { useIPFS } from "hooks/useIPFS";
 import Container from 'react-bootstrap/Container'
 import { fixURL, fixImageURL } from '../nftyFunctions/fixURL'
 
-import playButton from '../../assets/images/play.png'
-import pauseButton from '../../assets/images/pause.png'
+import playButton from '../../assets/images/playnew.png'
+import pauseButton from '../../assets/images/pausenew.png'
 import muteButton from '../../assets/images/mutebutton.png'
 import unmuteButton from '../../assets/images/unmutebutton.png'
+import muteButtonNH from '../../assets/images/mutenohover.png'
+import unmuteButtonNH from '../../assets/images/unmutenohover.png'
+import fullscreen from '../../assets/images/fullscreen.png'
+import { Stream } from "@cloudflare/stream-react";
+import { useFilterGallery } from "../../providers/GalleryProvider/FilterGalleryProvider";
 
 
 function NFTPlayer({output}) {
   const { resolveLink } = useIPFS();
   const [tokenVideo, setTokenVideo] = useState('')
 
-  const [play, setPlay] = useState(true)
+  const [play, setPlay] = useState(false)
   const [mute, setMute] = useState(true)
+  const [hover, setHover] = useState(false)
+  const [hoverButton, setHoverButton] = useState(false)
   const player = useRef(null)
 
+  const { galleryTokenIds } = useFilterGallery()
+
   useEffect(() => {
-    console.log(output, "this video for me")
     setTokenVideo(resolveLink(output))
-  }, []);
+  }, [galleryTokenIds]);
 
   const PlayPause = () => {
     if (play) {
@@ -34,6 +42,26 @@ function NFTPlayer({output}) {
     }
   }
 
+  const isHover = () => {
+    player.addEventListener('mouseenter', handleHover)
+    console.log(hover)
+  }
+
+  const isHoverButton = () => {
+    let muteButton = document.getElementsByClassName("mute-button")
+    muteButton.addEventListener('mouseenter', handleHoverButton)
+    console.log(hover)
+  }
+
+  const handleHover = () => setHover(true)
+  
+  const handleNoHover = () => setHover(false)
+
+  const handleHoverButton = () => setHoverButton(true)
+  
+  const handleNoHoverButton = () => setHoverButton(false)
+
+
   const MuteUnmute = () => {
     if (mute) {
         setMute(false)
@@ -41,6 +69,18 @@ function NFTPlayer({output}) {
     } else {
         setMute(true)
         player.current.muted = true
+    }
+  }
+
+  const setFullScreen = () => {
+    let elem = document.querySelector("video");
+
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch((err) => {
+        alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
     }
   }
 
@@ -70,28 +110,39 @@ function NFTPlayer({output}) {
   return (
     
     <React.Fragment>
-        <video ref={player}
+        <video className="hover-video"
+        ref={player}
+              webkit-playsInline playsInline
               crossOrigin='true'
               crossoriginresourcepolicy= 'false'
-              height="367.5"
-              width="100%"
+              onMouseOver={()=>handleHover()}
+              onMouseOut={()=>handleNoHover()}
+              height="246px"
+              width="310px"
               src={tokenVideo}
               onError={onError}
               loop={true}
-              autoPlay
-              muted>
+              >
         </video>
-        <button style={{position: "absolute", marginTop: "310px", marginLeft: "8px", 
+        <button style={{position: "absolute", marginTop: "200px", marginLeft: "2%", 
         borderRadius: "5rem", backgroundColor: "transparent", borderColor: "transparent"}} 
-        onClick={(e) => { e.preventDefault(); PlayPause();}}>{
-            (play) ? (<img src={pauseButton} height="40px" width="40px" />) : (<img src={playButton} height="40px" width="40px" />)
+        onClick={(e) => { console.log("HI"); e.preventDefault(); PlayPause();}}>{
+            (play) ? (<img src={pauseButton} height="35px" width="35px" />) : (<img src={playButton} height="35px" width="35px" />)
             }</button>
         
-        <button style={{position: "absolute", marginTop: "12px", marginLeft: "305px", 
-        borderRadius: "5rem", backgroundColor: "transparent", borderColor: "transparent"}} 
+        <button className="mute-button" style={{position: "absolute", top: "2%", marginLeft: "83%", 
+        backgroundColor: "transparent", borderColor: "transparent"}} 
+        onMouseOver={()=>handleHoverButton()}
+        onMouseOut={()=>handleNoHoverButton()}
         onClick={(e) => { e.preventDefault(); MuteUnmute();}}>{
-            (mute) ? (<img src={muteButton} height="35px" width="35px" />) : (<img src={unmuteButton} height="35px" width="35px" />)
+            (hover || hoverButton) ? ((mute) ? (<img src={muteButton} style={{height:"35px", minWidth:"35px"}} />) : (<img src={unmuteButton} style={{height:"35px", minWidth:"35px"}} />)) : 
+            ((mute) ? (<img src={muteButtonNH} style={{height:"35px", minWidth:"35px"}} />) : (<img src={unmuteButtonNH} style={{height:"35px", minWidth:"35px"}} />))
             }</button>
+        <button style={{position: "absolute", top: "200px", marginLeft: "84%", 
+        backgroundColor: "transparent", borderColor: "transparent"}} onClick={(e)=> { e.preventDefault(); setFullScreen();}}>
+        <img src={fullscreen} style={{height:"30px", minWidth:"30px"}}/>
+        </button>
+
     </React.Fragment>
   )
 }

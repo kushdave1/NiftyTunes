@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, BrowserRouter as Router, Route, useParams } from "react-router-dom";
 import { useMoralisQuery } from "react-moralis";
 import { useMoralis, useNFTBalances } from "react-moralis"
+import ProductPageSkeleton from "../nftyloader/ProductPageSkeleton"
 
 import Card from 'react-bootstrap/Card'
 import Col from 'react-bootstrap/Col'
@@ -44,42 +45,65 @@ import img from "../../assets/images/ethereum.png"
 import YoutubeEmbed from "../nftymix/YoutubeEmbed"
 import YoutubeEmbedMobile from "../nftymix/YoutubeEmbedMobile"
 import ProductListLayout from "../nftylayouts/ProductListLayout"
-import LiveNFTTokenIds from "../nftymarketplace/LiveNFTTokenIds"
+import LiveNFTTokenIds from "../nftymarketplace/LiveNFTTokenIds__"
 import NFTPlayerLarge from "../nftymix/NFTPlayerLarge"
 import AuctionBoard from '../nftylayouts/AuctionBoardLayout'
+import AuctionBoardMobile from '../nftylayouts/AuctionBoardLayoutMobile'
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
 import BidCard from '../nftylayouts/BidCardLayout'
 import BidCardMobile from '../nftylayouts/BidCardLayoutMobile'
+import BidCardAdmin from '../nftylayouts/BidCardLayoutAdmin'
 
 
 import { changeBackground, changeBackgroundBack } from "../nftyFunctions/hover"
 
 import nftyimg from "../../assets/images/NT_White_Isotype.png";
+import rightarrow from "../../assets/images/rightarrow.png"
+import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
+import { GetProvider } from '../nftyFunctions/GetProvider'
 
+import leftarrow from "../../assets/images/leftarrow.png"
 import styled from 'styled-components'
 
 import { APP_ID, SERVER_URL } from '../../index'
 
 
-const HeaderSection = styled.div `
-    display:flex;
-    flex:1;
-    background-color: white;
-    min-height: 100vh;
-    padding-top: 75px;
-`;
+import * as Desktop from "../nftyCSS/LiveCollectionPageDesktop"
 
+
+import Web3 from "web3";
+
+import * as Mobile from "../nftyCSS/LiveCollectionPageMobile"
+
+
+
+
+import Carousel from 'react-bootstrap/Carousel';
 
 
 
 function LiveCollectionPage() {
   
   const [streamLink, setStreamLink] = useState("")
-  const { liveMintAddress, collectionName } = useParams();
+  const { signerAddress, collectionName } = useParams();
   const [width, setWindowWidth] = useState(0)
   const [auctionAddress, setAuctionAddress] = useState("")
+
+
+
+  const [currentAddress, setCurrentAddress] = useState("")
+  const [balance, setBalance] = useState("")
   
   const { isInitialized, isAuthenticated, user } = useMoralis()
+
+
+  const getBalance = async() => {
+    let balance = await Moralis.Web3API.account.getNativeBalance({chain: "eth"});
+    balance = (balance['balance']/10**18).toFixed(2)
+
+    return balance
+
+  }
   const [auction, setAuction] = useState([{
     collectionName: "",
     collectionSymbol: "",
@@ -137,7 +161,7 @@ function LiveCollectionPage() {
 
   const { fetch } = useMoralisQuery(
     "LiveMintedCollections",
-    (query) => query.equalTo("liveMintAddress", liveMintAddress),
+    (query) => query.equalTo("CollectionName", collectionName),
     [],
     { autoFetch: false }
   );
@@ -145,99 +169,79 @@ function LiveCollectionPage() {
 
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState();
+  const [userAddress, setUserAddress] = useState("")
 
-
-  const PlaceBid = async(auctionAddress) => {
-      setBidLoading(true)
-      setBidError(false)
-      setBidSuccess(false)
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
-
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-      let lastBid = 0;
-      try {
-        lastBid = await liveAuctionFactoryContract.getBid()
-        lastBid = lastBid.toNumber()
-      } catch (e) {
-        console.log(e)  
-      }
-      
-      console.log(lastBid, "lastbid")
-      let currentBid
-      try {
-      currentBid = ethers.utils.parseUnits(bidAmount.toString(), 'ether')
-      } catch {
-          currentBid = 0
-          setBidLoading(false)
-          setBidError(true)
-      }
-      console.log(currentBid, "currentbid")
-      
-      
-      let transaction; 
-
-      try {
-          let price = currentBid.sub(lastBid)
-          transaction = await liveAuctionFactoryContract.bid({value: price})
-          await transaction.wait()
-          setBidLoading(false)
-         
-      } catch (error) {
-        
-          setBidLoading(false)
-          setBidError(true)
-          return
-      }
-
-      setBidSuccess(true)
-  }
 
 
   const getContract = async(auctionAddress) => {
+        
+    let signer
+    let liveAuctionFactory
+    let liveAuctionFactoryContract
 
-        const web3Modal = new Web3Modal({})
-        const connection = await web3Modal.connect()
-        const provider = new ethers.providers.Web3Provider(connection)
-        const signer = provider.getSigner()
-
-        const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-        const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-        return liveAuctionFactoryContract
+    if (isAuthenticated) {
+        signer = await ConnectWallet()
+        setUserAddress(await signer.getAddress())
+        liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
+        liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
+    } else {
+        signer = GetProvider()
+        liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuction.abi, signer)
 
     }
 
+    return liveAuctionFactoryContract
+
+  }
+
   useEffect(async() => {
-    console.log()
+
+     // Only when using npm/yarn
+    // await Moralis.enableWeb3({ provider: "walletconnect" });
+
+    // Enable web3 and get the initialized web3 instance from Web3.js
+    const contract = await getContract(auctionAddress);
+
+
+    let realBalance
+    if (isAuthenticated) {
+      realBalance = await getBalance()
+    } else {
+      realBalance = 0
+    }
+    
+
+    setBalance(realBalance)
+
+
+
+    
     updateDimensions();
     window.addEventListener("resize", updateDimensions);
 
-    const auctionAddress = await basicQuery();
-    console.log(auctionAddress, "raw")
+    await basicQuery();
     setIsLoading(false)
     
-    const contract = await getContract(auctionAddress);
-    contract.on("Start",  await handleStartEventModal)
-    contract.on("Bid", await handleBidEventModal)
+    if (isAuthenticated) {
+      contract.on("Bid", await handleBidEventModal)
+    }
+    
     let addresses = []
 
     return () => {
       window.removeEventListener("resize",updateDimensions);
-      contract.removeAllListeners("Start")
-      contract.removeAllListeners("Bid")
+      if (isAuthenticated) {
+        contract.removeAllListeners("Start") 
+        contract.removeAllListeners("Bid")
+      }
+      
     }
 
 
 
     
 
-  }, [liveMintAddress, collectionName]);
+  }, []);
 
   const handleStartEventModal = async(highestBid, timestamp) => {
     
@@ -257,7 +261,7 @@ function LiveCollectionPage() {
     
     setUserBid(ethers.utils.formatUnits(amount.toString(), 'ether'))
 
-
+    
     
     handleShowOnBidModal()
   }
@@ -274,25 +278,26 @@ function LiveCollectionPage() {
   const basicQuery = async() => {
     const results = await fetch();
     const object = results[0]
-    console.log(object)
+    let data = object.get("auctionData")
 
-    // const artistPhoto = await fetchArtistPhoto(object.get("signerAddress"))
-    console.log(object.get("CoverArtURL"), 'coverarturl')
+    let aucdata = data[0]
+
+    const artistPhoto = await fetchArtistPhoto(object.get("signerAddress"))
     const artistName = await fetchArtistName(object.get("signerAddress"))
 
+
+    
+
     const fileType = await checkFileType(object.get("CoverArtURL"))
-    console.log(fileType, "GANGATHON")
     setAuction(previousAuction =>[...previousAuction, {
       
       collectionName: object.get("CollectionName"),
       collectionSymbol: object.get("CollectionSymbol"),
       fileType: fileType,
     //   artist: object.get("signerAddress"),
-    //   artistPhoto: artistPhoto,
+      artistPhoto: artistPhoto,
       artistName: artistName,
       createdAt: object.get("createdAt").toUTCString(),
-      auctionAddress: object.get("liveAuctionAddress"), 
-      mintAddress: object.get("liveMintAddress"), 
       stream: object.get("StreamLink").split("=").pop(),
       mintNumber: parseInt(object.get("MintNumber")),
       totalEditions: object.get("totalEditions"),
@@ -304,15 +309,67 @@ function LiveCollectionPage() {
       date: object.get("date"),
       startTime: object.get("startTime"),
       endTime: object.get("endTime"),
-      editionsPerAuction: object.get("editionsPerAuction")
+      editionsPerAuction: object.get("editionsPerAuction"),
+      auctionData: object.get("auctionData"),
+      location: object.get("location"),
+      Legendary: object.get("Legendary"),
+      Rare: object.get("Rare"),
+      Common: object.get("Common"),
+      floors: object.get("floors")
       
       
 
     }])
 
-    return object.get("liveAuctionAddress")
 
   };
+
+
+  const selectQuery = async() => {
+    const results = await fetch();
+    const object = results[0]
+
+    // const artistPhoto = await fetchArtistPhoto(object.get("signerAddress"))
+
+    const artistName = await fetchArtistName(object.get("signerAddress"))
+
+    const fileType = await checkFileType(object.get("CoverArtURL"))
+    setAuction(previousAuction =>[...previousAuction, {
+      
+      collectionName: object.get("CollectionName"),
+      collectionSymbol: object.get("CollectionSymbol"),
+      fileType: fileType,
+    //   artist: object.get("signerAddress"),
+    //   artistPhoto: artistPhoto,
+      artistName: artistName,
+      createdAt: object.get("createdAt").toUTCString(),
+      stream: object.get("StreamLink").split("=").pop(),
+      mintNumber: parseInt(object.get("MintNumber")),
+      totalEditions: object.get("totalEditions"),
+      royalty: object.get("royalty"),
+      coverArt: object.get("CoverArtURL"),
+      bannerArt: object.get("bannerImageURL"),
+      collectionDescription: object.get("description"),
+      signerAddress: object.get("signerAddress"),
+      date: object.get("date"),
+      startTime: object.get("startTime"),
+      endTime: object.get("endTime"),
+      editionsPerAuction: object.get("editionsPerAuction"),
+      auctionData: object.get("auctionData"),
+      location: object.get("location"),
+      Legendary: object.get("Legendary"),
+      Rare: object.get("Rare"),
+      Common: object.get("Common"),
+      floor: object.get("floor")
+      
+
+    
+    }])
+
+
+  };
+
+
 
   const singleQuery = () => {
     fetch({
@@ -321,161 +378,125 @@ function LiveCollectionPage() {
   }
   return (
     <>
-      
-      {!isLoading && (
+      {isLoading ? (Array(1)
+                .fill()
+                .map((item, index) => {
+                    return(
+                        <ProductPageSkeleton key={index} />
+                    )
+                })) : 
+      !isLoading && (
         <>
-        {(auction[1].bannerArt) ? (<img crossOrigin='true' crossoriginresourcepolicy='false' src={auction[1].bannerArt} height="250px" width="100%" 
-        style={{backgroundSize: "100%", zIndex: "1"}}></img>) : (<img crossOrigin='true' crossoriginresourcepolicy='false' src={Banner} height="250px" 
-        width="100%" style={{backgroundSize: "100%", zIndex: "1"}}></img>)}
-        {(responsive.showTopNavMenu) ? (<HeaderSection>
+        {(responsive.showTopNavMenu) ? (
+        <Desktop.HeaderSection>
+            <YoutubeEmbed embedId={auction[1].stream}/>
+            <Desktop.Shade/>
+            <Link to={`/artist/${auction[1].signerAddress}/items`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+              <Desktop.ArtistOwnerSubSection >
+                {(auction[1].artistPhoto) ? (<Desktop.ArtistOwnerPhoto src={auction[1].artistPhoto} crossOrigin='true' 
+                crossoriginresourcepolicy='false'/>) : (<Desktop.ArtistOwnerPhoto src={DefaultProfilePicture} />)}
+                <Desktop.ArtistOwnerSubBox>
+                  <Desktop.ArtistOwner >Artist</Desktop.ArtistOwner>
+                  <Desktop.ArtistOwnerName
+       >{auction[1].artistName}</Desktop.ArtistOwnerName>
+                </Desktop.ArtistOwnerSubBox>
+              </Desktop.ArtistOwnerSubSection>
+            </Link>
+            <Desktop.InfoSection>
+              <Desktop.TitleLocation>
+                {collectionName} LIVE @ {auction[1].location}{' - '}{auction[1].date}
+              </Desktop.TitleLocation>
+              <Desktop.DescriptionLocation>
+              {auction[1].collectionDescription}
+              </Desktop.DescriptionLocation>
+            </Desktop.InfoSection>
             
-            <Container fluid="sm">
+            <Desktop.TierBox
+        >
+              <Desktop.TiersTitle>Tiers
+              </Desktop.TiersTitle>
               <Row>
-                <Col sm={4}>
+              {(auction[1].auctionData.map((data, index) => {
 
-                  <BidCard auctionAddress={auction[1].auctionAddress} responsive={responsive.showTopNavMenu} signerAddress={auction[1].signerAddress}
-                  editionsPerAuction={auction[1].editionsPerAuction}/>
-                </Col>
-                <Col sm={4}>
-                  <center>
-                    {(auction[1].coverArt) ? 
-                                        (
-                                        <img crossOrigin='true' crossoriginresourcepolicy='false' src={auction[1].coverArt} height="150px" width="150px" 
-                                        style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-175px", zIndex: "2", borderRadius: "5.00rem"}}></img>) 
-                                        : (<img src={DefaultProfilePicture} height="150px" width="150px" 
-                                        style={{padding: "10px",border: "2px solid black", marginTop: "-175px",borderRadius: "5.00rem", zIndex: "2"}}></img>)}
-                                        <div className="pt-3" style={{fontSize: 20}}>{auction[1].collectionName}</div>
-                                        <div className="text-danger" style={{fontSize: 16}}>Live on {auction[1].date} ({auction[1].startTime} - {auction[1].endTime} EST)</div>
-                                        <br/>
-                                        {(seeMore) ? (
-                                      
-                                          <Button style={{fontSize: 12, background: "none", border:'none', color: "grey"}} onClick={()=>setSeeMore(false)}> 
-                                          See More</Button>
-                                
-                                        
-                                        ) : (
-                                          <>
-                                          <div style={{fontSize: 12}}>
-                                          By {auction[1].artistName}</div>
-                                          <br/><div style={{fontSize: 12}}>
-                                          {auction[1].collectionDescription}</div>
-                                          <Button style={{fontSize: 12, background: "none", border:'none', color: "grey"}} onClick={()=>setSeeMore(true)}> 
-                                          See Less</Button>
-                                          </>
-                                        )
-                                          
-                                        }   
-                  </center>
-                </Col>
-                <Col sm={4}>
-
-                  <Button variant="light" style={{borderRadius: "5rem", float: "right", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
-                        How it Works
-                    </Button>
-                </Col>
+                return (
+                  <Desktop.AuctionCard md={4} className="mx-2">
+                  {(userAddress !== auction[1].signerAddress) ? (<BidCard auctionAddress={data.auctionAddress} mintAddress={data.mintAddress} responsive={responsive.showTopNavMenu} 
+                  signerAddress={auction[1].signerAddress} auction={auction[1]}
+                      editionsPerAuction={parseInt(data.totalNFTs)} tier={data.tier} indexNumber={index} balance={balance}/>) : (
+                        <BidCardAdmin auctionAddress={data.auctionAddress} mintAddress={data.mintAddress} responsive={responsive.showTopNavMenu} signerAddress={auction[1].signerAddress}
+                      editionsPerAuction={parseInt(data.totalNFTs)} tier={data.tier} indexNumber={index} balance={balance} auction={auction[1]} />
+                      )}
+                  <AuctionBoard auctionAddress={data.auctionAddress} responsive={responsive.showTopNavMenu} mintNumber={parseInt(data.totalNFTs)} 
+                        signerAddress={auction[1].signerAddress} mintAddress={data.mintAddress} indexNumber={index}/>
+                  </Desktop.AuctionCard>
+                )
+              }))}
               </Row>
-                <hr/>
-                <Row>
-                  <Col>
-                    <YoutubeEmbed embedId={auction[1].stream}/>
-                  </Col>
-                  <Col>
-                    <AuctionBoard auctionAddress={auction[1].auctionAddress} responsive={responsive.ShowTopNavMenu} mintNumber={auction[1].totalEditions} 
-                    signerAddress={auction[1].signerAddress} />
-                  </Col>
-                </Row>
-                <hr></hr>
-                <Row className="p-2">
-                
-                    <ProductListLayout>
-                        <LiveNFTTokenIds auction={auction[1]} responsive={responsive.showTopNavMenu}/>
-                    </ProductListLayout>    
-                        
-                </Row>
-                
-            </Container>
-        </HeaderSection>) : (<HeaderSection>
+              
+            </Desktop.TierBox>
+        </Desktop.HeaderSection>) : (
+        <Mobile.HeaderSection>
+            <YoutubeEmbedMobile embedId={auction[1].stream}/>
+            <Mobile.Shade/>
+            <Mobile.InfoSection>
+              <Link to={`/artist/${auction[1].signerAddress}/items`} style={{ textDecoration: 'none', pointerEvents: "auto"}}>
+                <Mobile.ArtistOwnerSubSection>
+                  {(auction[1].artistPhoto) ? (<Mobile.ArtistOwnerPhoto src={auction[1].artistPhoto} crossOrigin='true' 
+                  crossoriginresourcepolicy='false'/>) : (<Mobile.ArtistOwnerPhoto src={DefaultProfilePicture} />)}
+                  <Mobile.ArtistOwnerSubBox>
+                    <Mobile.ArtistOwner>Artist</Mobile.ArtistOwner>
+                    <Mobile.ArtistOwnerName>{auction[1].artistName}</Mobile.ArtistOwnerName>
+                  </Mobile.ArtistOwnerSubBox>
+                </Mobile.ArtistOwnerSubSection>
+              </Link>
+              <Mobile.TitleLocation>
+                {collectionName} LIVE @ {auction[1].location}{' - '}{auction[1].date}
+              </Mobile.TitleLocation>
+              <Mobile.DescriptionLocation>
+              {auction[1].collectionDescription}
+              </Mobile.DescriptionLocation>
+
+            </Mobile.InfoSection>
             
-            <Container fluid>
-              <center>
-                {(auction[1].coverArt) ? 
-                                    (
-                                    <img crossOrigin='true' crossoriginresourcepolicy='false' src={auction[1].coverArt} height="150px" width="150px" 
-                                    style={{boxShadow: "1px 1px 1px 1px #888888", marginTop: "-175px", zIndex: "2", borderRadius: "5.00rem"}}></img>) 
-                                    : (<img src={DefaultProfilePicture} height="150px" width="150px" 
-                                    style={{padding: "10px",border: "2px solid black", marginTop: "-175px",borderRadius: "5.00rem", zIndex: "2"}}></img>)}
-                                    <div className="pt-3" style={{fontSize: 20}}>{auction[1].collectionName}</div>
-                                    <div className="text-danger" style={{fontSize: 16}}>Live on {auction[1].date} ({auction[1].startTime} - {auction[1].endTime} EST)</div>
-                                  
-                                    {(seeMore) ? (
-                                      
-                                          <Button style={{fontSize: 12, background: "none", border:'none', color: "grey"}} onClick={()=>setSeeMore(false)}> 
-                                          See More</Button>
-                                
-                                        
-                                        ) : (
-                                          <>
-                                          <div style={{fontSize: 12}}>
-                                          By {auction[1].artistName}</div>
-                                          <br/><div style={{fontSize: 12}}>
-                                          {auction[1].collectionDescription}</div><br/>
-                                          <Button style={{fontSize: 12, background: "none", border:'none', color: "grey"}} onClick={()=>setSeeMore(true)}> 
-                                          See Less ^</Button>
-                                          </>
-                                          
-                                        )
-                                          
-                                        } 
-                                        <Row className="py-3 mx-5">
-                                        <Button variant="light" style={{borderRadius: "5rem", borderColor: "white", boxShadow: "2px 2px 2px 2px #888888"}} onClick={()=>handleShowPDF()}>
-                                          How it Works
-                                      </Button>
-                                      </Row>
-                                        <BidCardMobile auctionAddress={auction[1].auctionAddress} responsive={responsive.showTopNavMenu} signerAddress={auction[1].signerAddress}
-                                        editionsPerAuction={auction[1].editionsPerAuction}/>
-              </center>
-                <hr/>
-                <Row>
-                    <AuctionBoard auctionAddress={auction[1].auctionAddress} responsive={responsive.ShowTopNavMenu} mintNumber={auction[1].totalEditions} 
-                    signerAddress={auction[1].signerAddress} />
-                  
-                </Row>
-                <Row style={{paddingTop:"20px"}}>
-                 
-                    <YoutubeEmbedMobile embedId={auction[1].stream}/>
-                </Row>
-                
-                <hr></hr>
-                <Row className="p-2">
-                
-                    <ProductListLayout>
-                        <LiveNFTTokenIds auction={auction[1]} responsive={responsive.ShowTopNavMenu} />
-                    </ProductListLayout>    
-                        
-                </Row>
-                
-            </Container>
-        </HeaderSection>
+            <Mobile.TierBox>
 
-        )} 
-        </>
-      )}
+              <Mobile.TiersGap>
+        
+  
+                <Mobile.TiersTitle>Tiers
+                </Mobile.TiersTitle>
+                
+      
+              </Mobile.TiersGap>
 
-       <Modal show={showPDF} onHide={handleClosePDF} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
-            <Modal.Header style={{backgroundColor: "black"}} >
-                <Button style={{backgroundColor: "black"}} onClick={()=>handleClosePDF()}><img style={{float: "right"}} height="20px" width="20px" src={xicon}></img></Button>
-            </Modal.Header>
-            <img src={pdfHowItWorks}></img>
-                <Row>
-                    <Col>
-                        <Button variant="dark" style={{borderRadius: "2rem", marginBottom:  "30px", marginRight: "30px", float: "right"}} onClick={()=>handleClosePDF()}>
-                            Close
-                        </Button>
-                    </Col>
-                </Row>
-        </Modal>
+              <Carousel variant="dark" interval={null}>
+              {(auction[1].auctionData.map((data, index) => {
 
-    {startBidModal && <Modal show={handleShowStartBidModal} onHide={handleCloseStartBidModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
+                return (
+                  <Carousel.Item>
+
+                  <Mobile.AuctionCard>
+                  <BidCardMobile auctionAddress={data.auctionAddress} mintAddress={data.mintAddress} responsive={responsive.showTopNavMenu} 
+                  signerAddress={auction[1].signerAddress} auction={auction[1]}
+                      editionsPerAuction={parseInt(data.totalNFTs)} tier={data.tier} indexNumber={index} balance={balance}/>
+                  <AuctionBoardMobile auctionAddress={data.auctionAddress} responsive={responsive.showTopNavMenu} mintNumber={parseInt(data.totalNFTs)} 
+                        signerAddress={auction[1].signerAddress} mintAddress={data.mintAddress} indexNumber={index}/>
+                  </Mobile.AuctionCard>
+                  </Carousel.Item>
+                )
+              }))}
+              </Carousel>
+            </Mobile.TierBox>
+
+            </Mobile.HeaderSection>)
+            }
+          </>
+
+        )}
+
+       
+
+    {/* {startBidModal && <Modal show={handleShowStartBidModal} onHide={handleCloseStartBidModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
         <Modal.Header style={{backgroundColor: "black"}} >
             <Button style={{backgroundColor: "black"}} onClick={()=>handleCloseStartBidModal()}><img style={{float: "right"}} height="20px" width="20px" src={xicon}></img></Button>
         </Modal.Header>
@@ -506,7 +527,7 @@ function LiveCollectionPage() {
                 Place Bid
             </Button>
         </Form>      
-    </Modal>}
+    </Modal>} */}
 
     {onBidModal && <Modal show={handleShowOnBidModal} onHide={handleCloseOnBidModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
         <Modal.Header style={{backgroundColor: "black"}} >
@@ -514,49 +535,10 @@ function LiveCollectionPage() {
         </Modal.Header>
         <Modal.Title style={{padding: "30px 30px 0px 30px"}}>
             {username} has set a bid of {userBid} ETH
+            The bid should appear on the leaderboard in a minute.
         </Modal.Title>
-        <div style={{fontSize: 10, padding: "30px 30px 30px 30px"}}>How much would you like to bid on this NFT set for?</div>
-        {/* <Table striped bordered hover responsive style={{fontSize: 10, padding: "30px"}}>
-          <thead style={{backgroundColor: "black", color: "white"}}>
-            <tr>
-              <th>Top Bidders</th>
-              <th>Top Bids</th>
-            </tr>
-          </thead>
-          <tbody> */}
-            {/* <AuctionModal auctionAddress={auction[1].auctionAddress} editions={editions} responsive={responsive.showTopNavMenu} signerAddress={auction[1].signerAddress} /> */}
-          {/* </tbody>
-        </Table> */}
-          
-            <Form style={{padding: "30px"}}>
-              <Col>
-                <Form.Group className="mb-3" controlId="nft.bidAmount">
-                    <FloatingLabel
-                        controlId="floatingInput"
-                        label="Bid (ETH)"
-                        style={{width: "150px"}}
-                        className="mb-3"
-                    >
-                    <Form.Control 
-                        type="input"
-                        placeholder= 'Auction Time (Minutes)'
-                        
-                        value={bidAmount}
-                        onChange={e => setBidAmount(e.target.value)}/>
-                        
-                    </FloatingLabel>
-                </Form.Group>
-              </Col>
-              <Col>
-                <Button variant="dark" style={{borderRadius: "2rem", float: "right", width: "150px"}} 
-                onClick={()=>{handleCloseOnBidModal();handleShowBidLoadingModal();PlaceBid(auction[1].auctionAddress)}}>
-                    Place Bid
-                </Button>
-              </Col>
-            </Form>      
-
     </Modal>}
-
+{/* 
     <Modal show={showBidLoadingModal} contentClassName = 'modal-rounded-5' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable' >
             <Modal.Header style={{backgroundColor: "black"}} >
                 <Button style={{backgroundColor: "black"}} onClick={()=>handleCloseBidLoadingModal()}><img style={{float: "right"}} height="20px" width="20px" src={xicon}></img></Button>
@@ -600,9 +582,12 @@ function LiveCollectionPage() {
                 </Alert>
 
             }
-      </Modal>
+      </Modal> */}
     </>
   );
 };
 
 export default LiveCollectionPage;
+
+
+

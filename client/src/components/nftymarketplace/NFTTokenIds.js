@@ -49,7 +49,7 @@ function NFTTokenIds() {
     <React.Fragment>
           {loading?
               //render skeleton when loading
-            (Array(8)
+            (Array(4)
             .fill()
             .map((item, index) => {
                 return(

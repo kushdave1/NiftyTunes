@@ -1,20 +1,23 @@
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
 import { ConnectWallet } from '../nftyFunctions/ConnectWallet'
 import { ethers, utils } from 'ethers';
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
 
-export const PlaceBid = async(bidSuccess, setBidSuccess, bidError, setBidError, bidLoading, setBidLoading, bidAmount, auctionAddress) => {
+export const PlaceBid = async(bidSuccess, setBidSuccess, bidError, setBidError, bidLoading, setBidLoading, bidAmount, auctionAddress, mintAddress) => {
+      console.log("WHERY")
       setBidLoading(true)
       setBidError(false)
       setBidSuccess(false)
       
       const signer = await ConnectWallet()
 
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
+      console.log(auctionAddress, mintAddress, "KESEL")
+
+      const liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuctionProxy.abi, signer)
 
       let lastBid = 0;
       try {
-        lastBid = await liveAuctionFactoryContract.getBid()
+        lastBid = await liveAuctionFactoryContract.getBid(mintAddress)
         lastBid = lastBid.toNumber()
       } catch (e) {
         console.log(e)  
@@ -33,7 +36,7 @@ export const PlaceBid = async(bidSuccess, setBidSuccess, bidError, setBidError, 
 
       try {
           let price = currentBid.sub(lastBid)
-          transaction = await liveAuctionFactoryContract.bid({value: price})
+          transaction = await liveAuctionFactoryContract.bid(mintAddress, {value: price})
           await transaction.wait()
           setBidLoading(false)
          

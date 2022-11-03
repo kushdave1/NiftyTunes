@@ -17,9 +17,13 @@ import Alert from 'react-bootstrap/Alert'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
 import Stack from 'react-bootstrap/Stack'
+import {useNavigate} from 'react-router'
+
 
 import checkmark from "../../assets/images/checkmark.png"
 import error from "../../assets/images/error.png"
+
+import { checkFileType } from "../nftyFunctions/checkFileType"
 
 
 import Moralis from 'moralis'
@@ -110,11 +114,33 @@ function MyNFTs() {
     setShow(true);
     getApprovedStatus(nft)
   }
-
+  const [width, setWindowWidth] = useState()
   const [approveLoading, setApproveLoading] = useState(false)
   const [approveSuccess, setApproveSuccess] = useState(false)
   const [approveError, setApproveError] = useState(false)
   const [approvedStatus, setApprovedStatus] = useState(false)
+  let navigate = useNavigate();
+
+  useEffect(async() => {
+
+        updateDimensions();
+
+        window.addEventListener("resize", updateDimensions);
+
+        return () => window.removeEventListener("resize",updateDimensions);
+
+    }, [])
+
+    const updateDimensions = () => {
+      const innerWidth = window.innerWidth
+      setWindowWidth(innerWidth)
+    }
+
+    const responsive = {
+        showTopNavMenu: width > 1023
+    }
+
+
 
   useEffect(async() => {
         if(!user) return null
@@ -159,16 +185,30 @@ function MyNFTs() {
     setVisibility(true);
   };
 
+  function UrlExists(url)
+    {
+        var http = new XMLHttpRequest();
+        http.open('HEAD', url, false);
+        try {
+          http.send();
+        } catch {
+          return false
+        }
+
+        return (http.status!=404 || http.status!=503 || http.status!=403);
+    }
+
 
   const getNFT = async() => {
         const web3Modal = new Web3Modal({})
         const connection = await web3Modal.connect()
         const provider = new ethers.providers.Web3Provider(connection)
         const network = await provider.getNetwork(); 
-        const name = network.name;
+        const name = "eth";
         const signer = provider.getSigner()
         const signerAddress = await signer.getAddress();
         console.log(name, "type")
+        
         // try {
         //   await getNFTBalances({ params: { chain: name } })
         // } catch {
@@ -188,41 +228,79 @@ function MyNFTs() {
         for (const i in results) {
           
             const object = results[i];
-            if (!object.token_uri) {
-              const options = {
-                address: object.token_address,
-                token_id: object.token_id,
-                flag: "metadata",
-              };
-              const result = await Web3Api.token.reSyncMetadata(options);
-              console.log(result)
-            }
+
+
+            let meta
             if (object?.token_uri) {
-              
-              let meta = await axios.get(fixURL(object.token_uri))
-              for (const j in meta.data) {
-                  if ((meta.data[j]).toString().includes('ipfs')) {
-                      imageLink = meta.data[j]
-                      image = resolveLink(meta.data[j])
-                      console.log(imageLink)
+              try {
+                UrlExists(object.token_uri)
+                meta = await axios.get(object.token_uri)
+              } catch {
+                try {
+                  UrlExists(fixURL(object.token_uri))
+                  meta = await axios.get(fixURL(object.token_uri))
+                } catch {
+                  console.log(object.token_uri)
+                  meta = {data: {
+                    name: "",
+                    description: "",
+                    location: "",
+                    date: "",
+                    tier: "",
+                    artist: ""
                   }
+                }
               }
+              }
+
+              
+              for (const j in meta.data) {
+                if ((meta.data[j]).toString().includes('ipfs') || j === 'image') {
+                    if (UrlExists(meta.data[j]) && meta.data[j].toString().includes('https')) {
+          
+                      imageLink = meta.data[j]
+                    } else {
+                      imageLink = meta.data[j]
+
+                    }
+                }
+              }
+              
+            
+              const fileType = await checkFileType(imageLink)
+              console.log(fileType, imageLink, "BUSHU")
+
               let item = {
                   name: meta.data['name'],
                   description: meta.data['description'],
+                  tier: meta.data['tier'],
+                  location: meta.data['location'],
+                  date: meta.data['date'],
+                  artistName: meta.data['artist'],
                   image: imageLink,
                   owner: object.owner_of,
                   tokenId: object.token_id,
-                  tokenAddress: object.token_address
+                  tokenAddress: object.token_address,
+                  fileType: fileType,
+                  lazy: false,
+                  isSold: true
               }
-              if (nfts.includes(item) === false) {
+              if (nfts.includes(item) === false && UrlExists(imageLink) || nfts.includes(item) === false && UrlExists(fixURL(imageLink))) {
+                console.log(imageLink,  "KUSHU")
                 setNFTs((previousNft) => [...previousNft, {
                     name: meta.data['name'],
                     description: meta.data['description'],
+                    tier: meta.data['tier'],
+                    location: meta.data['location'],
+                    date: meta.data['date'],
+                    artistName: meta.data['artist'],
                     image: imageLink,
                     owner: object.owner_of,
+                    fileType: fileType,
                     tokenId: object.token_id,
-                    tokenAddress: object.token_address
+                    tokenAddress: object.token_address,
+                    lazy: false,
+                    isSold: true
                 }])}
             }      
         }
@@ -339,12 +417,17 @@ function MyNFTs() {
   }
     
   return (
-  <MarketPlaceSection className="d-flex justify-content-center">
+    <>
+    {(responsive.showTopNavMenu) ? (
+      
+      <MarketContainer>
+      <MarketRow>
+      
     <ProductListLayout>
-      <React.Fragment>
+
               {loading?
                   //render skeleton when loading
-                (Array(6)
+                (Array(8)
                 .fill()
                 .map((item, index) => {
                     return(
@@ -358,14 +441,76 @@ function MyNFTs() {
                     <ProductCardsLayoutLazy pageFrom="MyNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
                     artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
                     gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price} 
-                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress} tokenId={nft.tokenId}/>
+                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress} tokenId={nft.tokenId}
+                    />
+
+
+                  )}}
+              ))
+              }
+      {(nfts.length === 0) ? (<>
+              <NoItemsBox>
+                <NoItemsLabel>
+                  No items for display yet.
+                </NoItemsLabel>
+                <NoItemsStartCollecting onClick={()=>navigate("/marketplace")}>
+                  <CollectingText>
+                    Start Collecting
+                  </CollectingText>
+                </NoItemsStartCollecting>
+              </NoItemsBox>
+              </>): (<></>)}
+    </ProductListLayout>
+    
+    </MarketRow>
+    </MarketContainer>
+    
+    ) : (
+      
+    <div style={{display: "flex", top: "500px", left: "calc(50% - 322px/2 - 5px)", position: "absolute"}}>
+    <ProductListLayout>
+      <React.Fragment>
+
+              {loading?
+                  //render skeleton when loading
+                (Array(4)
+                .fill()
+                .map((item, index) => {
+                    return(
+                        <ProductSkeleton key={index} />
+                    )
+                  })) : (
+                nfts && nfts.map((nft, index) => {
+                  if (nft.name !== "") { 
+                    return(
+      
+                    <ProductCardsLayoutLazy pageFrom="MyNFTs" key={index} owner={nft.owner} ownerName={nft.ownerName} owner={nft.ownerPhoto} 
+                    artistName={nft.artistName} artist={nft.artist} artistPhoto={nft.artistPhoto} lazy={nft.lazy} voucher={nft.voucher} 
+                    gallery={nft.gallery} nft={nft} image={nft?.image} name={nft.name} description={nft.description} price={nft.price} 
+                    handleShow={handleShow} handleSellClick={handleSellClick} tokenAddress={nft.tokenAddress} tokenId={nft.tokenId}
+                    />
 
 
                   )}}
               ))
               }
       </React.Fragment>
+      {(nfts.length === 0) ? (<>
+              <NoItemsBox>
+                <NoItemsLabel>
+                  No items for display yet.
+                </NoItemsLabel>
+                <NoItemsStartCollecting onClick={()=>navigate("/marketplace")}>
+                  <CollectingText>
+                    Start Collecting
+                  </CollectingText>
+                </NoItemsStartCollecting>
+              </NoItemsBox>
+              </>): (<></>)}
     </ProductListLayout>
+    </div>
+    )}
+    
     <Modal show={show} onHide={handleClose} contentClassName = 'modal-rounded-3' dialogClassName = 'modal-dialog-centered modal-dialog-scrollable'>
     
         <Modal.Header style={{backgroundColor: "black"}} >
@@ -420,8 +565,7 @@ function MyNFTs() {
             
         </Form>
     </Modal>
-  </MarketPlaceSection>
-          
+    </>
        
     
   );
@@ -429,3 +573,88 @@ function MyNFTs() {
 
 export default MyNFTs;
 
+const MarketContainer = styled.div`
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 40px;
+
+    position: absolute;
+    width: 1300px;
+    height: 1048px;
+    left: calc(50% - 1300px/2);
+    top: 300px;
+`
+
+const MarketRow = styled.div`
+
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 0px;
+    gap: 20px;
+
+    width: 1300px;
+    height: 382px;
+`
+
+const NoItemsBox = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 40px;
+
+width: 254px;
+height: 123px;
+`
+
+const NoItemsLabel = styled.div`
+width: 254px;
+height: 27px;
+
+/* Lead */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 400;
+font-size: 22px;
+line-height: 27px;
+/* identical to box height */
+
+
+color: #000000;
+`
+
+const NoItemsStartCollecting = styled.button`
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 20px 38px;
+gap: 10px;
+
+width: 195px;
+height: 56px;
+
+background: #000000;
+border-radius: 50px;
+`
+
+const CollectingText = styled.div`
+width: 119px;
+height: 16px;
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 16px;
+/* identical to box height */
+white-space: nowrap;
+
+
+color: #FFFFFF;
+`

@@ -6,13 +6,14 @@ function YoutubeEmbed({ embedId }) {
     return (
     <iframe
       width="100%"
-      height="200px"
+      height="340px"
       src={`https://www.youtube.com/embed/${embedId}`}
       frameBorder="0"
       gesture="media"
       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
       allowFullScreen
       title="Embedded youtube"
+      style={{zIndex: "5"}}
     />
     )
 };

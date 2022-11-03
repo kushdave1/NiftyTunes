@@ -58,6 +58,19 @@ function ModalOne(props) {
                         onChange={e => props.setGallerySymbol(e.target.value)}/>
                     </FloatingLabel>
                 </Form.Group>
+                <Form.Group className="mb-3" controlId="nft.location">
+                    <FloatingLabel
+                        controlId="floatingInput"
+                        label="Location"
+                        className="mb-3"
+                    >
+                    <Form.Control 
+                        type="input"
+                        placeholder= 'Location'
+                        value={props.location}
+                        onChange={e => props.setLocation(e.target.value)}/>
+                    </FloatingLabel>
+                </Form.Group>
                 <Form.Group className="mb-3" controlId="nft.stream">
                     <FloatingLabel
                         controlId="floatingInput"

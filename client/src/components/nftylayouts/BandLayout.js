@@ -1,6 +1,6 @@
 import styled from 'styled-components'
 import legendaryseal from '../../assets/images/legendaryseal.png'
-import legendaryband from '../../assets/images/legendaryband.png'
+import legendaryband from '../../assets/images/legendaryband.gif'
 import rareseal from '../../assets/images/rareseal.png'
 import commonseal from '../../assets/images/commonseal.png'
 import Row from 'react-bootstrap/Row'
@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/Row'
 function BandLayout({nft}) {
     return (
         <>
-        {(nft.name.includes("gold") || nft.name.includes("Gold")) ? 
+        {(nft.name.includes("gold") || nft.name.includes("Gold") || nft.tier === "Legendary") ? 
         (
         <WristBand>
             <Seal src={legendaryseal}></Seal>
@@ -17,7 +17,7 @@ function BandLayout({nft}) {
                     
                     <Row className="py-0">
                         <BlackArtist>
-                        {nft.artistName}
+                        {(nft.artistName && !nft.artistName.includes("...")) ? (nft.artistName) : (<>Unnamed</>)}
                         </BlackArtist>
     
                     </Row>
@@ -28,7 +28,7 @@ function BandLayout({nft}) {
                     </Row>
                     <Row className="py-0">
                         <BlackDescription>
-                            <NoWrap>Live @ Nftytunes </NoWrap>12.08.2022
+                            <NoWrap>Live @ {nft.location} </NoWrap>{nft.date}
                         </BlackDescription>
                     </Row>
 
@@ -37,7 +37,7 @@ function BandLayout({nft}) {
                 </BandArtistLayout>
             </LegendaryBand>
         </WristBand>
-        ) : (nft.name.includes("silver") || nft.name.includes("Silver")) ? (
+        ) : (nft.name.includes("silver") || nft.name.includes("Silver") || nft.tier === "Rare") ? (
         <WristBand>
             <Seal src={rareseal}></Seal>
             <RareBand>
@@ -45,7 +45,7 @@ function BandLayout({nft}) {
                     
                     <Row className="py-0">
                         <WhiteArtist>
-                        {nft.artistName}
+                        {(nft.artistName && !nft.artistName.includes("...")) ? (nft.artistName) : (<>Unnamed</>)}
                         </WhiteArtist>
     
                     </Row>
@@ -56,7 +56,7 @@ function BandLayout({nft}) {
                     </Row>
                     <Row className="py-0">
                         <WhiteDescription>
-                            <NoWrap>Live @ Nftytunes </NoWrap>12.08.2022
+                            <NoWrap>Live @ {nft.location} </NoWrap>{nft.date}
                         </WhiteDescription>
                     </Row>
 
@@ -73,7 +73,7 @@ function BandLayout({nft}) {
                     
                     <Row className="py-0">
                         <BlackArtist>
-                        {nft.artistName}
+                        {(nft.artistName && !nft.artistName.includes("...")) ? (nft.artistName) : (nft.description)}
                         </BlackArtist>
     
                     </Row>
@@ -84,7 +84,7 @@ function BandLayout({nft}) {
                     </Row>
                     <Row className="py-0">
                         <BlackDescription>
-                            <NoWrap>Live @ Nftytunes </NoWrap>12.08.2022
+                            {(nft.location) ? (<><NoWrap>Live @ {nft.location} </NoWrap>{nft.date}</>) : (<></>)}
                         </BlackDescription>
                     </Row>
 
@@ -125,18 +125,21 @@ const LegendaryBand = styled.div`
     width: 172px;
     height: 76px;
     background-image: url(${legendaryband});
+    overflow-y: scroll;
 `
 
 const RareBand = styled.div`
     width: 172px;
     height: 76px;
     background-color: #FD4758;
+    overflow-y: scroll;
 `
 
 const CommonBand = styled.div`
     width: 172px;
     height: 76px;
     background-color: #EDCF92;
+    overflow-y: scroll;
 `
 
 const BandArtistLayout = styled.div`
@@ -163,11 +166,12 @@ const BlackArtist = styled.div`
     /* H6 */
 
     font-family: 'Druk Cyr';
-    font-style: italic;
+
     font-weight: 700;
     font-size: 36px;
     /* identical to box height, or 37px */
-    overflow-x: scroll;
+
+    white-space: nowrap;
 
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -197,7 +201,7 @@ const BlackName = styled.div`
 `
 
 const BlackDescription = styled.div`
-    width: 94px;
+    width: 160px;
     height: 16px;
 
     /* caption very small */
@@ -221,11 +225,11 @@ const WhiteArtist = styled.div`
     /* H6 */
 
     font-family: 'Druk Cyr';
-    font-style: italic;
+
     font-weight: 700;
     font-size: 36px;
     /* identical to box height, or 37px */
-    overflow-x: scroll;
+    white-space: nowrap;
 
     letter-spacing: 0.01em;
     text-transform: uppercase;
@@ -255,7 +259,7 @@ const WhiteName = styled.div`
 `
 
 const WhiteDescription = styled.div`
-    width: 94px;
+    width: 160px;
     height: 16px;
 
     /* caption very small */

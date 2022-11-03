@@ -1,22 +1,28 @@
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
+
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
+
 import { ConnectWallet } from '../nftyFunctions/ConnectWallet'
 import { ethers, utils } from 'ethers';
 
-export const WithdrawFunds = async(withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading, auctionAddress) => {
+export const WithdrawFunds = async(withdrawSuccess, setWithdrawSuccess, withdrawError, setWithdrawError, withdrawLoading, setWithdrawLoading, auctionAddress, mintAddress) => {
+      console.log(mintAddress, "YOUP")
       setWithdrawError(false)
       setWithdrawSuccess(false)
       setWithdrawLoading(true)
+
+      
       
       const signer = await ConnectWallet()
 
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
+      const liveAuctionFactoryContract = new ethers.Contract(auctionAddress, LiveMintAuctionProxy.abi, signer)
 
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
+      
       
       let transaction
 
       try {
-          transaction = await liveAuctionFactoryContract.withdraw()
+          transaction = await liveAuctionFactoryContract.withdraw(mintAddress)
           await transaction.wait()
           setWithdrawLoading(false)
          

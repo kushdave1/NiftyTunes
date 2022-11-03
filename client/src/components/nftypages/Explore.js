@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 
 //Explore components
 import NFTTokenIds from '../nftymarketplace/NFTTokenIds'
+import FullFilterBar from '../nftymarketplace/Filter'
 
 //Layouts
 import ProductListLayout from '../nftylayouts/ProductListLayout'
@@ -38,27 +39,9 @@ function Explore() {
     return (
       <MarketPlaceSection>
         <MarketplaceTitle>Marketplace</MarketplaceTitle>
-        <FilterContainer>
-            <FilterRow>
-                <Col md={2}>
-                <ArtistFilter></ArtistFilter>
-                </Col>
-                <Col md={2}>
-                <TierFilter></TierFilter>
-                </Col>
-                <Col md={2}>
-                <TypeFilter></TypeFilter>
-                </Col>
-                <Col md={2}>
-                <GenreFilter></GenreFilter>
-                </Col>
-                <Col md={2}>
-                </Col>
-                <Col md={2}>
-                <SortFilter></SortFilter>
-                </Col>
-            </FilterRow>
-        </FilterContainer>
+        
+        <FullFilterBar/>
+        
 
 
 
@@ -120,7 +103,7 @@ const MarketplaceTitle = styled.div`
     /* H2 */
 
     font-family: 'Druk Cyr';
-    font-style: italic;
+
     font-weight: 900;
     font-size: 110px;
     line-height: 104px;
@@ -131,102 +114,3 @@ const MarketplaceTitle = styled.div`
     color: #000000;
 `
 
-const FilterContainer = styled.div`
-    position: absolute;
-    width: 1300px;
-    height: 46px;
-    left: calc(50% - 1300px/2 - 10px);
-    top: 334px;
-`
-
-const FilterRow = styled(Row)`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 0px;
-`
-
-const ArtistFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-
-`
-
-const TierFilter = styled.div`
-    /* Auto layout */
-
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-
-`
-
-const TypeFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-`
-
-const GenreFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-`
-
-const SortFilter = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-
-    width: 200px;
-    height: 46px;
-
-    /* white */
-
-    background: #FFFFFF;
-    border-radius: 30px;
-`

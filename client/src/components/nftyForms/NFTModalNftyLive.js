@@ -15,6 +15,8 @@ import Spinner from 'react-bootstrap/Spinner'
 import Alert from 'react-bootstrap/Alert'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 import Badge from 'react-bootstrap/Badge'
+import { useMoralisQuery } from "react-moralis";
+
 import Stack from 'react-bootstrap/Stack'
 import InputGroup from 'react-bootstrap/InputGroup'
 import ButtonGroup from 'react-bootstrap/ButtonGroup'
@@ -36,8 +38,10 @@ import { useWeb3ExecuteFunction } from "react-moralis";
 import { Tooltip, Spin, Input } from "antd";
 import { signMyItem, deployMyGallery } from "../nftyFunctions/LazyFactoryAction";
 import LiveMintAuction from '../../contracts/LiveMint.sol/LiveMintAuction.json';
+import LiveMintAuctionMultiple from '../../contracts/LiveMintMultiple.sol/LiveMintAuctionMultiple.json';
 import { ConnectWallet } from "../nftyFunctions/ConnectWallet"
 
+import LiveMintAuctionProxy from '../../contracts/LiveMintFactoryWAuction.sol/LiveMintAuctionFactoryStorage.json';
 
 function NFTModalNftyLive(props) {
 
@@ -47,27 +51,41 @@ function NFTModalNftyLive(props) {
      /* mint states */
      const [mintErrMessage, setMintErrMessage] = useState('');
      const [mintSuccessMsg, setMintSuccessMsg] = useState('');
-     const [formInput, updateFormInput] = useState({ price: '', name: '', description: '' })
+     const [formInput, updateFormInput] = useState({ price: '', name: '', description: '', tier: '' })
      /* mint form states */
     const [name, setName] = useState('');
     const [galleryName, setGalleryName] = useState('');
     const [gallerySymbol, setGallerySymbol] = useState('');
     const [description, setDescription] = useState('');
+    const [date, setDate] = useState('')
+    const [location, setLocation] = useState('')
+    const [tier, setTier] = useState('')
     const [royalties, setRoyalties] = useState('');
     const [supply, setSupply] = useState(1);
+    const [artist, setArtist] = useState('')
     const [collectionSelectedYes, setCollectionSelectedYes] = useState(false);
     const [collectionSelectedNo, setCollectionSelectedNo] = useState(false);
+
+    const [nftAmount, setNFTAmount] = useState("single")
 
     const [collectionSelectedNew, setCollectionSelectedNew] = useState(false);
     const [collectionSelectedExisting, setCollectionSelectedExisting] = useState(false);
 
     const [showCollectionOne, setShowCollectionOne] = useState(false)
 
+    const { fetch } = useMoralisQuery(
+        "LiveMintedCollections",
+        (query) => query.equalTo("CollectionName", props.auction.collectionName),
+        [],
+        { autoFetch: false }
+    );
 
     const [address, setAddress] = useState();
     const [nftData, setNftData] = useState();
     const [nfts, setNFTs] = useState([]);
     const [tokenURI, setTokenURI] = useState('');
+    const [resultFileTwo, setResultFileTwo] = useState();
+    const [resultFileThree, setResultFileThree] = useState();
     const { NFTBalance, fetchSuccess } = useNFTBalance();
     const { chainId, marketAddress, marketContractABI, nftyLazyFactoryAddress, nftyLazyContractABI } = useMoralisDapp();
     const [visible, setVisibility] = useState(false);
@@ -97,10 +115,67 @@ function NFTModalNftyLive(props) {
 
         const signer = await ConnectWallet()
 
-        const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
+        const liveAuctionFactory = new ethers.Contract(props.auctionAddress, LiveMintAuctionProxy.abi, signer)
         const liveAuctionFactoryContract = liveAuctionFactory.attach(props.auctionAddress);
-        await liveAuctionFactoryContract.end(tokenURI)
+        await liveAuctionFactoryContract.end(tokenURI, props.mintAddress)
+
+        console.log("FLCEMKSE")
   
+    }
+
+    const SetAuctionTokenURIMulti = async(tokenURI) => {
+
+        const signer = await ConnectWallet()
+
+        const liveAuctionFactoryContract = new ethers.Contract(props.auctionAddress, LiveMintAuctionProxy.abi, signer)
+
+        console.log(tokenURI, props.mintAddress, "FEEL")
+
+        await liveAuctionFactoryContract.end(tokenURI, props.mintAddress)
+
+  
+    }
+
+    const handleSaveToCollection = async (file, number) => {
+        
+        if(!name || !description){
+            setMintErrMessage('Please enter a name and description to mint.');
+        } else if (!file) {
+            setMintErrMessage("Please upload a file to generate a TokenURI")
+        }
+        /*else if(isNaN(parseInt(supply)) || supply % 1 != 0){
+            setMintErrMessage('Supply amount must be an integer.')
+        }*/
+        else{
+            setMintErrMessage('');
+
+            setMintProgress(10)
+            setMintProgressLabel('Saving Content to IPFS')
+            console.log(file.name, file)
+
+            const LiveMint = await fetch()
+            console.log(LiveMint, "SLALSLA")
+            let liveMint = LiveMint[0]
+
+
+            const arr = new Moralis.File(file.name, file)
+            console.log(arr)
+            const fileIPFS = await arr.saveIPFS();
+            if (fileIPFS) {
+                let fileHash = '/ipfs/' + fileIPFS._hash
+                if (number === "Two") {
+                    liveMint.set(`${tier}Two`, fileHash)
+                } else if (number === "Three") {
+                    liveMint.set(`${tier}Three`, fileHash)
+                } else {
+                    liveMint.set(`${tier}`, fileHash)
+                }
+                
+                liveMint.save()
+            }
+
+        }
+        setMintProgress(100)
     }
 
 
@@ -137,7 +212,11 @@ function NFTModalNftyLive(props) {
             const metadata = {
                 name: name,
                 description: description,
-                image: '/ipfs/' + fileHash
+                tier: tier,
+                image: '/ipfs/' + fileHash,
+                artist: artist,
+                location: location,
+                date: date
             };
     
             console.log(metadata);
@@ -167,13 +246,128 @@ function NFTModalNftyLive(props) {
     }
 
 
+    const handleSaveIPFSMulti = async (file, fileTwo, fileThree) => {
+
+        let files = []
+        let filesIPFSHash = []
+
+        if (props.editionsPerAuction === 2) {
+            files = [file, fileTwo]
+        } else if (props.editionsPerAuction === 3) {
+            files = [file, fileTwo, fileThree]
+        } else if (props.editionsPerAuction > 3) {
+            for (const i in props.editionsPerAuction) {
+                files.push(file)
+            }
+            
+        } else {
+            files = [file]
+        }
+         
+        if(!name || !description){
+            setMintErrMessage('Please enter a name and description to mint.');
+        } else if (!file) {
+            setMintErrMessage("Please upload a file to generate a TokenURI")
+        }
+        /*else if(isNaN(parseInt(supply)) || supply % 1 != 0){
+            setMintErrMessage('Supply amount must be an integer.')
+        }*/
+        else{
+            setMintErrMessage('');
+
+        setMintProgress(10)
+        setMintProgressLabel('Saving Content to IPFS')
+        console.log(file.name, file)
+
+        for (const i in files) {
+            const arr = new Moralis.File(files[i].name, files[i])
+            console.log(arr)
+            const fileIPFS = await arr.saveIPFS();
+            filesIPFSHash.push(fileIPFS)
+        }
+
+        let tokenURIs = []
+        
+
+        if(filesIPFSHash){
+            setMintProgress(30)
+            setMintProgressLabel('Uploading Metadata')
+
+            for (const i in filesIPFSHash) {
+                let fileHash = filesIPFSHash[i]._hash;
+                const metadata = {
+                    name: name,
+                    description: description,
+                    tier: tier,
+                    image: '/ipfs/' + fileHash,
+                    artist: artist,
+                    location: location,
+                    date: date
+                };
+
+                const metadataFileIPFS = await saveFile('metadata.json', {
+                    base64: btoa(JSON.stringify(metadata))
+                }, {
+                    saveIPFS:true, 
+                    onSuccess: async (metadataFile) => {
+                        setMintProgress(60)
+                        setMintProgressLabel('Awaiting Signature')
+                        await Moralis.enableWeb3();
+                        const tokenURI = ('ipfs://' + metadataFile._hash);
+                        tokenURIs.push(tokenURI)
+
+                        
+                        
+                    }
+                }); 
+
+            }
+
+            await SetAuctionTokenURIMulti(tokenURIs);
+            console.log(tokenURIs)
+            setMintProgress(100)
+            setMintProgressLabel('Done!')
+            setMintSuccessMsg(`Congrats, you have minted and listed your NFT for sale! `)
+            setMintProgress(null)
+            setMintProgressLabel(null)
+            
+
+     
+            //Create metadata with video hash & data
+        
+            //save metadata file and upload to rarible
+            
+        }
+    }
+    }
+
+
 
 
     // button interaction to handle mint //
 
     const handleMint = (e) => {
-        console.log(resultFile);
+
+     
         handleSaveIPFS(resultFile);
+   
+        
+    }
+
+
+    const handleUpload = (e) => {
+        console.log(resultFile);
+        handleSaveToCollection(resultFile, "One");
+    }
+
+    const handleUploadTwo = (e) => {
+        console.log(resultFileTwo);
+        handleSaveToCollection(resultFileTwo, "Two");
+    }
+
+    const handleUploadThree = (e) => {
+        console.log(resultFileThree)
+        handleSaveToCollection(resultFileThree, "Three");
     }
 
   return (
@@ -199,6 +393,55 @@ function NFTModalNftyLive(props) {
                                         onChange={e => setName(e.target.value)}/>
                                     </FloatingLabel>
                                 </Form.Group>
+                                <Form.Group className="mb-3" controlId="nft.Name">
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Set your Tier"
+                                        className="mb-3"
+                                    >
+                                    <Form.Control 
+                                        type="input"
+                                        placeholder= 'Set Tier'
+                                        onChange={e => setTier(e.target.value)}/>
+                                    </FloatingLabel>
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="nft.Name">
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Set your Artist"
+                                        className="mb-3"
+                                    >
+                                    <Form.Control 
+                                        type="input"
+                                        placeholder= 'Set Artist'
+                                        onChange={e => setArtist(e.target.value)}/>
+                                    </FloatingLabel>
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="nft.Name">
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Set your Location"
+                                        className="mb-3"
+                                    >
+                                    <Form.Control 
+                                        type="input"
+                                        placeholder= 'Set Location'
+                                        onChange={e => setLocation(e.target.value)}/>
+                                    </FloatingLabel>
+                                </Form.Group>
+                                <Form.Group className="mb-3" controlId="nft.Name">
+                                    <FloatingLabel
+                                        controlId="floatingInput"
+                                        label="Set your Date"
+                                        className="mb-3"
+                                    >
+                                    <Form.Control 
+                                        type="input"
+                                        placeholder= 'Set Date'
+                                        onChange={e => setDate(e.target.value)}/>
+                                    </FloatingLabel>
+                                </Form.Group>
+
 
                                 {/* Description */}
                                 <Form.Group className="mb-3" controlId="nft.Desc">
@@ -213,25 +456,43 @@ function NFTModalNftyLive(props) {
                             <div className='d-flex justify-content-center m-1'>
                                 <small className='text-dark'>Upload NFT Video</small>
                             </div>
-                            <div className='d-flex justify-content-center p-2'>
-                                <Form.Group controlId = "uploadVideoFile" style={{width: 275}}>
-                                    <Form.Control 
-                                        type="file" 
-                                        placeholder="Upload NFT Video" 
-                                        onChange={(e) => {
-                                            try {
-                                                setResultFile(e.target.files?.item(0))
-                                            } catch {
-                                                setMintErrMessage("Please submit .mp4, .mov files only")
-                                            }
-                                            }}
-                                    />
-                                </Form.Group>
-                            </div>
+                            <div className='d-flex justify-content-center m-1'>
+                                <ButtonGroup>
+                                    <Button variant="dark" onClick={()=>setNFTAmount("single")}>Single</Button>
+                                    <Button variant="dark" onClick={()=>setNFTAmount("multiple")}>Multiple</Button>
+                                </ButtonGroup>
+                            </div> 
+
+                   
+                                <>
+                                    <div className='d-flex justify-content-center p-2'>
+                                        <Form.Group controlId = "uploadVideoFile" style={{width: 275}}>
+                                            <Form.Control 
+                                                type="file" 
+                                                placeholder="Upload NFT Video" 
+                                                onChange={(e) => {
+                                                    try {
+                                                        setResultFile(e.target.files?.item(0))
+                                                    } catch {
+                                                        setMintErrMessage("Please submit .mp4, .mov, .jpg files only")
+                                                    }
+                                                    }}
+                                            />
+                                        </Form.Group>
+                                        <Button variant="dark" style={{borderRadius: "2rem", marginTop: "20px", float: "right", width: "100px"}} 
+                                            onClick={()=>handleUpload()}>
+                                                Upload
+                                        </Button>
+                                    </div>
+                                    
+                                </>
+                            
+                            
                             <Button variant="dark" style={{borderRadius: "2rem", marginTop: "20px", float: "right", width: "100px"}} 
                             onClick={()=>handleMint()}>
-                                Upload
+                                Upload and Withdraw
                             </Button>
+                            
                                 </Form>
                                 
                                 {mintSuccessMsg &&

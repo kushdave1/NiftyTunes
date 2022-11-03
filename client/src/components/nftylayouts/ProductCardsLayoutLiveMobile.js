@@ -17,8 +17,10 @@ import live from "../../assets/images/liveTwo.png"
 import checkmark from "../../assets/images/checkmark.png"
 import error from '../../assets/images/error.png'
 
+import BandLayout from './BandLayout'
+
 //custom
-import NFTPlayer from '../nftymix/NFTPlayer'
+import NFTPlayer from '../nftymix/NFTPlayerMobile'
 import NFTImage from '../nftymix/NFTImage'
 import NFTAudioPlayer from '../nftymix/NFTAudioPlayer'
 
@@ -30,6 +32,8 @@ import WithdrawLoadingModal from '../nftyModals/BidModals/WithdrawLoadingModal'
 
 // functions
 import StartAuction from '../nftymarketplace/StartAuction'
+
+import styled from 'styled-components'
 
 //solidity buttons
 import BuyLazyNFTButton from '../nftySolidityButtons/BuyLazyNFTButton'
@@ -64,8 +68,8 @@ import nftyimg from "../../assets/images/NT_White_Isotype.png";
 
 
  
-function ProductCardsLayoutLiveMobile({index, owner, ownerName, artistName, artist, artistPhoto, collection, image, coverArt, name, 
-description, nft, auctionAddress, editionsPerAuction, sold, fileType}) 
+function ProductCardsLayoutLiveMobile({index, owner, ownerName, ownerPhoto, artistName, artist, artistPhoto, collection, image, coverArt, name, 
+description, nft, auctionAddress, editionsPerAuction, sold, fileType, nftFrom}) 
 
   {
 
@@ -112,267 +116,58 @@ description, nft, auctionAddress, editionsPerAuction, sold, fileType})
 
   
 
-  useEffect(async() => {
-      console.log(fileType, "BIGSHTUFF")
-      const timeLeftIn = await getStarted()
-
-      const intervalId = setInterval(() => {
-        updateRemainingTime(timeLeftIn)
-      }, 1000)
-      return () => clearInterval(intervalId)
-    
-      console.log(parseInt("00"))
-  }, [])
-
-  
-
-  const updateRemainingTime = async(countdown) => {
-
-
-      const secondsLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000)
-
-
-      const secondsLeft = secondsLeftInAuction % 60
-      const minutesLeftInAuction = Math.floor((new Date(countdown*1000) - new Date())/1000/60)
-      const minutesLeft = minutesLeftInAuction % 60
-
-      const hoursLeft = Math.floor((new Date(countdown*1000) - new Date())/1000/60/60)
-      const remaintime = {
-        seconds: secondsLeft.toString(),
-        minutes: minutesLeft.toString(),
-        hours: hoursLeft.toString()
-      }
-      setRemainingTime({
-        seconds: secondsLeft.toString(),
-        minutes: minutesLeft.toString(),
-        hours: hoursLeft.toString()
-      })
-  
-
-
-  }
-
-
-
-
-  const getStarted = async() => {
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
-
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-      let isStarted = await liveAuctionFactoryContract.isStarted()
-      
-      let currentTokenId = await liveAuctionFactoryContract.getCurrentItem()
-
-      if (currentTokenId > index) {
-        setStarted(true)
-        setEnded(true)
-      }
-
-      try {
-        let cBid = await liveAuctionFactoryContract.getBid()
-        console.log(cBid)
-        let res = utils.formatEther(cBid);
-        res = Math.round(res * 1e5) / 1e5;
-        console.log(res);
-        let currBid = res
-        setCurrentBid(currBid)
-      } catch {
-          setCurrentBid(0)
-      }
-      
-      if (isStarted) {
-        let currentTokenId = await liveAuctionFactoryContract.getCurrentItem()
-        currentTokenId = currentTokenId.toNumber()
-        if (currentTokenId === index) {
-          setStarted(true)
-          const endAt = await liveAuctionFactoryContract.getEndAt()
-          const secondsLeftInAuction = Math.floor((new Date(endAt.toNumber()*1000) - new Date())/1000)
-          if (secondsLeftInAuction < 0) {
-            setEnded(true)
-          }
-
-          return endAt.toNumber()
-
-        } else {
-          return 0
-        }
-      } else {
-        return 0
-      }
-    return 0
-  }
-
-
-
-  const PlaceBid = async() => {
-      setBidLoading(true)
-      setBidError(false)
-      setBidSuccess(false)
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
-
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-
-      let lastBid = 0;
-      try {
-        lastBid = await liveAuctionFactoryContract.getBid()
-        lastBid = lastBid.toNumber()
-      } catch (e) {
-        console.log(e)  
-      }
-      
-      console.log(lastBid, "lastbid")
-
-      try {
-      let currentBid = ethers.utils.parseUnits(bidAmount.toString(), 'ether')
-      } catch {
-          let currentBid = 0
-          setBidLoading(false)
-          setBidError(true)
-      }
-      console.log(currentBid, "currentbid")
-      
-      
-      let transaction; 
-
-      try {
-          let price = currentBid.sub(lastBid)
-          transaction = await liveAuctionFactoryContract.bid({value: price})
-          await transaction.wait()
-          setBidLoading(false)
-         
-      } catch (error) {
-        
-          setBidLoading(false)
-          setBidError(true)
-          return
-      }
-
-      setBidSuccess(true)
-  }
-
-  const WithdrawFunds = async() => {
-      setWithdrawError(false)
-      setWithdrawSuccess(false)
-      setWithdrawLoading(true)
-      const web3Modal = new Web3Modal({})
-      const connection = await web3Modal.connect()
-      const provider = new ethers.providers.Web3Provider(connection)
-      const signer = provider.getSigner()
-
-      const liveAuctionFactory = new ethers.ContractFactory(LiveMintAuction.abi, LiveMintAuction.bytecode, signer)
-
-      const liveAuctionFactoryContract = liveAuctionFactory.attach(auctionAddress);
-      
-      let transaction;
-      try {
-          transaction = await liveAuctionFactoryContract.withdraw()
-          await transaction.wait()
-          setWithdrawLoading(false)
-         
-      } catch (error) {
-          console.log(error)
-          setWithdrawLoading(false)
-          setWithdrawError(true)
-          return
-      }
-
-      setWithdrawSuccess(true)
-  }
-
   return (
     <>
-      
-        <Col style={{paddingBottom: "20px", display: "flex", alignItems: "center", justifyContent: "center"}}>
-        <Card className="bg-light shadow-sm"
-              style={{ width: '23rem', height: '36rem', borderRadius:'.50rem', cursor: "pointer", overflow: "hidden"}} >
-              { (fileType.toString().includes('png') || fileType.toString().includes('gif') || fileType.toString().includes('jpg') 
-              || fileType.toString().includes('jpeg')) ? (<NFTImage output={image}/>) : 
+    {(nftFrom === "Artist") ? (
+      <NFTCardRow>
+        <Card className="live-card bg-black" 
+              style={{ width: '310px', height: '322px', border: "none", background: nftFrom === "Artist" ? "#F6A2B1" : "black", borderRadius:'10px 10px 0 0', cursor: "pointer", overflow: "hidden",
+               }} >
+              { (fileType.toString().includes('png') || fileType.toString().includes('gif') || fileType.toString().includes('jpg') || 
+              fileType.toString().includes('jpeg') || fileType.toString().includes('usemoralis')) ? (<NFTImage output={image}/>) : 
               (<NFTPlayer output={image}/>) }
-            
-            <Card.Body>
-              <Row className="d-flex flex-row" style={{flexDirection:"column"}}>
-                    <Col >
-                        <Card.Title className="text-dark truncate" style={{fontSize: 16}}>{name}</Card.Title>
-                    </Col>
-                    <Col >
-                        <Card.Title className="text-dark" style={{fontSize: 16, justifyContent: 'right', display: "flex"}}>
-                        {(started && !ended) ? (<Card.Text> {remainingTime.minutes} : {remainingTime.seconds}</Card.Text>) :
-                          (started && ended) ? (<Card.Text>Ended</Card.Text>) :
-                         (<Card.Text>Not Started</Card.Text>)}</Card.Title>
-                    </Col>
-              </Row>
-              <br></br>
-              <Row className="d-flex flex-row" style={{flexDirection:"column", paddingTop: "2rem"}}>
-                    {/* <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}>
-                        {(artistPhoto) ? (<img style={{display: "inline", borderRadius:'2.0rem'}} 
-                        src={artistPhoto} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>) :
-                        (<img style={{display: "inline", borderRadius:'2.0rem'}} 
-                        src={monkey} crossOrigin='true' crossoriginresourcepolicy='false' height="20" width="20"></img>)} 
-                        @{artist}</Card.Text>
-                    </Col> */}
-                    {(sold) ? (
-                      <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}>
-                        Sold to: {(ownerName) ? (ownerName) : ("...".concat(owner.slice(25,43)))}
-                        </Card.Text>
-                      </Col>
-                    ) : (
-                    <>
-                    <Col>
-                        <Card.Text className="text-dark" style={{fontSize: 12}}>
-                        Your Bid: {(currentBid) ? (currentBid) : (0)}<img style={{display: "inline"}} src={img} height="20" width="20"/>
-                        </Card.Text>
-                    </Col>
-                    <Col>
-                      <Card.Text className="text-dark" style={{fontSize: 12, float:"right"}}>
-                        {editionsPerAuction[0]} Editions
-                      </Card.Text>
-                    </Col>
-                    </>
-                    )
-                    }
-                    
+              <OwnerBox>
+                {(ownerPhoto) ? (<OwnerPhoto crossOrigin='true' crossoriginresourcepolicy='false' src={ownerPhoto}/>) : (<OwnerPhotoMissing />)}
+                <OwnerNameLabel>
+                  <OwnerLabel>Owner</OwnerLabel>
+                  <OwnerName>{(ownerName !== "") ? (ownerName) : (image.includes("ipfs")) ? (<>Unnamed</>) : (<>Not sold</>)}</OwnerName>
+                </OwnerNameLabel>
+              </OwnerBox>
 
-              </Row>
-
-            </Card.Body>
-            <Card.Footer className="bg-dark text-muted">
-            <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
-                <Col style={{float: "right"}}>
-                  <img style={{float: "right"}} src={nftyimg} width="25px" height="25px"/>
-                </Col>
-              </Row>
-              {/* <Row className="d-flex flex-row align-items-center" style={{flexDirection:"column"}}> 
-                <Col>
-                  {(started && ended) ? (<></>) : (started) ? (<Button className="button-hover" variant="secondary" 
-                  style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem" }} 
-                  onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
-                  onClick={(e) => {handleShowBidModal(); e.preventDefault()}}>Place Bid</Button>) : (<></>)}
-                   
-
-                </Col>
-                <Col style={{float: 'right'}}>
-                  <Button className="button-hover" variant="secondary" 
-                  style={{ color: "white", background: "black", pointerEvents: "auto", borderRadius:"2.0rem", float:"right" }} 
-                  onMouseEnter={changeBackground} onMouseOut={changeBackgroundBack} 
-                  onClick={(e) => {WithdrawFunds();handleShowWithdrawLoadingModal(); e.preventDefault()}}>Withdraw</Button>
-                </Col>
-              </Row> */}
-            </Card.Footer>
+              <BandLayout nft={nft} />      
+              <Card.Footer className="bg-pink px-0 mx-0 border-right-0 border-left-0" style={{paddingBottom: "20px", borderRadius: "0"}}>
+              </Card.Footer>      
         </Card>
-        </Col>
+    
+      </NFTCardRow>
+    ) : (
+      <NFTCardRow>
+        <Card className="live-card bg-black" 
+        data-aos="fade-in"
+    data-aos-offset="200"
+    data-aos-delay="200"
+    data-aos-duration="1000"
+              style={{ width: '310px', height: '322px', border: "none", background: nftFrom === "Artist" ? "#F6A2B1" : "black", borderRadius:'10px 10px 0 0', cursor: "pointer", overflow: "hidden",
+               }} >
+              { (fileType.toString().includes('png') || fileType.toString().includes('gif') || fileType.toString().includes('jpg') || 
+              fileType.toString().includes('jpeg') || fileType.toString().includes('usemoralis')) ? (<NFTImage output={image}/>) : 
+              (<NFTPlayer output={image} nftFrom="Collection"/>) }
+              <OwnerBox>
+                {(ownerPhoto) ? (<OwnerPhoto crossOrigin='true' crossoriginresourcepolicy='false' src={ownerPhoto}/>) : (<OwnerPhotoMissing />)}
+                <OwnerNameLabel>
+                  <OwnerLabel>Owner</OwnerLabel>
+                  <OwnerName>{(ownerName !== "") ? (ownerName) : (image.includes("ipfs")) ? (<>Unnamed</>) : (<>Not sold</>)}</OwnerName>
+                </OwnerNameLabel>
+              </OwnerBox>
+
+              <BandLayout nft={nft} />      
+            
+        </Card>
+    
+      </NFTCardRow>
+    )
       
+    }
 
     <BidAcceptModal showBidModal={showBidModal} handleCloseBidModal={handleCloseBidModal} currentBid={currentBid}
      handleShowBidLoadingModal={handleShowBidLoadingModal} auctionAddress={auctionAddress}/>
@@ -390,3 +185,134 @@ description, nft, auctionAddress, editionsPerAuction, sold, fileType})
 }
 
 export default ProductCardsLayoutLiveMobile
+
+
+const NFTCardRow = styled.div`
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+gap: 10px;
+
+width: 340px;
+height: 322px;
+
+border-radius: 10px 10px 0px 0px;
+`
+
+const PriceCol = styled(Col)`
+width: 180px;
+height: 32px;
+
+font-family: 'Graphik LCG';
+font-style: normal;
+font-weight: 500;
+font-size: 32px;
+line-height: 32px;
+/* identical to box height */
+white-space: nowrap;
+overflow: hidden;
+
+
+color: #000000;
+
+`
+
+const DollarPrice = styled.div`
+width: 56px;
+height: 27px;
+
+font-family: 'Graphik LCG';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 24px;
+/* or 120% */
+white-space: nowrap;
+overflow: hidden;
+
+color: #000000;
+
+opacity: 0.6;
+`
+
+const OwnerBox = styled.div`
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+position: absolute;
+width: 110px;
+height: 30px;
+left: 20px;
+top: 21px;
+
+`
+
+const OwnerPhoto = styled.img`
+width: 30px;
+height: 30px;
+border-radius: 153px;
+
+`
+
+const OwnerPhotoMissing = styled.img`
+width: 30px;
+height: 30px;
+border-radius: 153px;
+background: linear-gradient(180deg, #F6A2B1 0%, #9747FF 100%);
+
+`
+
+const OwnerNameLabel = styled.div`
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 6px;
+
+width: 72px;
+height: 29px;
+`
+
+const OwnerLabel = styled.div`
+width: 30px;
+height: 8px;
+
+/* caption very small */
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 500;
+font-size: 8px;
+line-height: 8px;
+/* identical to box height, or 94% */
+
+text-transform: uppercase;
+
+/* white_transparent */
+
+color: rgba(255, 255, 255, 0.5);
+`
+
+const OwnerName = styled.div`
+width: 72px;
+height: 15px;
+
+font-family: 'Graphik LCG Regular';
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 15px;
+/* identical to box height, or 91% */
+white-space: nowrap;
+display: flex;
+align-items: flex-end;
+text-transform: uppercase;
+
+/* white */
+
+color: #FFFFFF;
+`
