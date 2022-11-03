@@ -1,0 +1,16 @@
+@media print{
+	.pageBreak{display:block; page-break-after:always; border:none;}
+	.mainCntr{width:840px; border:none; margin:0; padding:0;}
+}
+.mainCntr{height:975px;}
+
+
+
+.termsCntr{padding:0; height:180px; overflow:hidden; margin-bottom:3px;}
+.termsCntr p{font-size:7px; padding:5px; margin:0; line-height:9px; text-align:justify;}
+
+
+
+.bottomBarcodeSpacers{width:100%;height:28px;}
+.adImgsLeftCntrs, .adImgsRightCntrs{width:383px;height:65px;}
+.adImgsLeftCntrs img, .adImgsRightCntrs img{width:183px; height:60px;}
