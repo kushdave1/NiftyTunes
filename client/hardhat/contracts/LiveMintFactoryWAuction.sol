@@ -172,8 +172,8 @@ contract LiveMintAuctionFactoryStorage is ReentrancyGuard {
   uint256 _payeeTwoFee,
   uint256 _payeeThreeFee) public {
 
-    uint _payeeTotal = _payeeOneFee + _payeeTwoFee + _payeeThreeFee
-    require(_payeeTotal == 100, "Split percentage must equal 100")
+    uint _payeeTotal = _payeeOneFee + _payeeTwoFee + _payeeThreeFee;
+    require(_payeeTotal == 100, "Split percentage must equal 100");
 
     ERC721Auction storage auction = idToAuction[_nftContract];
 
