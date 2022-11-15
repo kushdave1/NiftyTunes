@@ -364,21 +364,6 @@ contract LiveAuctions is Ownable, ReentrancyGuard {
 
             }
             
-             else {
-              if (i < idToAuction[nftContract].supply[LEGENDARY]){
-                // Mint legendary
-                mintContract.mint(idToAuction[nftContract].payees[i], LEGENDARY);
-              } else {
-                if (i < idToAuction[nftContract].supply[RARE]) {
-                  // Mint rare
-                  mintContract.mint(idToAuction[nftContract].payees[i], RARE);
-                } else {
-                    // Mint Common
-                    mintContract.mint(idToAuction[nftContract].payees[i], COMMON);
-                }
-              }
-
-            }
         }
        
         // Mint leftovers directly to artist
